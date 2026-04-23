@@ -6,7 +6,7 @@ import { Highlight } from "@/components/Highlight";
 
 export default function Home() {
   return (
-    <div id="page-root" className="min-h-screen px-20">
+    <div id="page-root" className="min-h-screen px-4 md:px-20">
       {/* ═══════════════════════════════════════════════════════════════════════
           HERO SECTION
           ═══════════════════════════════════════════════════════════════════════ */}
