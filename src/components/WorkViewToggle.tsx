@@ -34,18 +34,33 @@ export function WorkViewToggle() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const workSection = document.getElementById("work");
-    if (!workSection) return;
+    const checkVisibility = () => {
+      const workSection = document.getElementById("work");
+      const contactSection = document.getElementById("contact");
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
+      if (!workSection) return;
 
-    observer.observe(workSection);
-    return () => observer.disconnect();
+      const workRect = workSection.getBoundingClientRect();
+      const contactRect = contactSection?.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+
+      // Show when work section is in view
+      const workInView = workRect.top < windowHeight * 0.8 && workRect.bottom > windowHeight * 0.2;
+
+      // Hide when contact section comes into view
+      const contactInView = contactRect && contactRect.top < windowHeight * 0.8;
+
+      setIsVisible(workInView && !contactInView);
+    };
+
+    checkVisibility();
+    window.addEventListener("scroll", checkVisibility, { passive: true });
+    window.addEventListener("resize", checkVisibility, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", checkVisibility);
+      window.removeEventListener("resize", checkVisibility);
+    };
   }, []);
 
   return (
@@ -59,29 +74,29 @@ export function WorkViewToggle() {
         transitionTimingFunction: isVisible ? "cubic-bezier(0.34, 1.56, 0.64, 1)" : "ease-out",
       }}
     >
-      <div className="flex items-center gap-1 bg-surface-solid border border-border-strong rounded-full shadow-lg p-1.5">
+      <div className="flex items-center gap-1 bg-surface-solid border border-border-strong rounded-full shadow-lg p-1 md:p-1.5">
         <button
           onClick={() => setViewMode("detailed")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+          className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all ${
             viewMode === "detailed"
               ? "bg-text text-bg"
               : "text-text-muted hover:text-text"
           }`}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
           </svg>
           Detailed
         </button>
         <button
           onClick={() => setViewMode("tldr")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+          className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all ${
             viewMode === "tldr"
               ? "bg-text text-bg"
               : "text-text-muted hover:text-text"
           }`}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
           </svg>
           TL;DR
