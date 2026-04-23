@@ -30,7 +30,7 @@ export function PhotoCarousel() {
       setTimeout(() => {
         setIsTransitioning(false);
         setPrevious(null);
-      }, 600);
+      }, 1000);
     }, 3000);
 
     return () => clearInterval(interval);
@@ -38,20 +38,20 @@ export function PhotoCarousel() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="relative overflow-hidden rounded-lg aspect-[4/5]">
-        {/* Previous image - slides out to left */}
+      <div className="relative rounded-lg aspect-[4/5] overflow-hidden">
+        {/* Previous image - fades out */}
         {previous !== null && isTransitioning && (
           <img
             src={photos[previous].src}
             alt={photos[previous].caption}
-            className="absolute inset-0 w-full h-full object-cover animate-slide-out-left"
+            className="absolute inset-0 w-full h-full object-cover rounded-lg animate-slide-out-left z-10"
           />
         )}
-        {/* Current image - slides in from right */}
+        {/* Current image - fades in */}
         <img
           src={photos[current].src}
           alt={photos[current].caption}
-          className={`absolute inset-0 w-full h-full object-cover ${
+          className={`absolute inset-0 w-full h-full object-cover rounded-lg ${
             isTransitioning ? "animate-slide-in-right" : ""
           }`}
         />
