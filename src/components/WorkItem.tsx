@@ -25,14 +25,23 @@ interface WorkItemProps {
   tags?: string[];
   logo?: string;
   companyUrl?: string;
+  companyTooltip?: string;
 }
 
 // ============================================================================
 // COMPANY LINK COMPONENT
 // ============================================================================
 
-export function CompanyLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
+import { Tooltip } from "./Tooltip";
+
+interface CompanyLinkProps {
+  href: string;
+  children: ReactNode;
+  tooltip?: ReactNode;
+}
+
+export function CompanyLink({ href, children, tooltip }: CompanyLinkProps) {
+  const link = (
     <a
       href={href}
       target="_blank"
@@ -42,6 +51,12 @@ export function CompanyLink({ href, children }: { href: string; children: ReactN
       {children}
     </a>
   );
+
+  if (tooltip) {
+    return <Tooltip content={tooltip}>{link}</Tooltip>;
+  }
+
+  return link;
 }
 
 // ============================================================================
@@ -79,6 +94,7 @@ interface WorkHeaderProps {
   hasProjects: boolean;
   logo?: string;
   companyUrl?: string;
+  companyTooltip?: string;
 }
 
 function WorkHeader({
@@ -92,6 +108,7 @@ function WorkHeader({
   hasProjects,
   logo,
   companyUrl,
+  companyTooltip,
 }: WorkHeaderProps) {
   return (
     <div className="container-wide" style={{ marginBottom: "42px", paddingBottom: "0px" }}>
@@ -112,16 +129,31 @@ function WorkHeader({
           {/* Row 1: Company + Period/Location */}
           <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2 mb-2">
             {companyUrl ? (
-              <a
-                href={companyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-editorial text-3xl text-text hover:text-accent hover:underline transition-colors"
-              >
-                {company}
-              </a>
-            ) : typeof company === "string" ? (
-              <h3 className="font-editorial text-3xl text-text">{company}</h3>
+              companyTooltip ? (
+                <Tooltip content={companyTooltip}>
+                  <a
+                    href={companyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-editorial text-3xl text-text hover:text-accent hover:underline transition-colors"
+                  >
+                    {company}
+                  </a>
+                </Tooltip>
+              ) : (
+                <a
+                  href={companyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-editorial text-3xl text-text hover:text-accent hover:underline transition-colors"
+                >
+                  {company}
+                </a>
+              )
+            ) : companyTooltip ? (
+              <Tooltip content={companyTooltip}>
+                <h3 className="font-editorial text-3xl text-text cursor-help">{company}</h3>
+              </Tooltip>
             ) : (
               <h3 className="font-editorial text-3xl text-text">{company}</h3>
             )}
@@ -250,6 +282,7 @@ export function WorkItem({
   tags,
   logo,
   companyUrl,
+  companyTooltip,
 }: WorkItemProps) {
   const companySlug = typeof company === "string"
     ? company.toLowerCase().replace(/\s+/g, "-")
@@ -303,6 +336,7 @@ export function WorkItem({
         hasProjects={hasProjects}
         logo={logo}
         companyUrl={companyUrl}
+        companyTooltip={companyTooltip}
       />
 
       {hasProjects && <ProjectGrid projects={projects} />}

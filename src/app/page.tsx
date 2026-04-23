@@ -271,6 +271,7 @@ export default function Home() {
             period="Dec 2024 – Present"
             logo="/logos/zinc.jpeg"
             companyUrl="https://www.linkedin.com/company/zincmoney/"
+            companyTooltip="Zinc started by solving the study abroad journey end-to-end: helping students decide the right college/path via AI, helping parents plan, finance, and invest for education. From this foundation, Zinc expanded into building a broader fintech platform (banking, credit, wealth) on top of that core use case."
             description={<>Working <Highlight>directly with the CEO</Highlight> to shape the future of Zinc. In a <Highlight>lean team of 10</Highlight>, I <Highlight>own the full spectrum</Highlight> — from deep problem exploration to design to shipping. Fast iterations, rapid testing, and building <Highlight>AI-native financial products</Highlight> across tax, wealth, agents, health, and more.</>}
 
             projects={[
@@ -517,6 +518,7 @@ export default function Home() {
             period="Jul 2024 – Nov 2024"
             logo="/logos/zinc.jpeg"
             companyUrl="https://www.linkedin.com/company/zincmoney/"
+            companyTooltip="Zinc started by solving the study abroad journey end-to-end: helping students decide the right college/path via AI, helping parents plan, finance, and invest for education. From this foundation, Zinc expanded into building a broader fintech platform (banking, credit, wealth) on top of that core use case."
             description={<>Led <Highlight>0→1 development</Highlight> across Zinc's core fintech products. From education financing to wealth management, <Highlight>building the foundation</Highlight> for a new kind of financial platform.</>}
 
             projects={[
@@ -554,7 +556,7 @@ export default function Home() {
           />
 
           <WorkItem
-            company={<><CompanyLink href="https://www.linkedin.com/company/lazypay/">LazyPay</CompanyLink> & <CompanyLink href="https://www.linkedin.com/company/paysense/">PaySense</CompanyLink> (By <CompanyLink href="https://www.linkedin.com/company/payu/">PayU</CompanyLink>)</>}
+            company={<><CompanyLink href="https://www.linkedin.com/company/lazypay/" tooltip="LazyPay is India's new age digital credit provider. It truly is the fastest way to get credit in a single tap. LazyPay's One tap digital checkout process is available at over 250+ leading apps in India including the likes of Swiggy, Zomato, Book My Show, Make My Trip, Vodafone, TataSky and many more!">LazyPay</CompanyLink> & <CompanyLink href="https://www.linkedin.com/company/paysense/" tooltip="Founded in 2015 and based out of Mumbai, Paysense is a venture backed, financial services startup. We are an amazing team of highly diverse, like minded people solving the fundamental problem of not having simple, convenient and transparent access to credit in India today.">PaySense</CompanyLink> (By <CompanyLink href="https://www.linkedin.com/company/payu/" tooltip="A leading online payment service provider operating in 50+ high-growth markets, dedicated to creating cutting-edge financial services tailored to the needs of over 450,000 merchants and millions of consumers.">PayU</CompanyLink>)</>}
             role="Senior Manager → Manager → Lead"
             period="Apr 2021 – Jun 2024"
             location="India"
@@ -608,6 +610,7 @@ export default function Home() {
             location="India"
             logo="/logos/porter.jpeg"
             companyUrl="https://www.linkedin.com/company/theporter-in/"
+            companyTooltip="Porter is one of India's leading players in the intra-city logistics market, connecting businesses and individuals with local truckers for last-mile deliveries. It serves 30 lakh+ (3M+) customers every month and works with 3 lakh+ (300k+) driver-partners, operating across 35+ cities in India."
             description={<><Highlight>Led design across Porter's ecosystem</Highlight> — customer apps, partner apps, enterprise logistics, and internal tools. Serving <Highlight>3M+ customers monthly</Highlight> and <Highlight>300K+ driver-partners</Highlight> across 35+ cities.</>}
 
             projects={[
@@ -651,6 +654,7 @@ export default function Home() {
             period="Dec 2019 – Feb 2020"
             logo="/logos/nirvana.jpeg"
             companyUrl="https://www.linkedin.com/company/nirvanaatwork/"
+            companyTooltip="Nirvana was a workspace collaboration and task management tool. It was designed to help teams control projects with minimum effort, save precious time and get the clarity they need to build the next big thing at maximum speed."
             description={<>Worked <Highlight>directly with founders</Highlight> to shape a workspace collaboration and task management tool. Designed to help teams control projects with minimum effort and build at maximum speed.</>}
             tags={["Productivity", "SaaS", "0→1", "Volunteer"]}
           />
@@ -662,6 +666,7 @@ export default function Home() {
             period="Aug 2019 – Dec 2019"
             logo="/logos/blackboard-radio.jpeg"
             companyUrl="https://www.linkedin.com/company/blackboard-radio/"
+            companyTooltip="Blackboard Radio was an AI-powered personalized spoken English coach (long before AI got mainstream). It enabled conversational-English mastery by providing interactive, personalized instruction over a basic smartphone to young children from all socio-economic backgrounds, opening the door to a lifetime of improved employment opportunities."
             description={<><Highlight>AI-powered</Highlight> personalized spoken English coach (long before AI went mainstream). Worked <Highlight>directly with founders</Highlight> to <Highlight>help raise funding</Highlight> by conceptualizing, architecting, and revamping the entire product.</>}
             highlights={[
               "Helped the team raise funding through design vision and product architecture",
@@ -678,6 +683,7 @@ export default function Home() {
             location="India"
             logo="/logos/oyo.jpeg"
             companyUrl="https://www.linkedin.com/company/oyo-rooms/"
+            companyTooltip="OYO is a global platform that empowers entrepreneurs and small businesses with hotels and homes by providing full-stack technology products and services. OYO offers 40+ integrated products and solutions to patrons who operate over 157K hotel and home storefronts in more than 35 countries including India, Europe, and Southeast Asia."
             description={<>Worked on new initiatives at OYO to <Highlight>expand the business globally</Highlight>. Contributed to product strategy and design for <Highlight>international market entry</Highlight>.</>}
             tags={["Travel", "Hospitality", "Global Expansion"]}
           />
@@ -690,6 +696,7 @@ export default function Home() {
             location="India"
             logo="/logos/porter.jpeg"
             companyUrl="https://www.linkedin.com/company/theporter-in/"
+            companyTooltip="Porter is one of India's leading players in the intra-city logistics market, connecting businesses and individuals with local truckers for last-mile deliveries. It serves 30 lakh+ (3M+) customers every month and works with 3 lakh+ (300k+) driver-partners, operating across 35+ cities in India."
             description={<>First stint at Porter before returning as Design Lead. Worked on core product experiences for <Highlight>India's leading intra-city logistics platform</Highlight> serving <Highlight>3M+ customers monthly</Highlight>.</>}
             tags={["Logistics", "Consumer", "Mobile"]}
           />
@@ -702,6 +709,7 @@ export default function Home() {
             location="India"
             logo="/logos/coding-ninjas.jpeg"
             companyUrl="https://www.linkedin.com/school/codingninjas/"
+            companyTooltip="Coding Ninjas is a leading edtech platform in India focused on teaching programming and tech skills to students and professionals. It has served 50K+ paid learners and a broader community of 1M+ registered users, offering structured courses, live classes, and mentorship to help learners build real-world skills."
             description={<>Built and scaled the product from <Highlight>0 to 30K+ daily active users</Highlight>. <Highlight>Sole product designer</Highlight> leading end-to-end product thinking, innovation, and execution for India's leading coding education platform.</>}
 
             projects={[
@@ -740,6 +748,7 @@ export default function Home() {
             location="India"
             logo="/logos/maplegraph.jpeg"
             companyUrl="https://www.linkedin.com/company/maplegraph-solutions-pvt-ltd-/"
+            companyTooltip="MapleGraph is a cloud-based POS and hospitality technology platform offering tools for restaurants to manage operations end-to-end, including billing, menu management, inventory, CRM, and analytics."
             description={<>Led brand identity and product design for MapleGraph, a cloud-based POS and hospitality technology platform. The company was later <Highlight>acquired by Zomato</Highlight> to become Zomato Base.</>}
             highlights={[
               "Designed Maple DigiSign — a digital signage product simplified for retail operators",
@@ -753,6 +762,7 @@ export default function Home() {
             company="La Musique"
             role="Designer & Innovator"
             period="Jun 2016 – Aug 2016"
+            companyTooltip="La Musique was a famous Android music app back in the days before streaming music became mainstream. It had over 4 million downloads."
             description={<>Led the redesign of a music streaming app, driving a breakthrough user experience that contributed to <Highlight>4M+ downloads</Highlight>. Introduced <Highlight>innovative social and engagement features</Highlight> that set new benchmarks for interaction in music apps.</>}
             highlights={[
               "Redesign contributed to 4M+ downloads",
