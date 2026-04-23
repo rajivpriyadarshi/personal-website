@@ -115,32 +115,28 @@ export default function Home() {
                     <span className="skill-number label-sm text-accent mb-4 block">01</span>
                     <h3 className="skill-title font-editorial text-xl text-text mb-3">Product Thinking</h3>
                     <p className="skill-description body-sm text-text-muted">
-                      Deep problem exploration, user research, and strategic
-                      framing — especially in ambiguous, high-stakes environments.
+                      Working mostly in 0→1 environments has shaped how I think. <Highlight>Deep problem exploration</Highlight>, <Highlight>user research</Highlight>, and <Highlight>strategic framing</Highlight> aren't steps I follow — they're instinctive at this point. I'm most comfortable in ambiguous, high-stakes spaces, where the <Highlight>problem isn't clearly defined</Highlight> and clarity has to be built from scratch.
                     </p>
                   </div>
                   <div id="skill-card-2" className="skill-card card-outline p-6">
                     <span className="skill-number label-sm text-accent mb-4 block">02</span>
                     <h3 className="skill-title font-editorial text-xl text-text mb-3">Systems Design</h3>
                     <p className="skill-description body-sm text-text-muted">
-                      Scalable design systems, component architecture, and
-                      patterns that grow with the product.
+                      Having worked on products with <Highlight>millions of users</Highlight> and large, evolving codebases, I've learned that design doesn't scale unless systems do. I focus on building design systems, component architectures, and patterns that don't just solve for today — but hold up as the product grows in complexity and scale.
                     </p>
                   </div>
                   <div id="skill-card-3" className="skill-card card-outline p-6">
                     <span className="skill-number label-sm text-accent mb-4 block">03</span>
                     <h3 className="skill-title font-editorial text-xl text-text mb-3">0→1 Execution</h3>
                     <p className="skill-description body-sm text-text-muted">
-                      Taking ideas from concept to launch. Fast iterations, rapid
-                      prototyping, and shipping with small teams.
+                      Most of my career has been about <Highlight>building from zero</Highlight>. Taking something from a <Highlight>vague idea to a shipped product</Highlight> — figuring out what matters, moving fast, and making trade-offs along the way. I'm used to <Highlight>high ownership</Highlight>, and <Highlight>rapid iteration</Highlight>, where execution is as important as thinking.
                     </p>
                   </div>
                   <div id="skill-card-4" className="skill-card card-outline p-6">
                     <span className="skill-number label-sm text-accent mb-4 block">04</span>
                     <h3 className="skill-title font-editorial text-xl text-text mb-3">Cross-functional Leadership</h3>
                     <p className="skill-description body-sm text-text-muted">
-                      Bridging design, engineering, and business. Enabling teams
-                      to move fast while maintaining quality.
+                      I've worked across both <Highlight>lean teams</Highlight> and <Highlight>large product organizations</Highlight>, often spanning multiple products and workstreams. My role naturally extends into bridging design, engineering, and business, helping teams stay aligned, move fast, and still maintain a <Highlight>high bar for quality</Highlight>.
                     </p>
                   </div>
                 </StaggerChildren>
