@@ -3,6 +3,7 @@ import { PhotoCarousel } from "@/components/PhotoCarousel";
 import { WorkItem, CompanyLink } from "@/components/WorkItem";
 import { AnimateOnScroll, StaggerChildren } from "@/components/AnimateOnScroll";
 import { Highlight } from "@/components/Highlight";
+import { WorkViewProvider, WorkViewToggle } from "@/components/WorkViewToggle";
 
 export default function Home() {
   return (
@@ -237,6 +238,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════════════
           WORK SECTION
           ═══════════════════════════════════════════════════════════════════════ */}
+      <WorkViewProvider>
       <section id="work" className="work-section section-lg border-t-rule">
 
         {/* Work Section Header */}
@@ -260,7 +262,7 @@ export default function Home() {
           <WorkItem
             company="Zinc Singapore"
             role="Principal Product Designer"
-            period="Dec 2024 – Present"
+            period="Dec 2025 – Present"
             logo="/logos/zinc.jpeg"
             companyUrl="https://www.linkedin.com/company/zincmoney/"
             companyTooltip="Zinc started by solving the study abroad journey end-to-end: helping students decide the right college/path via AI, helping parents plan, finance, and invest for education. From this foundation, Zinc expanded into building a broader fintech platform (banking, credit, wealth) on top of that core use case."
@@ -764,6 +766,8 @@ export default function Home() {
           />
         </div>
       </section>
+      <WorkViewToggle />
+      </WorkViewProvider>
 
       {/* ═══════════════════════════════════════════════════════════════════════
           CONTACT SECTION

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { ImagePlaceholder, LogoPlaceholder } from "./ImagePlaceholder";
+import { useWorkView } from "./WorkViewToggle";
 
 // ============================================================================
 // TYPES
@@ -290,6 +291,7 @@ export function WorkItem({
   const hasProjects = !!(projects && projects.length > 0);
   const [isVisible, setIsVisible] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
+  const { viewMode } = useWorkView();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -316,13 +318,14 @@ export function WorkItem({
       ref={itemRef}
       id={`work-item-${companySlug}`}
       className={cn(
-        "work-item border-t-hairline",
-        hasProjects ? "pt-12 pb-16" : "py-10"
+        "work-item border-t-hairline transition-all duration-500",
+        hasProjects ? "pt-12" : "py-10",
+        hasProjects && viewMode === "detailed" ? "pb-16" : hasProjects ? "pb-0" : ""
       )}
       style={{
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? "translateY(0)" : "translateY(30px)",
-        transition: "opacity 0.6s ease-out, transform 0.6s ease-out",
+        transition: "opacity 0.6s ease-out, transform 0.6s ease-out, padding 0.5s ease-out",
       }}
     >
       <WorkHeader
@@ -339,7 +342,17 @@ export function WorkItem({
         companyTooltip={companyTooltip}
       />
 
-      {hasProjects && <ProjectGrid projects={projects} />}
+      {hasProjects && (
+        <div
+          className="overflow-hidden transition-all duration-500 ease-out"
+          style={{
+            maxHeight: viewMode === "detailed" ? "2000px" : "0",
+            opacity: viewMode === "detailed" ? 1 : 0,
+          }}
+        >
+          <ProjectGrid projects={projects} />
+        </div>
+      )}
     </div>
   );
 }
