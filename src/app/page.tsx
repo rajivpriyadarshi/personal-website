@@ -10,13 +10,12 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════════════
           HERO SECTION
           ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="hero" className="hero-section min-h-screen flex items-center">
+      <section id="hero" className="hero-section min-h-screen flex items-center justify-center">
         <div id="hero-container" className="hero-container container-wide">
           <div id="hero-grid" className="hero-grid grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
 
             {/* Hero Text Content */}
             <div id="hero-content" className="hero-content lg:col-span-7 order-2 lg:order-1">
-              <p id="hero-label" className="hero-label label text-accent mb-6 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>Product Designer</p>
               <h1 id="hero-title" className="hero-title display headline-lg text-text mb-8 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
                 Hi, I'm Rajiv
               </h1>
@@ -47,13 +46,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Scroll Indicator */}
-          <div id="hero-scroll-indicator" className="hero-scroll-indicator flex justify-center mt-16 lg:mt-24 animate-fade-in" style={{ animationDelay: "800ms", animationFillMode: "both" }}>
-            <div className="flex flex-col items-center gap-2 text-text-light animate-bounce-slow">
-              <span className="label-sm">Scroll</span>
-              <div className="w-px h-8 bg-border-rule" />
-            </div>
-          </div>
         </div>
       </section>
 
@@ -799,10 +791,8 @@ export default function Home() {
           <AnimateOnScroll animation="fade-in" delay={300}>
             <div id="contact-divider" className="contact-divider line-hairline mb-8" />
             <div id="contact-social" className="contact-social flex justify-center gap-8">
-              <a href="#" className="social-link link-subtle body-sm">LinkedIn</a>
-              <a href="#" className="social-link link-subtle body-sm">Twitter</a>
-              <a href="#" className="social-link link-subtle body-sm">Dribbble</a>
-              <a href="#" className="social-link link-subtle body-sm">Read.cv</a>
+              <a href="https://www.linkedin.com/in/rajivpriyadarshi/" target="_blank" rel="noopener noreferrer" className="social-link link-subtle body-sm">LinkedIn</a>
+              <a href="https://www.instagram.com/rajivpriyadarshi" target="_blank" rel="noopener noreferrer" className="social-link link-subtle body-sm">Instagram</a>
             </div>
           </AnimateOnScroll>
         </div>
