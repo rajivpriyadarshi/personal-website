@@ -6,7 +6,7 @@ import { Highlight } from "@/components/Highlight";
 
 export default function Home() {
   return (
-    <div id="page-root" className="min-h-screen">
+    <div id="page-root" className="min-h-screen px-20">
       {/* ═══════════════════════════════════════════════════════════════════════
           HERO SECTION
           ═══════════════════════════════════════════════════════════════════════ */}
@@ -16,7 +16,7 @@ export default function Home() {
 
             {/* Hero Text Content */}
             <div id="hero-content" className="hero-content lg:col-span-7 order-2 lg:order-1">
-              <h1 id="hero-title" className="hero-title display headline-lg text-text mb-8 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
+              <h1 id="hero-title" className="hero-title display text-text mb-8 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "both", fontSize: "7rem" }}>
                 Hi, I'm Rajiv
               </h1>
               <div id="hero-accent-line" className="hero-accent-line line-accent w-16 mb-8 animate-fade-in-up" style={{ animationDelay: "300ms", animationFillMode: "both" }} />
@@ -80,7 +80,7 @@ export default function Home() {
                     </Highlight>
                   </p>
                   <p className="body-base text-text-muted leading-relaxed mb-6">
-                    I still have a toolbox at my home from when I was a child —
+                    I still have a toolbox at my home from when I was a child -
                     filled with tools, broken machines, toys. Most of which I used
                     to break just to learn how they worked.
                   </p>
@@ -115,21 +115,21 @@ export default function Home() {
                     <span className="skill-number label-sm text-accent mb-4 block">01</span>
                     <h3 className="skill-title font-editorial text-xl text-text mb-3">Product Thinking</h3>
                     <p className="skill-description body-sm text-text-muted">
-                      Working mostly in 0→1 environments has shaped how I think. <Highlight>Deep problem exploration</Highlight>, <Highlight>user research</Highlight>, and <Highlight>strategic framing</Highlight> aren't steps I follow — they're instinctive at this point. I'm most comfortable in ambiguous, high-stakes spaces, where the <Highlight>problem isn't clearly defined</Highlight> and clarity has to be built from scratch.
+                      Working mostly in 0→1 environments has shaped how I think. <Highlight>Deep problem exploration</Highlight>, <Highlight>user research</Highlight>, and <Highlight>strategic framing</Highlight> aren't steps I follow - they're instinctive at this point. I'm most comfortable in ambiguous, high-stakes spaces, where the <Highlight>problem isn't clearly defined</Highlight> and clarity has to be built from scratch.
                     </p>
                   </div>
                   <div id="skill-card-2" className="skill-card card-outline p-6">
                     <span className="skill-number label-sm text-accent mb-4 block">02</span>
                     <h3 className="skill-title font-editorial text-xl text-text mb-3">Systems Design</h3>
                     <p className="skill-description body-sm text-text-muted">
-                      Having worked on products with <Highlight>millions of users</Highlight> and large, evolving codebases, I've learned that design doesn't scale unless systems do. I focus on building design systems, component architectures, and patterns that don't just solve for today — but hold up as the product grows in complexity and scale.
+                      Having worked on products with <Highlight>millions of users</Highlight> and large, evolving codebases, I've learned that design doesn't scale unless systems do. I focus on building design systems, component architectures, and patterns that don't just solve for today - but hold up as the product grows in complexity and scale.
                     </p>
                   </div>
                   <div id="skill-card-3" className="skill-card card-outline p-6">
                     <span className="skill-number label-sm text-accent mb-4 block">03</span>
                     <h3 className="skill-title font-editorial text-xl text-text mb-3">0→1 Execution</h3>
                     <p className="skill-description body-sm text-text-muted">
-                      Most of my career has been about <Highlight>building from zero</Highlight>. Taking something from a <Highlight>vague idea to a shipped product</Highlight> — figuring out what matters, moving fast, and making trade-offs along the way. I'm used to <Highlight>high ownership</Highlight>, and <Highlight>rapid iteration</Highlight>, where execution is as important as thinking.
+                      Most of my career has been about <Highlight>building from zero</Highlight>. Taking something from a <Highlight>vague idea to a shipped product</Highlight> - figuring out what matters, moving fast, and making trade-offs along the way. I'm used to <Highlight>high ownership</Highlight>, and <Highlight>rapid iteration</Highlight>, where execution is as important as thinking.
                     </p>
                   </div>
                   <div id="skill-card-4" className="skill-card card-outline p-6">
@@ -147,7 +147,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          CRAFT SECTION — Bento Grid
+          CRAFT SECTION - Bento Grid
           ═══════════════════════════════════════════════════════════════════════ */}
       <section id="craft" className="craft-section section-xl border-t-rule">
         <div id="craft-container" className="craft-container container-wide">
@@ -160,7 +160,7 @@ export default function Home() {
                 <h2 className="craft-title display headline-md text-text">Selected visuals</h2>
               </div>
               <p id="craft-header-description" className="craft-header-description body-base text-text-muted max-w-md">
-                A curated collection of my most visually compelling work — product
+                A curated collection of my most visually compelling work - product
                 interfaces, design explorations, and creative experiments.
               </p>
             </div>
@@ -244,7 +244,7 @@ export default function Home() {
                 <h2 className="work-title display headline-md text-text">10 years of building</h2>
               </div>
               <p id="work-header-description" className="work-header-description body-base text-text-muted max-w-lg">
-                From fintech and logistics to edtech and hospitality — a decade of
+                From fintech and logistics to edtech and hospitality - a decade of
                 solving complex problems and shipping products that matter.
               </p>
             </div>
@@ -260,7 +260,7 @@ export default function Home() {
             logo="/logos/zinc.jpeg"
             companyUrl="https://www.linkedin.com/company/zincmoney/"
             companyTooltip="Zinc started by solving the study abroad journey end-to-end: helping students decide the right college/path via AI, helping parents plan, finance, and invest for education. From this foundation, Zinc expanded into building a broader fintech platform (banking, credit, wealth) on top of that core use case."
-            description={<>Working <Highlight>directly with the CEO</Highlight> to shape the future of Zinc. In a <Highlight>lean team of 10</Highlight>, I <Highlight>own the full spectrum</Highlight> — from deep problem exploration to design to shipping. Fast iterations, rapid testing, and building <Highlight>AI-native financial products</Highlight> across tax, wealth, agents, health, and more.</>}
+            description={<>Working <Highlight>directly with the CEO</Highlight> to shape the future of Zinc. In a <Highlight>lean team of 10</Highlight>, I <Highlight>own the full spectrum</Highlight> - from deep problem exploration to design to shipping. Fast iterations, rapid testing, and building <Highlight>AI-native financial products</Highlight> across tax, wealth, agents, health, and more.</>}
 
             projects={[
               {
@@ -272,7 +272,7 @@ export default function Home() {
               {
                 title: "RSU & Estate Planning",
                 description:
-                  "A wealth product for tech workers with concentrated U.S. stock exposure — estate tax risk, diversification, custody, and cross-border planning for RSU-heavy portfolios.",
+                  "A wealth product for tech workers with concentrated U.S. stock exposure - estate tax risk, diversification, custody, and cross-border planning for RSU-heavy portfolios.",
                 tags: ["Wealth", "Planning"],
               },
               {
@@ -284,25 +284,25 @@ export default function Home() {
               {
                 title: "Wealth Map",
                 description:
-                  "A guided private-bank-style discovery product that builds a complete picture of family, assets, tax, goals, liabilities — then turns it into a structured wealth map.",
+                  "A guided private-bank-style discovery product that builds a complete picture of family, assets, tax, goals, liabilities - then turns it into a structured wealth map.",
                 tags: ["Wealth", "Discovery"],
               },
               {
                 title: "Private Banking for Tech Workers",
                 description:
-                  "An AI-first private banking concept using specialist agents across equities, tax, cash, credit, and planning — a lighter alternative to traditional private banks.",
+                  "An AI-first private banking concept using specialist agents across equities, tax, cash, credit, and planning - a lighter alternative to traditional private banks.",
                 tags: ["AI", "Wealth"],
               },
               {
                 title: "Lending Against Securities",
                 description:
-                  "Giving users liquidity against financial assets, especially stock holdings, without forcing them to sell — for large purchases or funding needs.",
+                  "Giving users liquidity against financial assets, especially stock holdings, without forcing them to sell - for large purchases or funding needs.",
                 tags: ["Lending", "Fintech"],
               },
               {
                 title: "AlphaPeek",
                 description:
-                  "Portfolio intelligence from uploaded statements — performance insights, drivers and detractors, tax optimization ideas, and peer group comparison.",
+                  "Portfolio intelligence from uploaded statements - performance insights, drivers and detractors, tax optimization ideas, and peer group comparison.",
                 tags: ["Analytics", "AI"],
               },
               {
@@ -314,13 +314,13 @@ export default function Home() {
               {
                 title: "Collections Platform",
                 description:
-                  "Lender-facing collections workstream — bureau scrubs, delinquency targeting, settlement scoring, decision logic, and tools to improve recovery workflows.",
+                  "Lender-facing collections workstream - bureau scrubs, delinquency targeting, settlement scoring, decision logic, and tools to improve recovery workflows.",
                 tags: ["Lending", "B2B"],
               },
               {
                 title: "Consumer Bureau Apps",
                 description:
-                  "Consumer-facing credit products bringing users through bureau-led value propositions — score awareness, credit understanding, and adjacent financial actions.",
+                  "Consumer-facing credit products bringing users through bureau-led value propositions - score awareness, credit understanding, and adjacent financial actions.",
                 tags: ["Credit", "Consumer"],
               },
               {
@@ -344,7 +344,7 @@ export default function Home() {
               {
                 title: "Volo Health Benefits",
                 description:
-                  "Zinc-powered employee benefits experience — insurance, wallet, concierge, protection flows, onboarding, and account management built on Volo.",
+                  "Zinc-powered employee benefits experience - insurance, wallet, concierge, protection flows, onboarding, and account management built on Volo.",
                 tags: ["Health", "Benefits"],
               },
               {
@@ -362,25 +362,25 @@ export default function Home() {
               {
                 title: "OpenClaw Agent Runtime",
                 description:
-                  "Major agent-infrastructure exploration — hosted agents, browser control, memory, cloud setup, skills, and non-technical agent experiences.",
+                  "Major agent-infrastructure exploration - hosted agents, browser control, memory, cloud setup, skills, and non-technical agent experiences.",
                 tags: ["AI", "Infrastructure"],
               },
               {
                 title: "WhatsApp OpenClaw",
                 description:
-                  "Consumer-friendly packaging of the agent runtime — letting users connect an AI agent to WhatsApp with minimal setup and simpler controls.",
+                  "Consumer-friendly packaging of the agent runtime - letting users connect an AI agent to WhatsApp with minimal setup and simpler controls.",
                 tags: ["AI", "Consumer"],
               },
               {
                 title: "Agent Treasury",
                 description:
-                  "Finance infrastructure for AI agents — programmable wallets, sub-wallets, policies, payment intents, stablecoins, approvals, and audit trails.",
+                  "Finance infrastructure for AI agents - programmable wallets, sub-wallets, policies, payment intents, stablecoins, approvals, and audit trails.",
                 tags: ["AI", "Fintech"],
               },
               {
                 title: "Donna / LinkedIn Agent",
                 description:
-                  "Professional networking concept for an AI-native world — centered on reachability, reputation, trust, and intelligent representation rather than static profiles.",
+                  "Professional networking concept for an AI-native world - centered on reachability, reputation, trust, and intelligent representation rather than static profiles.",
                 tags: ["AI", "Social"],
               },
               {
@@ -416,7 +416,7 @@ export default function Home() {
               {
                 title: "Social Feed for Wealth",
                 description:
-                  "Feed-like layer for wealth products — portfolio-related signals, comparisons, and contextual insights in a social or dynamic format.",
+                  "Feed-like layer for wealth products - portfolio-related signals, comparisons, and contextual insights in a social or dynamic format.",
                 tags: ["Wealth", "Social"],
               },
               {
@@ -428,13 +428,13 @@ export default function Home() {
               {
                 title: "LifeOS / AI Email",
                 description:
-                  "Turning email into a semantic, AI-driven life system — bills, travel, subscriptions, receipts, warranties, and financial records.",
+                  "Turning email into a semantic, AI-driven life system - bills, travel, subscriptions, receipts, warranties, and financial records.",
                 tags: ["AI", "Consumer"],
               },
               {
                 title: "Chrome Extension Assistant",
                 description:
-                  "Browser-native assistant understanding the current page and suggesting actions — especially across Gmail, Reddit, and task-heavy interfaces.",
+                  "Browser-native assistant understanding the current page and suggesting actions - especially across Gmail, Reddit, and task-heavy interfaces.",
                 tags: ["AI", "Productivity"],
               },
               {
@@ -446,7 +446,7 @@ export default function Home() {
               {
                 title: "Multi-channel Brand Ops",
                 description:
-                  "Operations intelligence for brands selling across fragmented channels — inventory coordination, carrier decisions, forecasting, and founder visibility.",
+                  "Operations intelligence for brands selling across fragmented channels - inventory coordination, carrier decisions, forecasting, and founder visibility.",
                 tags: ["B2B", "Operations"],
               },
               {
@@ -488,7 +488,7 @@ export default function Home() {
               {
                 title: "USD Accounts for SMBs",
                 description:
-                  "Cross-border SMB finance — USD accounts and commercial cards for international spending like ads, software, and cloud services.",
+                  "Cross-border SMB finance - USD accounts and commercial cards for international spending like ads, software, and cloud services.",
                 tags: ["SMB", "Global"],
               },
               {
@@ -537,7 +537,7 @@ export default function Home() {
               {
                 title: "GTM Mini-Apps",
                 description:
-                  "AI-powered micro-applications for user acquisition — increasing top-of-funnel through targeted, value-first experiences.",
+                  "AI-powered micro-applications for user acquisition - increasing top-of-funnel through targeted, value-first experiences.",
                 tags: ["Growth", "AI"],
               },
             ]}
@@ -555,7 +555,7 @@ export default function Home() {
               {
                 title: "LazyPay App Revamp",
                 description:
-                  "Complete redesign of the LazyPay customer app — modernizing the experience, improving usability, and aligning with the evolved brand identity.",
+                  "Complete redesign of the LazyPay customer app - modernizing the experience, improving usability, and aligning with the evolved brand identity.",
                 tags: ["Consumer", "Redesign"],
               },
               {
@@ -599,7 +599,7 @@ export default function Home() {
             logo="/logos/porter.jpeg"
             companyUrl="https://www.linkedin.com/company/theporter-in/"
             companyTooltip="Porter is one of India's leading players in the intra-city logistics market, connecting businesses and individuals with local truckers for last-mile deliveries. It serves 30 lakh+ (3M+) customers every month and works with 3 lakh+ (300k+) driver-partners, operating across 35+ cities in India."
-            description={<><Highlight>Led design across Porter's ecosystem</Highlight> — customer apps, partner apps, enterprise logistics, and internal tools. Serving <Highlight>3M+ customers monthly</Highlight> and <Highlight>300K+ driver-partners</Highlight> across 35+ cities.</>}
+            description={<><Highlight>Led design across Porter's ecosystem</Highlight> - customer apps, partner apps, enterprise logistics, and internal tools. Serving <Highlight>3M+ customers monthly</Highlight> and <Highlight>300K+ driver-partners</Highlight> across 35+ cities.</>}
 
             projects={[
               {
@@ -704,7 +704,7 @@ export default function Home() {
               {
                 title: "Learning Platform",
                 description:
-                  "Designed a first-of-its-kind online learning platform for tech education in India — from scratch to 30K+ DAU.",
+                  "Designed a first-of-its-kind online learning platform for tech education in India - from scratch to 30K+ DAU.",
                 tags: ["Edtech", "0→1"],
               },
               {
@@ -739,7 +739,7 @@ export default function Home() {
             companyTooltip="MapleGraph is a cloud-based POS and hospitality technology platform offering tools for restaurants to manage operations end-to-end, including billing, menu management, inventory, CRM, and analytics."
             description={<>Led brand identity and product design for MapleGraph, a cloud-based POS and hospitality technology platform. The company was later <Highlight>acquired by Zomato</Highlight> to become Zomato Base.</>}
             highlights={[
-              "Designed Maple DigiSign — a digital signage product simplified for retail operators",
+              "Designed Maple DigiSign - a digital signage product simplified for retail operators",
               "Built Maple Mobile POS (Queue Buster) for faster checkout and on-the-go billing",
             ]}
             tags={["Hospitality", "POS", "Acquired by Zomato"]}
@@ -773,7 +773,7 @@ export default function Home() {
             </h2>
             <p id="contact-description" className="contact-description body-lg text-text-muted mb-12 max-w-md mx-auto">
               Whether you're working on a 0→1 product, scaling a platform, or just
-              want to chat about design — I'd love to hear from you.
+              want to chat about design - I'd love to hear from you.
             </p>
           </AnimateOnScroll>
           <AnimateOnScroll animation="fade-up" delay={150}>
