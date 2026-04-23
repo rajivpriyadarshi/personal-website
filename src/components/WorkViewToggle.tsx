@@ -65,7 +65,7 @@ export function WorkViewToggle() {
 
   return (
     <div
-      className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
+      className={`fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
         isVisible
           ? "opacity-100 translate-y-0"
           : "opacity-0 translate-y-16 pointer-events-none"
@@ -74,29 +74,29 @@ export function WorkViewToggle() {
         transitionTimingFunction: isVisible ? "cubic-bezier(0.34, 1.56, 0.64, 1)" : "ease-out",
       }}
     >
-      <div className="flex items-center gap-1 bg-surface-solid border border-border-strong rounded-full shadow-lg p-1 md:p-1.5">
+      <div className="flex items-center gap-1 bg-surface-solid border border-border-strong rounded-full shadow-lg p-1.5">
         <button
           onClick={() => setViewMode("detailed")}
-          className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
             viewMode === "detailed"
               ? "bg-text text-bg"
               : "text-text-muted hover:text-text"
           }`}
         >
-          <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
           </svg>
           Detailed
         </button>
         <button
           onClick={() => setViewMode("tldr")}
-          className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
             viewMode === "tldr"
               ? "bg-text text-bg"
               : "text-text-muted hover:text-text"
           }`}
         >
-          <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
           </svg>
           TL;DR
