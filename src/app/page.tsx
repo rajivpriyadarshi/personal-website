@@ -268,240 +268,216 @@ export default function Home() {
             companyTooltip="Zinc started by solving the study abroad journey end-to-end: helping students decide the right college/path via AI, helping parents plan, finance, and invest for education. From this foundation, Zinc expanded into building a broader fintech platform (banking, credit, wealth) on top of that core use case."
             description={<>Working <Highlight>directly with the CEO</Highlight> to shape the future of Zinc. In a <Highlight>lean team of 10</Highlight>, I <Highlight>own the full spectrum</Highlight>, from deep problem exploration to design to shipping. Fast iterations, rapid testing, and building <Highlight>AI-native financial products</Highlight> across tax, wealth, agents, health, and more.</>}
 
-            projects={[
+            projectGroups={[
               {
-                title: "Tax Copilot",
-                description:
-                  "An AI-native tax product focused on reducing tax anxiety. Covers filing, document-based tax computation, advance tax, residency-change scenarios, and proactive planning.",
-                tags: ["AI", "Fintech", "0→1"],
+                groupTitle: "AI Wealth & Portfolio Intelligence",
+                groupDescription: "Suite of products helping users understand, analyze, and act on their wealth, particularly for tech workers with complex portfolios.",
+                projects: [
+                  {
+                    title: "Tax Copilot",
+                    description: "AI-native tax product focused on reducing tax anxiety. Covers filing, document-based tax computation, advance tax, residency-change scenarios, and proactive planning.",
+                  },
+                  {
+                    title: "RSU & Estate Planning",
+                    description: "Wealth product for tech workers with concentrated U.S. stock exposure: estate tax risk, diversification, custody, and cross-border planning for RSU-heavy portfolios.",
+                  },
+                  {
+                    title: "Portfolio Analyzer",
+                    description: "Multi-document uploads, multi-currency normalization, concentration and fragmentation metrics, market sensitivity, scoring, and scenario simulation.",
+                  },
+                  {
+                    title: "Wealth Map",
+                    description: "Guided private-bank-style discovery product that builds a complete picture of family, assets, tax, goals, liabilities, then turns it into a structured wealth map.",
+                  },
+                  {
+                    title: "AlphaPeek",
+                    description: "Portfolio intelligence from uploaded statements: performance insights, drivers and detractors, tax optimization ideas, and peer group comparison.",
+                  },
+                  {
+                    title: "NSDL/CDSL Portfolio Parsing",
+                    description: "Wealth tool built around parsing depository statements, unlocking portfolio views with PAN, and generating allocation, trend, and advisory insights.",
+                  },
+                  {
+                    title: "Lending Against Securities",
+                    description: "Giving users liquidity against financial assets, especially stock holdings, without forcing them to sell, for large purchases or funding needs.",
+                  },
+                ],
               },
               {
-                title: "RSU & Estate Planning",
-                description:
-                  "A wealth product for tech workers with concentrated U.S. stock exposure: estate tax risk, diversification, custody, and cross-border planning for RSU-heavy portfolios.",
-                tags: ["Wealth", "Planning"],
+                groupTitle: "Credit Stress, Bureau, and Collections",
+                groupDescription: "Products around credit health, bureau data, and lender-side workflows.",
+                projects: [
+                  {
+                    title: "Consumer Bureau Apps",
+                    description: "Consumer-facing credit products bringing users through bureau-led value propositions: score awareness, credit understanding, and adjacent financial actions.",
+                  },
+                  {
+                    title: "Collections Platform",
+                    description: "Lender-facing collections workstream: bureau scrubs, delinquency targeting, settlement scoring, decision logic, and tools to improve recovery workflows.",
+                  },
+                ],
               },
               {
-                title: "Portfolio Analyzer",
-                description:
-                  "Multi-document uploads, multi-currency normalization, concentration and fragmentation metrics, market sensitivity, scoring, and scenario simulation.",
-                tags: ["Analytics", "Fintech"],
+                groupTitle: "Volo / Employee Benefits",
+                groupDescription: "Zinc-powered employee benefits experience built around health, insurance, and programmable benefits infrastructure.",
+                projects: [
+                  {
+                    title: "Volo Health Benefits",
+                    description: "Zinc-powered employee benefits experience: insurance, wallet, concierge, protection flows, onboarding, and account management built on Volo.",
+                  },
+                  {
+                    title: "Health AI Assistant",
+                    description: "Intelligence layer explaining policy coverage, helping with claims, organizing health artifacts, and improving insurance usability.",
+                  },
+                  {
+                    title: "Benefits Fintech Rails",
+                    description: "Supporting infrastructure including bureau, CKYC, account aggregator, wallet, payment, and identity rails for programmable benefits.",
+                  },
+                ],
               },
               {
-                title: "Wealth Map",
-                description:
-                  "A guided private-bank-style discovery product that builds a complete picture of family, assets, tax, goals, liabilities, then turns it into a structured wealth map.",
-                tags: ["Wealth", "Discovery"],
+                groupTitle: "Agentic Infrastructure",
+                groupDescription: "Building the foundation for AI agents: runtime, finance, and consumer-friendly packaging.",
+                projects: [
+                  {
+                    title: "OpenClaw Agent Runtime",
+                    description: "Major agent-infrastructure exploration: hosted agents, browser control, memory, cloud setup, skills, and non-technical agent experiences.",
+                  },
+                  {
+                    title: "WhatsApp OpenClaw",
+                    description: "Consumer-friendly packaging of the agent runtime, letting users connect an AI agent to WhatsApp with minimal setup and simpler controls.",
+                  },
+                  {
+                    title: "Agent Treasury",
+                    description: "Finance infrastructure for AI agents: programmable wallets, sub-wallets, policies, payment intents, stablecoins, approvals, and audit trails.",
+                  },
+                  {
+                    title: "Document Graph",
+                    description: "Structured-document intelligence layer for extracting claims, facts, gaps, evidence, and linked outputs across documents for diligence and onboarding.",
+                  },
+                ],
               },
               {
-                title: "Private Banking for Tech Workers",
-                description:
-                  "An AI-first private banking concept using specialist agents across equities, tax, cash, credit, and planning. A lighter alternative to traditional private banks.",
-                tags: ["AI", "Wealth"],
+                groupTitle: "AI-Native Networking and Prospecting",
+                groupDescription: "Rethinking professional networking and prospecting in an AI-native world.",
+                projects: [
+                  {
+                    title: "Donna / LinkedIn Agent",
+                    description: "Professional networking concept for an AI-native world, centered on reachability, reputation, trust, and intelligent representation rather than static profiles.",
+                  },
+                  {
+                    title: "Donna for Builders & Funders",
+                    description: "Narrower version focused on connecting builders, founders, engineers, and investors inside trusted or semi-curated networks.",
+                  },
+                  {
+                    title: "Prospect Agent",
+                    description: "Workflow product for prospect generation, enrichment, interview flow, due diligence, and structured movement from discovery into action.",
+                  },
+                  {
+                    title: "Goldman Onboarding Agent",
+                    description: "Bank-oriented onboarding and diligence workflow aimed at reducing time and cost of prospecting, verification, documentation, and SOW/SOF generation.",
+                  },
+                ],
               },
               {
-                title: "Lending Against Securities",
-                description:
-                  "Giving users liquidity against financial assets, especially stock holdings, without forcing them to sell, for large purchases or funding needs.",
-                tags: ["Lending", "Fintech"],
+                groupTitle: "Community-Led Product Experiments",
+                groupDescription: "Exploring community-driven fintech, fitness, and discovery products.",
+                projects: [
+                  {
+                    title: "Running App",
+                    description: "Consumer running product that evolved from a social/community concept into a more personal rewards-led running experience.",
+                  },
+                  {
+                    title: "Community Event Discovery",
+                    description: "Singapore-focused consumer product around discovering curated fitness, wellness, and social events with community-led experience.",
+                  },
+                  {
+                    title: "Community Fintech",
+                    description: "Vertical-fintech exploration around community-led financial products, affinity cards, rewards, and partner APIs for specific user groups.",
+                  },
+                  {
+                    title: "Creator Finance Data",
+                    description: "Creator-economy investigation into whether creator-platform data and network signals could support financial products or underwriting.",
+                  },
+                ],
               },
               {
-                title: "AlphaPeek",
-                description:
-                  "Portfolio intelligence from uploaded statements: performance insights, drivers and detractors, tax optimization ideas, and peer group comparison.",
-                tags: ["Analytics", "AI"],
+                groupTitle: "Small Business Growth Systems",
+                groupDescription: "Products for SMBs and brands selling across fragmented channels.",
+                projects: [
+                  {
+                    title: "USD Accounts for SMBs",
+                    description: "Cross-border SMB finance: USD accounts and commercial cards for international spending like ads, software, and cloud services.",
+                  },
+                  {
+                    title: "Multi-channel Brand Ops",
+                    description: "Operations intelligence for brands selling across fragmented channels: inventory coordination, carrier decisions, forecasting, and founder visibility.",
+                  },
+                ],
               },
               {
-                title: "NSDL/CDSL Portfolio Parsing",
-                description:
-                  "Wealth tool built around parsing depository statements, unlocking portfolio views with PAN, and generating allocation, trend, and advisory insights.",
-                tags: ["Wealth", "India"],
+                groupTitle: "Tech Worker Wealth Platform",
+                groupDescription: "AI-first private banking and wealth products for tech workers.",
+                projects: [
+                  {
+                    title: "Private Banking for Tech Workers",
+                    description: "AI-first private banking concept using specialist agents across equities, tax, cash, credit, and planning. A lighter alternative to traditional private banks.",
+                  },
+                  {
+                    title: "Social Feed for Wealth",
+                    description: "Feed-like layer for wealth products: portfolio-related signals, comparisons, and contextual insights in a social or dynamic format.",
+                  },
+                  {
+                    title: "Peer-group Benchmarking",
+                    description: "Showing users how they compare to relevant peers rather than only broad market benchmarks for more meaningful wealth context.",
+                  },
+                ],
               },
               {
-                title: "Collections Platform",
-                description:
-                  "Lender-facing collections workstream: bureau scrubs, delinquency targeting, settlement scoring, decision logic, and tools to improve recovery workflows.",
-                tags: ["Lending", "B2B"],
-              },
-              {
-                title: "Consumer Bureau Apps",
-                description:
-                  "Consumer-facing credit products bringing users through bureau-led value propositions: score awareness, credit understanding, and adjacent financial actions.",
-                tags: ["Credit", "Consumer"],
-              },
-              {
-                title: "Prospect Agent",
-                description:
-                  "Workflow product for prospect generation, enrichment, interview flow, due diligence, and structured movement from discovery into action.",
-                tags: ["AI", "Workflow"],
-              },
-              {
-                title: "Goldman Onboarding Agent",
-                description:
-                  "Bank-oriented onboarding and diligence workflow aimed at reducing time and cost of prospecting, verification, documentation, and SOW/SOF generation.",
-                tags: ["AI", "Banking"],
-              },
-              {
-                title: "Document Graph",
-                description:
-                  "Structured-document intelligence layer for extracting claims, facts, gaps, evidence, and linked outputs across documents for diligence and onboarding.",
-                tags: ["AI", "Infrastructure"],
-              },
-              {
-                title: "Volo Health Benefits",
-                description:
-                  "Zinc-powered employee benefits experience: insurance, wallet, concierge, protection flows, onboarding, and account management built on Volo.",
-                tags: ["Health", "Benefits"],
-              },
-              {
-                title: "Health AI Assistant",
-                description:
-                  "Intelligence layer explaining policy coverage, helping with claims, organizing health artifacts, and improving insurance usability.",
-                tags: ["AI", "Health"],
-              },
-              {
-                title: "Benefits Fintech Rails",
-                description:
-                  "Supporting infrastructure including bureau, CKYC, account aggregator, wallet, payment, and identity rails for programmable benefits.",
-                tags: ["Infrastructure", "Fintech"],
-              },
-              {
-                title: "OpenClaw Agent Runtime",
-                description:
-                  "Major agent-infrastructure exploration: hosted agents, browser control, memory, cloud setup, skills, and non-technical agent experiences.",
-                tags: ["AI", "Infrastructure"],
-              },
-              {
-                title: "WhatsApp OpenClaw",
-                description:
-                  "Consumer-friendly packaging of the agent runtime, letting users connect an AI agent to WhatsApp with minimal setup and simpler controls.",
-                tags: ["AI", "Consumer"],
-              },
-              {
-                title: "Agent Treasury",
-                description:
-                  "Finance infrastructure for AI agents: programmable wallets, sub-wallets, policies, payment intents, stablecoins, approvals, and audit trails.",
-                tags: ["AI", "Fintech"],
-              },
-              {
-                title: "Donna / LinkedIn Agent",
-                description:
-                  "Professional networking concept for an AI-native world, centered on reachability, reputation, trust, and intelligent representation rather than static profiles.",
-                tags: ["AI", "Social"],
-              },
-              {
-                title: "Donna for Builders & Funders",
-                description:
-                  "Narrower version focused on connecting builders, founders, engineers, and investors inside trusted or semi-curated networks.",
-                tags: ["AI", "Networking"],
-              },
-              {
-                title: "Running App",
-                description:
-                  "Consumer running product that evolved from a social/community concept into a more personal rewards-led running experience.",
-                tags: ["Consumer", "Fitness"],
-              },
-              {
-                title: "Community Event Discovery",
-                description:
-                  "Singapore-focused consumer product around discovering curated fitness, wellness, and social events with community-led experience.",
-                tags: ["Consumer", "Discovery"],
-              },
-              {
-                title: "Community Fintech",
-                description:
-                  "Vertical-fintech exploration around community-led financial products, affinity cards, rewards, and partner APIs for specific user groups.",
-                tags: ["Fintech", "Community"],
-              },
-              {
-                title: "Creator Finance Data",
-                description:
-                  "Creator-economy investigation into whether creator-platform data and network signals could support financial products or underwriting.",
-                tags: ["Creator", "Research"],
-              },
-              {
-                title: "Social Feed for Wealth",
-                description:
-                  "Feed-like layer for wealth products: portfolio-related signals, comparisons, and contextual insights in a social or dynamic format.",
-                tags: ["Wealth", "Social"],
-              },
-              {
-                title: "Peer-group Benchmarking",
-                description:
-                  "Showing users how they compare to relevant peers rather than only broad market benchmarks for more meaningful wealth context.",
-                tags: ["Wealth", "Analytics"],
-              },
-              {
-                title: "LifeOS / AI Email",
-                description:
-                  "Turning email into a semantic, AI-driven life system: bills, travel, subscriptions, receipts, warranties, and financial records.",
-                tags: ["AI", "Consumer"],
-              },
-              {
-                title: "Chrome Extension Assistant",
-                description:
-                  "Browser-native assistant understanding the current page and suggesting actions, especially across Gmail, Reddit, and task-heavy interfaces.",
-                tags: ["AI", "Productivity"],
-              },
-              {
-                title: "Order Tracking Manager",
-                description:
-                  "Consumer utility unifying order tracking across multiple ecommerce platforms, extending into warranties and post-purchase workflows.",
-                tags: ["Consumer", "Utility"],
-              },
-              {
-                title: "Multi-channel Brand Ops",
-                description:
-                  "Operations intelligence for brands selling across fragmented channels: inventory coordination, carrier decisions, forecasting, and founder visibility.",
-                tags: ["B2B", "Operations"],
-              },
-              {
-                title: "Youth Financial Education",
-                description:
-                  "Structured educational concept teaching financial skills progressively across age groups with parent-child control and profile building.",
-                tags: ["Education", "Fintech"],
-              },
-              {
-                title: "Ada Education",
-                description:
-                  "Broader education product line connecting to learning support, guidance flows, and personalized AI-driven education experiences.",
-                tags: ["Education", "AI"],
-              },
-              {
-                title: "Explainer Video Learning",
-                description:
-                  "Learning product built around generating short AI-powered explainer videos for a student's specific question or problem.",
-                tags: ["Education", "AI"],
-              },
-              {
-                title: "Tourist UPI Concierge",
-                description:
-                  "Travel-fintech concept helping foreign tourists in India navigate payments through an AI concierge over local payment rails.",
-                tags: ["Travel", "Fintech"],
-              },
-              {
-                title: "Tenant/Landlord Verification",
-                description:
-                  "Trust product for housing using bureau, employment, income signals to generate structured verification reports.",
-                tags: ["Trust", "Housing"],
-              },
-              {
-                title: "Rental Finance",
-                description:
-                  "Housing product around deposits, rent timing stress, conflict reduction, and creating a trusted intermediary layer in rentals.",
-                tags: ["Fintech", "Housing"],
-              },
-              {
-                title: "USD Accounts for SMBs",
-                description:
-                  "Cross-border SMB finance: USD accounts and commercial cards for international spending like ads, software, and cloud services.",
-                tags: ["SMB", "Global"],
-              },
-              {
-                title: "AI Persona Testing",
-                description:
-                  "Research concept where simulated AI users with different traits test products and funnels before launch.",
-                tags: ["Research", "AI"],
+                groupTitle: "Smaller Edge Explorations",
+                groupDescription: "Varied experiments across education, housing, travel, and productivity.",
+                projects: [
+                  {
+                    title: "Youth Financial Education",
+                    description: "Structured educational concept teaching financial skills progressively across age groups with parent-child control and profile building.",
+                  },
+                  {
+                    title: "Ada Education",
+                    description: "Broader education product line connecting to learning support, guidance flows, and personalized AI-driven education experiences.",
+                  },
+                  {
+                    title: "Explainer Video Learning",
+                    description: "Learning product built around generating short AI-powered explainer videos for a student's specific question or problem.",
+                  },
+                  {
+                    title: "Tourist UPI Concierge",
+                    description: "Travel-fintech concept helping foreign tourists in India navigate payments through an AI concierge over local payment rails.",
+                  },
+                  {
+                    title: "Tenant/Landlord Verification",
+                    description: "Trust product for housing using bureau, employment, income signals to generate structured verification reports.",
+                  },
+                  {
+                    title: "Rental Finance",
+                    description: "Housing product around deposits, rent timing stress, conflict reduction, and creating a trusted intermediary layer in rentals.",
+                  },
+                  {
+                    title: "LifeOS / AI Email",
+                    description: "Turning email into a semantic, AI-driven life system: bills, travel, subscriptions, receipts, warranties, and financial records.",
+                  },
+                  {
+                    title: "Chrome Extension Assistant",
+                    description: "Browser-native assistant understanding the current page and suggesting actions, especially across Gmail, Reddit, and task-heavy interfaces.",
+                  },
+                  {
+                    title: "Order Tracking Manager",
+                    description: "Consumer utility unifying order tracking across multiple ecommerce platforms, extending into warranties and post-purchase workflows.",
+                  },
+                  {
+                    title: "AI Persona Testing",
+                    description: "Research concept where simulated AI users with different traits test products and funnels before launch.",
+                  },
+                ],
               },
             ]}
           />
@@ -515,36 +491,50 @@ export default function Home() {
             companyTooltip="Zinc started by solving the study abroad journey end-to-end: helping students decide the right college/path via AI, helping parents plan, finance, and invest for education. From this foundation, Zinc expanded into building a broader fintech platform (banking, credit, wealth) on top of that core use case."
             description={<>Led <Highlight>0→1 development</Highlight> across Zinc's core fintech products. From education financing to wealth management, <Highlight>building the foundation</Highlight> for a new kind of financial platform.</>}
 
-            projects={[
+            projectGroups={[
               {
-                title: "Zinc Honors",
-                description:
-                  "Education-finance planning platform helping parents plan, save, and invest for their children's study abroad journey.",
-                tags: ["Fintech", "Education", "0→1"],
+                groupTitle: "Zinc's Global Finance Solution",
+                groupDescription: "The foundation Zinc was built on: solving the study abroad journey end-to-end, helping students decide the right college/path via AI, helping parents plan, finance, and invest for education.",
+                projects: [
+                  {
+                    title: "Zinc Honors",
+                    description: "All-in-one support for a global education dream, helping parents plan, save, and invest for their children's study abroad journey.",
+                  },
+                  {
+                    title: "Zinc Pay",
+                    description: "Multi-currency account enabling seamless international transactions for students and families abroad.",
+                  },
+                  {
+                    title: "Zinc Wealth",
+                    description: "Invest seamlessly in global markets. Diversify your portfolio with access to international markets, with investment plans tailored to your specific needs.",
+                  },
+                  {
+                    title: "GTM Mini-Apps",
+                    description: "AI-powered micro-applications for user acquisition, increasing top-of-funnel through targeted, value-first experiences.",
+                  },
+                ],
               },
               {
-                title: "Zinc Wealth",
-                description:
-                  "Wealth diversification product with intelligent investment planning and portfolio management.",
-                tags: ["Wealth", "Investment"],
-              },
-              {
-                title: "Zinc Global",
-                description:
-                  "Multi-currency account enabling seamless international transactions for students and families.",
-                tags: ["Banking", "Global"],
-              },
-              {
-                title: "Zinc AI",
-                description:
-                  "Intelligent investment planner powered by AI, providing personalized recommendations and insights.",
-                tags: ["AI", "Planning"],
-              },
-              {
-                title: "GTM Mini-Apps",
-                description:
-                  "AI-powered micro-applications for user acquisition, increasing top-of-funnel through targeted, value-first experiences.",
-                tags: ["Growth", "AI"],
+                groupTitle: "Zinc Ada",
+                groupDescription: "An intelligent assistant that helps students discover the right subjects, choose the right university, and map their unique path. It continuously monitors academic progress, recommends the best subject choices, and nudges students to build the skills needed to get into their target universities. Essentially, a 24/7 mentor guiding students toward achieving their goals.",
+                projects: [
+                  {
+                    title: "AI-Guided Counselling",
+                    description: "Ada helped students navigate college, career, and study-abroad decisions through guided conversations and ongoing personalized support.",
+                  },
+                  {
+                    title: "Personalized College Planning",
+                    description: "Ada generated structured outputs like college paths, development plans, and recommendations tailored to each student's profile and goals.",
+                  },
+                  {
+                    title: "Parent & Counsellor Collaboration",
+                    description: "Ada supported parents and human counsellors with shared context, reports, and dedicated workflows so guidance could be more coordinated and actionable.",
+                  },
+                  {
+                    title: "Assessment & Reporting",
+                    description: "A key part of the product was turning conversations into useful outputs such as assessment reports, dockets, and student profiles that families could use for decision-making.",
+                  },
+                ],
               },
             ]}
           />

@@ -15,6 +15,12 @@ interface Project {
   tags?: string[];
 }
 
+interface ProjectGroup {
+  groupTitle: string;
+  groupDescription?: string;
+  projects: Project[];
+}
+
 interface WorkItemProps {
   company: string | ReactNode;
   role: string;
@@ -22,6 +28,7 @@ interface WorkItemProps {
   location?: string;
   description: ReactNode;
   projects?: Project[];
+  projectGroups?: ProjectGroup[];
   highlights?: string[];
   tags?: string[];
   logo?: string;
@@ -169,8 +176,8 @@ function WorkHeader({
             </div>
           </div>
 
-          {/* Row 2: Role */}
-          <p className="label text-accent mb-4">{role}</p>
+          {/* Row 2: Role - pill style */}
+          <span className="inline-block text-sm font-medium text-accent bg-accent/10 px-3 py-1 rounded-full mb-4">{role}</span>
 
           {/* Row 3: Description */}
           <p className="body-base text-text-muted max-w-3xl mb-4">{description}</p>
@@ -269,6 +276,87 @@ function ProjectGrid({ projects }: ProjectGridProps) {
 }
 
 // ============================================================================
+// GROUPED PROJECT GRID
+// ============================================================================
+
+interface GroupedProjectGridProps {
+  projectGroups: ProjectGroup[];
+}
+
+function GroupedProjectGrid({ projectGroups }: GroupedProjectGridProps) {
+  const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
+  const itemRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
+
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+
+    itemRefs.current.forEach((ref, key) => {
+      if (ref) {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              setVisibleItems(prev => new Set([...prev, key]));
+              observer.unobserve(ref);
+            }
+          },
+          { threshold: 0.1 }
+        );
+        observer.observe(ref);
+        observers.push(observer);
+      }
+    });
+
+    return () => observers.forEach(obs => obs.disconnect());
+  }, [projectGroups.length]);
+
+  let globalIndex = 0;
+
+  return (
+    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}>
+      {projectGroups.map((group, groupIndex) => (
+        <div key={groupIndex} className="mb-16 last:mb-0">
+          {/* Group Header - subtle divider style */}
+          <div className="flex items-center gap-4 mb-8">
+            <span className="label text-accent shrink-0">{group.groupTitle}</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+          {group.groupDescription && (
+            <p className="text-text-muted body-sm max-w-3xl mb-8 -mt-4">{group.groupDescription}</p>
+          )}
+          {/* Group Projects - same style as ProjectGrid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
+            {group.projects.map((project, projectIndex) => {
+              const itemKey = `${groupIndex}-${projectIndex}`;
+              const currentGlobalIndex = globalIndex++;
+              return (
+                <div
+                  key={projectIndex}
+                  ref={el => { itemRefs.current.set(itemKey, el); }}
+                  className="flex gap-5 items-center"
+                  style={{
+                    opacity: visibleItems.has(itemKey) ? 1 : 0,
+                    transform: visibleItems.has(itemKey) ? "translateY(0)" : "translateY(20px)",
+                    transition: `opacity 0.5s ease-out ${(currentGlobalIndex % 6) * 100}ms, transform 0.5s ease-out ${(currentGlobalIndex % 6) * 100}ms`,
+                  }}
+                >
+                  {/* Image placeholder */}
+                  <div className="shrink-0 w-24 h-24 bg-bg-alt rounded-lg" />
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-editorial text-lg text-text mb-0">{project.title}</h4>
+                    <p className="text-text-muted line-clamp-4 leading-relaxed" style={{ fontSize: "13px" }}>{project.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
@@ -279,6 +367,7 @@ export function WorkItem({
   location,
   description,
   projects,
+  projectGroups,
   highlights,
   tags,
   logo,
@@ -288,7 +377,7 @@ export function WorkItem({
   const companySlug = typeof company === "string"
     ? company.toLowerCase().replace(/\s+/g, "-")
     : "work-item";
-  const hasProjects = !!(projects && projects.length > 0);
+  const hasProjects = !!(projects && projects.length > 0) || !!(projectGroups && projectGroups.length > 0);
   const [isVisible, setIsVisible] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
   const { viewMode } = useWorkView();
@@ -346,11 +435,15 @@ export function WorkItem({
         <div
           className="overflow-hidden transition-all duration-500 ease-out"
           style={{
-            maxHeight: viewMode === "detailed" ? "2000px" : "0",
+            maxHeight: viewMode === "detailed" ? "5000px" : "0",
             opacity: viewMode === "detailed" ? 1 : 0,
           }}
         >
-          <ProjectGrid projects={projects} />
+          {projectGroups && projectGroups.length > 0 ? (
+            <GroupedProjectGrid projectGroups={projectGroups} />
+          ) : projects && projects.length > 0 ? (
+            <ProjectGrid projects={projects} />
+          ) : null}
         </div>
       )}
     </div>
