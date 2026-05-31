@@ -1,0 +1,159 @@
+.label {
+  font-family: var(--font-sohne), sans-serif;
+  font-size: clamp(1.5rem, 3.8vw, 4.25rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #000;
+}
+
+.title {
+  margin-top: 0.5rem;
+  font-family: var(--font-sohne), sans-serif;
+  font-size: clamp(3.75rem, 10vw, 11rem);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -0.07em;
+  color: #000;
+}
+
+.nextCopy {
+  max-width: 1000px;
+  color: #000;
+  font-family: var(--font-editorial), serif;
+  font-size: 68px;
+  font-style: normal;
+  font-weight: 200;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.nextStack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.nextStarWrap {
+  display: flex;
+  justify-content: center;
+  color: #111;
+  will-change: transform;
+}
+
+.nextStar {
+  display: block;
+  width: 6rem;
+  height: 6rem;
+}
+
+.nextWord {
+  display: inline-block;
+  padding-inline: 0.045em;
+  will-change: transform;
+}
+
+.nextWordHighlight {
+  position: relative;
+  z-index: 10;
+  color: #000;
+  background-image: linear-gradient(
+    transparent 58%,
+    rgba(120, 196, 255, 0.55) 58%,
+    rgba(120, 196, 255, 0.55) 88%,
+    transparent 88%
+  );
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  border-radius: 0.2em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding-left: 0.06em;
+  padding-right: 0.06em;
+}
+
+.deepStage {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  isolation: isolate;
+}
+
+.deepOutlineWrap {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  color: rgba(17, 17, 17, 0.9);
+  z-index: 1;
+}
+
+.deepStar {
+  display: block;
+}
+
+.deepStarOutline {
+  width: min(140vw, 126rem);
+  height: min(140vw, 126rem);
+}
+
+.deepCopy {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 3;
+  width: min(53.54vw, 48.1875rem);
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-family: var(--font-editorial), serif;
+  font-size: 3.0625rem;
+  font-style: normal;
+  font-weight: 200;
+  line-height: 1.2;
+  text-align: center;
+  pointer-events: none;
+}
+
+.deepWord {
+  display: inline-block;
+  padding-inline: 0.045em;
+  will-change: transform;
+}
+
+@media (max-width: 1024px) {
+  .nextCopy {
+    font-size: clamp(2.7rem, 6.2vw, 4rem);
+  }
+
+  .deepCopy {
+    width: min(76vw, 40rem);
+    font-size: clamp(2.2rem, 4.8vw, 3rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .nextStack {
+    gap: 1.75rem;
+  }
+
+  .nextStar {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .nextCopy {
+    font-size: clamp(2.15rem, 8.4vw, 3.15rem);
+    line-height: 1.12;
+  }
+
+  .deepCopy {
+    width: min(84vw, 26rem);
+    font-size: clamp(1.65rem, 6.4vw, 2.4rem);
+  }
+}
