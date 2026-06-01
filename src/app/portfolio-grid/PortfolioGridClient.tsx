@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 import gsap from "gsap";
@@ -16,6 +17,29 @@ const nextSectionWords = nextSectionCopy.split(" ");
 const deepSectionCopy =
   "I thrive in complex, ambiguous spaces where the problem isn't clearly defined and the stakes are high.";
 const deepSectionWords = deepSectionCopy.split(" ");
+const tableCards = [
+  {
+    title: "Product thinking",
+    body: [
+      "Working mostly in 0→1 environments has shaped how I think. Deep problem exploration, user research, and strategic framing aren't steps I follow; they're instinctive at this point.",
+      "I'm most comfortable in ambiguous, high-stakes spaces, where the problem isn't clearly defined and clarity has to be built from scratch.",
+    ],
+  },
+  {
+    title: "Systems design",
+    body: [
+      "Having worked on products with millions of users and large, evolving codebases, I've learned that design doesn't scale unless systems do.",
+      "I focus on building design systems, component architectures, and patterns that don't just solve for today, but hold up as the product grows in complexity and scale.",
+    ],
+  },
+  {
+    title: "0 \u2192 1 Execution",
+    body: [
+      "Most of my career has been about building from zero. Taking something from a vague idea to a shipped product, figuring out what matters, moving fast, and making trade-offs along the way.",
+      "I'm used to high ownership and rapid iteration, where execution is as important as thinking.",
+    ],
+  },
+];
 const STAR_PATH =
   "M54 2L59.4 48.6L106 54L59.4 59.4L54 106L48.6 59.4L2 54L48.6 48.6L54 2Z";
 const DEEP_STAR_PATH =
@@ -162,6 +186,15 @@ export function PortfolioGridClient() {
         "[data-portfolio-deep-word]",
         root
       );
+      const darkOverlay = root.querySelector<HTMLElement>("[data-portfolio-dark-overlay]");
+      const tableSection = root.querySelector<HTMLElement>("[data-portfolio-table-section]");
+      const tableTitle = root.querySelector<HTMLElement>("[data-portfolio-table-title]");
+      const tableImageWrap = root.querySelector<HTMLElement>("[data-portfolio-table-image-wrap]");
+      const tableCardsWrap = root.querySelector<HTMLElement>("[data-portfolio-table-cards]");
+      const tableCardNodes = gsap.utils.toArray<HTMLElement>(
+        "[data-portfolio-table-card]",
+        root
+      );
 
       if (
         !label ||
@@ -173,7 +206,12 @@ export function PortfolioGridClient() {
         !nextStarShape ||
         !nextStarPath ||
         !deepSection ||
-        !deepOutlineStar
+        !deepOutlineStar ||
+        !darkOverlay ||
+        !tableSection ||
+        !tableTitle ||
+        !tableImageWrap ||
+        !tableCardsWrap
       ) {
         return;
       }
@@ -183,7 +221,7 @@ export function PortfolioGridClient() {
         scrollTrigger: {
           trigger: root,
           start: "top top",
-          end: "+=4300",
+          end: "+=7600",
           scrub: 1.1,
           pin: sceneElement,
           invalidateOnRefresh: true,
@@ -216,6 +254,27 @@ export function PortfolioGridClient() {
       gsap.set(nextStar, {
         y: 0,
         rotate: 0,
+      });
+
+      gsap.set(tableSection, {
+        opacity: 0,
+      });
+
+      gsap.set(tableTitle, {
+        opacity: 0,
+        yPercent: 18,
+        filter: "blur(14px)",
+      });
+
+      gsap.set(tableImageWrap, {
+        yPercent: 70,
+        opacity: 0,
+      });
+
+      gsap.set(tableCardNodes, {
+        opacity: 0,
+        yPercent: 18,
+        filter: "blur(12px)",
       });
 
       timeline.fromTo(
@@ -518,6 +577,121 @@ export function PortfolioGridClient() {
         },
         6.34
       );
+
+      timeline.to(
+        [nextSection, nextStar, deepOutlineStar],
+        {
+          opacity: 0,
+          duration: 0.45,
+        },
+        8.12
+      );
+
+      timeline.to(
+        deepSection,
+        {
+          opacity: 0,
+          duration: 0.5,
+        },
+        8.48
+      );
+
+      timeline.to(
+        darkOverlay,
+        {
+          opacity: 1,
+          duration: 0.55,
+        },
+        8.78
+      );
+
+      timeline.fromTo(
+        tableSection,
+        {
+          opacity: 0,
+        },
+        {
+          opacity: 1,
+          duration: 0.4,
+        },
+        9.18
+      );
+
+      timeline.fromTo(
+        tableImageWrap,
+        {
+          yPercent: 70,
+          opacity: 0,
+        },
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 1.2,
+          ease: "power3.out",
+        },
+        9.26
+      );
+
+      timeline.to(
+        tableImageWrap,
+        {
+          yPercent: 0,
+          duration: 0.4,
+          ease: "power2.out",
+        },
+        10.18
+      );
+
+      timeline.fromTo(
+        tableTitle,
+        {
+          opacity: 0,
+          yPercent: 18,
+          filter: "blur(14px)",
+        },
+        {
+          opacity: 1,
+          yPercent: 0,
+          filter: "blur(0px)",
+          duration: 0.72,
+        },
+        10.78
+      );
+
+      timeline.to(
+        tableImageWrap,
+        {
+          yPercent: 48,
+          duration: 1.05,
+          ease: "power2.inOut",
+        },
+        11.38
+      );
+
+      timeline.fromTo(
+        tableCardsWrap,
+        {
+          opacity: 0.8,
+        },
+        {
+          opacity: 1,
+          duration: 0.2,
+        },
+        11.74
+      );
+
+      timeline.to(
+        tableCardNodes,
+        {
+          opacity: 1,
+          yPercent: 0,
+          filter: "blur(0px)",
+          duration: 0.62,
+          stagger: 0.2,
+          ease: "power3.out",
+        },
+        11.78
+      );
     },
     { scope }
   );
@@ -525,10 +699,17 @@ export function PortfolioGridClient() {
   return (
     <section
       ref={scope}
-      className="relative min-h-[500vh] overflow-x-clip bg-[#f5f7fb] text-black"
+      className="relative min-h-[760vh] overflow-x-clip bg-[#f5f7fb] text-black"
     >
       <div ref={scene} className="relative h-screen overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.92),_rgba(245,247,251,0.7)_38%,_rgba(227,237,249,0.92)_100%)]" />
+        <div
+          data-portfolio-dark-overlay
+          className="absolute inset-0 opacity-0"
+          style={{
+            background: "#000",
+          }}
+        />
 
         <div
           data-portfolio-glow
@@ -621,6 +802,55 @@ export function PortfolioGridClient() {
                       </span>
                     ))}
                   </p>
+                </div>
+              </div>
+
+              <div
+                data-portfolio-table-section
+                className={styles.tableSection}
+              >
+                <h2
+                  data-portfolio-table-title
+                  className={styles.tableTitle}
+                >
+                  What I bring to the table
+                </h2>
+
+                <div
+                  data-portfolio-table-cards
+                  className={styles.tableCards}
+                >
+                  {tableCards.map((card) => (
+                    <article
+                      key={card.title}
+                      data-portfolio-table-card
+                      className={styles.tableCard}
+                    >
+                      <div className={styles.tableCardInner}>
+                        <h3 className={styles.tableCardTitle}>{card.title}</h3>
+                        <div className={styles.tableCardBody}>
+                          {card.body.map((paragraph) => (
+                            <p key={paragraph}>{paragraph}</p>
+                          ))}
+                        </div>
+                      </div>
+                      <div className={styles.tableCardGlow} />
+                    </article>
+                  ))}
+                </div>
+
+                <div
+                  data-portfolio-table-image-wrap
+                  className={styles.tableImageWrap}
+                >
+                  <Image
+                    src="/portfolio-grid/table.png"
+                    alt=""
+                    width={2200}
+                    height={1475}
+                    priority
+                    className={styles.tableImage}
+                  />
                 </div>
               </div>
             </div>
