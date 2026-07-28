@@ -1,0 +1,321 @@
+"use client";
+
+import Image from "next/image";
+import { useCallback, useRef, useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ROLES } from "./journey-data";
+import styles from "./portfolio-august.module.css";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+// One card plus the flex gap, so an arrow click advances exactly one card.
+const CARD_STEP = 473 + 31;
+// Max degrees a card turns toward the cursor on hover.
+const CARD_TILT = 7;
+// Auto-drift speed in px/sec — slow enough to read as ambient, not as scrolling.
+const DRIFT_SPEED = 16;
+// Extra degrees a card leans based on where it sits across the viewport.
+const DRIFT_TILT = 1.6;
+
+export function JourneySection() {
+  const root = useRef<HTMLElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  const syncArrows = useCallback(() => {
+    const el = track.current;
+    if (!el) return;
+    setAtStart(el.scrollLeft < 8);
+    setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 8);
+  }, []);
+
+  const nudge = (direction: 1 | -1) => {
+    track.current?.scrollBy({ left: direction * CARD_STEP, behavior: "smooth" });
+  };
+
+  useGSAP(
+    () => {
+      const section = root.current;
+      if (!section) return;
+      const scroller = section.closest("main");
+
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const cleanups: (() => void)[] = [];
+
+      /* Cars drive in from off-screen when the section arrives — the left car
+       * from the left edge, the right car from the right, each with a slight
+       * settle so they look like they braked rather than stopped dead. */
+      const cars = gsap.utils.toArray<HTMLElement>(`.${styles.car}`, section);
+      const intro = gsap.timeline({
+        scrollTrigger: { trigger: section, scroller, start: "top 70%", once: true },
+      });
+
+      /* Each car drives in along its own nose direction, so it looks like it
+       * came down the road rather than sliding sideways. The elements carry a
+       * CSS `rotate`, which GSAP's x/y would apply along the *rotated* axes —
+       * so the offsets below are already expressed in the car's local frame. */
+      cars.forEach((car, i) => {
+        intro.fromTo(
+          car,
+          { xPercent: -175, yPercent: i === 0 ? -40 : 40, autoAlpha: 0 },
+          {
+            xPercent: 0,
+            yPercent: 0,
+            autoAlpha: 1,
+            duration: 1.6,
+            ease: "power3.out",
+          },
+          i * 0.2,
+        );
+      });
+
+      intro.from(
+        `.${styles.journeyHeading} > *`,
+        { y: 26, autoAlpha: 0, duration: 0.9, stagger: 0.12, ease: "power3.out" },
+        0.25,
+      );
+
+      // Cards rise in as the section lands, so the track isn't static on arrival.
+      intro.from(
+        `.${styles.journeyCard}`,
+        { y: 48, autoAlpha: 0, duration: 0.8, stagger: 0.07, ease: "power2.out" },
+        0.4,
+      );
+
+      /* Hover tilt. Each card turns toward the cursor in 3D, on top of its
+       * static ±3° layout rotation — which lives on an inner element so the
+       * two transforms don't overwrite each other. */
+      const cards = gsap.utils.toArray<HTMLElement>(`.${styles.card}`, section);
+
+      cards.forEach((card) => {
+        const inner = card.querySelector<HTMLElement>(`.${styles.cardInner}`);
+        if (!inner) return;
+
+        const rx = gsap.quickTo(inner, "rotationX", { duration: 0.4, ease: "power2.out" });
+        const ry = gsap.quickTo(inner, "rotationY", { duration: 0.4, ease: "power2.out" });
+
+        const onMove = (event: PointerEvent) => {
+          const rect = card.getBoundingClientRect();
+          // -1..1 across the card, so the tilt follows which edge you're near.
+          const px = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+          const py = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+          ry(px * CARD_TILT);
+          rx(-py * CARD_TILT);
+        };
+
+        const onLeave = () => {
+          ry(0);
+          rx(0);
+        };
+
+        card.addEventListener("pointermove", onMove);
+        card.addEventListener("pointerleave", onLeave);
+        cleanups.push(() => {
+          card.removeEventListener("pointermove", onMove);
+          card.removeEventListener("pointerleave", onLeave);
+        });
+      });
+
+      /* ---------------------------------------------------------------
+       * Slow auto-drift. The track creeps sideways once the section lands,
+       * and each card's tilt eases as it crosses the viewport so the row
+       * feels alive rather than rigid. Any user interaction stops it for
+       * good — fighting the reader's own scrolling would be hostile.
+       * --------------------------------------------------------------- */
+      const el = track.current;
+      if (!el) return () => cleanups.forEach((fn) => fn());
+
+      let drifting = false;
+      let carry = 0;
+
+      /* Only real gestures stop the drift. `scroll` is deliberately not in this
+       * list — the drift sets scrollLeft itself, so listening for it would make
+       * the drift cancel itself on its first frame. */
+      const stopDrift = () => {
+        drifting = false;
+      };
+      ["pointerdown", "wheel", "touchstart", "keydown"].forEach((evt) => {
+        el.addEventListener(evt, stopDrift, { passive: true });
+        cleanups.push(() => el.removeEventListener(evt, stopDrift));
+      });
+
+      const drift = (_t: number, deltaMs: number) => {
+        if (!drifting) return;
+        const dt = Math.min(deltaMs, 32);
+        // Sub-pixel movement per frame has to accumulate; scrollLeft is integral.
+        carry += (DRIFT_SPEED * dt) / 1000;
+        const step = Math.floor(carry);
+        if (step >= 1) {
+          carry -= step;
+          el.scrollLeft += step;
+          // Reaching the end just ends the drift; looping would jerk.
+          if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 1) drifting = false;
+        }
+
+        // Tilt eases with each card's horizontal position, so cards breathe
+        // as they travel instead of holding one fixed angle.
+        const mid = el.clientWidth / 2;
+        cards.forEach((card, i) => {
+          const inner = card.querySelector<HTMLElement>(`.${styles.cardInner}`);
+          if (!inner) return;
+          const rect = card.getBoundingClientRect();
+          const offset = (rect.left + rect.width / 2 - mid) / mid;
+          const base = i % 2 === 1 ? -3 : 3;
+          gsap.set(card, { rotate: `${base + offset * DRIFT_TILT}deg` });
+        });
+      };
+
+      gsap.ticker.add(drift);
+      cleanups.push(() => gsap.ticker.remove(drift));
+
+      ScrollTrigger.create({
+        trigger: section,
+        scroller,
+        start: "top 60%",
+        once: true,
+        // Held until the intro has played out, so the drift doesn't fight it.
+        onEnter: () => gsap.delayedCall(1.8, () => {
+          drifting = true;
+        }),
+      });
+
+      return () => cleanups.forEach((fn) => fn());
+    },
+    { scope: root },
+  );
+
+  return (
+    <section ref={root} id="work" className={`${styles.journey} ${styles.snap}`}>
+      <div aria-hidden className={styles.journeyGrid} />
+
+      <Image
+        src="/portfolio-august/journey/track-bottom.webp"
+        alt=""
+        width={1299}
+        height={374}
+        className={`${styles.trackArt} ${styles.trackArtBottom}`}
+      />
+      <Image
+        src="/portfolio-august/journey/track-right.webp"
+        alt=""
+        width={517}
+        height={680}
+        className={`${styles.trackArt} ${styles.trackArtRight}`}
+      />
+
+      <Image
+        src="/portfolio-august/journey/car-left.webp"
+        alt=""
+        width={350}
+        height={139}
+        className={`${styles.car} ${styles.carLeft}`}
+      />
+      <Image
+        src="/portfolio-august/journey/car-right.webp"
+        alt=""
+        width={345}
+        height={140}
+        className={`${styles.car} ${styles.carRight}`}
+      />
+
+      <div className={styles.journeyHeading}>
+        <h2 className={styles.journeyTitle}>10 years of journey so far</h2>
+        <p className={styles.journeySub}>
+          I have worn multiple hats throughout my career span of almost 10 years
+        </p>
+      </div>
+
+      <div className={styles.trackWrap}>
+        <div ref={track} className={styles.track} onScroll={syncArrows}>
+          {ROLES.map((role, i) => {
+            // Odd cards hang below with the stem above; even cards sit above it.
+            const below = i % 2 === 1;
+            return (
+              <div
+                key={`${role.company}-${role.dates}`}
+                className={`${styles.journeyCard} ${below ? styles.cardBelow : ""}`}
+              >
+                {!below && <DateStem dates={role.dates} />}
+
+                <article
+                  className={styles.card}
+                  style={{ rotate: `${below ? -3 : 3}deg` }}
+                >
+                  <div className={styles.cardInner}>
+                    <header className={styles.cardHead}>
+                      <div className={styles.cardIdentity}>
+                        <span
+                          className={styles.cardLogo}
+                          style={role.logoBg ? { background: role.logoBg } : undefined}
+                        >
+                          <Image src={role.logo} alt="" width={42} height={42} />
+                        </span>
+                        <span className={styles.cardTitles}>
+                          <span className={styles.cardRole}>{role.title}</span>
+                          <span className={styles.cardCompany}>{role.company}</span>
+                        </span>
+                      </div>
+                      {role.badge && (
+                        <span
+                          className={`${styles.badge} ${
+                            role.badge.tone === "freelance" ? styles.badgeFreelance : ""
+                          }`}
+                        >
+                          {role.badge.label}
+                        </span>
+                      )}
+                    </header>
+
+                    <ul className={styles.cardBullets}>
+                      {role.bullets.map((bullet) => (
+                        <li key={bullet}>{bullet}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
+
+                {below && <DateStem dates={role.dates} flipped />}
+              </div>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          className={`${styles.arrow} ${styles.arrowLeft}`}
+          onClick={() => nudge(-1)}
+          disabled={atStart}
+          aria-label="Previous role"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <button
+          type="button"
+          className={`${styles.arrow} ${styles.arrowRight}`}
+          onClick={() => nudge(1)}
+          disabled={atEnd}
+          aria-label="Next role"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function DateStem({ dates, flipped }: { dates: string; flipped?: boolean }) {
+  const [start, end] = dates.split("→");
+  return (
+    <div className={`${styles.stem} ${flipped ? styles.stemFlipped : ""}`}>
+      <span className={styles.datePill}>
+        <strong>{start.trim()}</strong> → {end.trim()}
+      </span>
+      <span aria-hidden className={styles.stemLine} />
+    </div>
+  );
+}

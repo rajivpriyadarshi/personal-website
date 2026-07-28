@@ -6,8 +6,11 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GradientCanvas, DEFAULT_PARAMS } from "../experiments/hero-gradient/GradientCanvas";
+import { JourneySection } from "./JourneySection";
 import { PhotoStack } from "./PhotoStack";
+import { SummarySection } from "./SummarySection";
 import { TagPhysics } from "./TagPhysics";
+import { WordsSection } from "./WordsSection";
 import styles from "./portfolio-august.module.css";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -140,17 +143,11 @@ export function PortfolioAugustClient() {
         <TagPhysics />
       </section>
 
-      <section id="summary" className={`${styles.placeholder} ${styles.summary} ${styles.snap}`}>
-        Summary — next up
-      </section>
+      <SummarySection />
 
-      <section id="work" className={`${styles.placeholder} ${styles.journey} ${styles.snap}`}>
-        Journey so far
-      </section>
+      <JourneySection />
 
-      <section id="contact" className={`${styles.placeholder} ${styles.words} ${styles.snap}`}>
-        Good words
-      </section>
+      <WordsSection />
     </main>
   );
 }

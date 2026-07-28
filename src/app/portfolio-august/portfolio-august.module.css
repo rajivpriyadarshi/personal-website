@@ -37,16 +37,791 @@
   text-transform: uppercase;
 }
 
+/* ---------------------------------------------------------------
+ * Summary
+ * --------------------------------------------------------------- */
 .summary {
-  background: #fdfaf6;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  /* Warm sand wash from the design, lifted by a near-white overlay. */
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%),
+    #e1c7a7;
 }
 
+.summaryGrid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url("/portfolio-august/summary/grid.svg");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Outlined clouds drifting behind everything. Kept as strokes, not fills, so
+   they read as a faint sketch layer rather than competing with the objects. */
+.summaryClouds {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Canvas holds both the water inside the clouds and the falling drops, so
+   hundreds of bodies cost one draw call's worth of DOM. */
+.rainCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.cloud {
+  position: absolute;
+  z-index: 2;
+  color: rgba(120, 96, 64, 0.28);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Rain-bearing clouds read cooler and heavier than the dry ones below. */
+.cloudWet {
+  color: rgba(126, 163, 196, 0.9);
+}
+
+.cloud svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud {
+    animation: none;
+  }
+}
+
+/* Outer element carries the spring's translate; the inner .summaryTilt carries
+   the 3D rotation. Splitting them keeps the two systems from overwriting each
+   other's transform. */
+.summaryObject {
+  position: absolute;
+  z-index: 1;
+  perspective: 800px;
+  /* Hidden until its staggered turn; GSAP reveals each with autoAlpha. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.summaryTilt {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.summaryImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* Grounds the object so the tilt reads as a solid thing catching light. */
+  filter: drop-shadow(0 18px 26px rgba(70, 50, 30, 0.16));
+}
+
+.summaryCopy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: min(618px, 86vw);
+  text-align: center;
+}
+
+.summaryHeadline {
+  margin: 0;
+  color: #000;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 200;
+  font-size: clamp(1.75rem, 2.8vw, 42px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.summarySub {
+  margin: 0;
+  color: #445d5d;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: clamp(1rem, 1.6vw, 24px);
+  line-height: 1.3;
+}
+
+/* Blinking caret that rides the end of the text while it types. */
+.typing::after {
+  content: "";
+  display: inline-block;
+  width: 0.06em;
+  height: 0.9em;
+  margin-left: 0.06em;
+  translate: 0 0.08em;
+  background: currentColor;
+  animation: caretBlink 0.75s steps(1) infinite;
+}
+
+@keyframes caretBlink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .summaryObject {
+    /* Shrink the props so they frame the copy instead of burying it. */
+    scale: 0.55;
+  }
+
+  .summaryCopy {
+    width: 88vw;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * Journey
+ * --------------------------------------------------------------- */
 .journey {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
   background: #fff8eb;
 }
 
+.journeyGrid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url("/portfolio-august/journey/grid.svg");
+  background-size: cover;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* Hot Wheels track art along the bottom. Sits above the grid but below the
+   cards so the carousel always stays readable over it. */
+.trackArt {
+  position: absolute;
+  z-index: 1;
+  height: auto;
+  pointer-events: none;
+}
+
+.trackArtBottom {
+  left: -2%;
+  bottom: -4%;
+  width: clamp(420px, 52vw, 800px);
+}
+
+.trackArtRight {
+  right: -3%;
+  bottom: -6%;
+  width: clamp(180px, 24vw, 360px);
+}
+
+/* Position and angle taken from the design frame (1520x1105), converted to
+   percentages. Both cars hang off the top corners and are cropped by the
+   section's overflow, exactly as in the reference. */
+.car {
+  position: absolute;
+  z-index: 2;
+  height: auto;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 18px 22px rgba(60, 45, 20, 0.22));
+}
+
+.carLeft {
+  left: -9.9%;
+  top: -12.1%;
+  width: 30.9%;
+  rotate: 40.67deg;
+}
+
+.carRight {
+  left: 78.4%;
+  top: -7.1%;
+  width: 27.1%;
+  rotate: 147.15deg;
+}
+
+.journeyHeading {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: min(596px, 88vw);
+  margin-top: clamp(48px, 9vh, 118px);
+  text-align: center;
+}
+
+.journeyTitle {
+  margin: 0;
+  color: #003e2f;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 200;
+  font-size: clamp(2rem, 4vw, 58px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.journeySub {
+  margin: 0;
+  max-width: 434px;
+  color: #71717b;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: clamp(0.95rem, 1.4vw, 20px);
+  line-height: 1.3;
+}
+
+/* --- Carousel --------------------------------------------------- */
+/* Cards sit in the upper-middle band, per the design, leaving the lower third
+   for the Hot Wheels track art. */
+.trackWrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 0;
+  margin-top: clamp(20px, 4vh, 48px);
+}
+
+.track {
+  display: flex;
+  /* flex-start, not center: each card's own stem offset does the staggering,
+     so centring would cancel the alternating rhythm out. */
+  align-items: flex-start;
+  gap: 31px;
+  width: 100%;
+  /* Needed because .track is itself a flex item: without it the flex base size
+     wins and the cards compress instead of overflowing into a scroll. */
+  min-width: 0;
+  height: 100%;
+  /* Clears the floating arrows at both ends. */
+  padding: 0 max(6vw, 92px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* No scroll-snap: it fights the slow auto-drift's sub-pixel steps and yanks
+     scrollLeft back to the nearest card every frame. */
+  /* The page's vertical snap container is an ancestor; keep horizontal drags
+     here from bubbling into it. */
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.journeyCard {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 473px;
+  /* Pushed down so the pill-above cards clear the heading; .cardBelow resets
+     this to 0 to produce the alternating stagger. */
+  margin-top: 58px;
+}
+
+/* Odd cards ride higher with their pill below, so the row reads as a timeline
+   rather than a grid. */
+.cardBelow {
+  margin-top: 0;
+}
+
+.card {
+  width: 100%;
+  /* Perspective here, 3D rotation on .cardInner — so the hover tilt never
+     overwrites the static ±3° layout rotation on this element. */
+  perspective: 900px;
+}
+
+.cardInner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  padding-bottom: 32px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 24px;
+  /* Near-white over the brand green, per the design. */
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.94) 100%),
+    #003e2f;
+}
+
+.cardIdentity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cardLogo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  overflow: hidden;
+  border-radius: 40px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.cardLogo img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.cardTitles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardRole {
+  color: #000;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-transform: capitalize;
+}
+
+.cardCompany {
+  color: rgba(0, 0, 0, 0.6);
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(108, 103, 63, 0.2);
+  border-radius: 50px;
+  background: rgba(207, 198, 126, 0.2);
+  color: #6c673f;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badgeFreelance {
+  border-color: rgba(126, 207, 145, 0.2);
+  background: rgba(126, 207, 145, 0.2);
+  color: #3d794b;
+}
+
+.cardBullets {
+  width: 425px;
+  max-width: 90%;
+  margin: 0 auto;
+  /* Tailwind's preflight zeroes list-style on ul, so the discs have to be
+     restored explicitly or these render as bare paragraphs. */
+  list-style: disc outside;
+  padding-left: 24px;
+  color: #000;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.cardBullets li {
+  display: list-item;
+}
+
+.cardBullets li + li {
+  margin-top: 12px;
+}
+
+/* --- Date pill + connector stem --------------------------------- */
+.stem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.stemFlipped {
+  flex-direction: column-reverse;
+}
+
+.datePill {
+  padding: 12px 16px;
+  border: 1px solid #003e2f;
+  border-radius: 30px;
+  color: #003e2f;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.datePill strong {
+  font-weight: 700;
+}
+
+/* Line with a filled dot at the pill end, matching the design's pin look. */
+.stemLine {
+  position: relative;
+  width: 1px;
+  /* Slightly overlapped into the card: the 3° rotation lifts the card's near
+     corner, which would otherwise leave a visible gap under the stem. */
+  height: 52px;
+  margin-bottom: -9px;
+  background: #003e2f;
+}
+
+.stemLine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: #003e2f;
+}
+
+.stemFlipped .stemLine {
+  margin-top: -9px;
+  margin-bottom: 0;
+}
+
+.stemFlipped .stemLine::before {
+  top: auto;
+  bottom: 0;
+  translate: -50% 50%;
+}
+
+/* --- Arrows ----------------------------------------------------- */
+.arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  translate: 0 -50%;
+  border: 1px solid rgba(0, 62, 47, 0.15);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0, 62, 47, 0.12);
+  color: #003e2f;
+  cursor: pointer;
+  transition:
+    opacity 240ms ease,
+    background 240ms ease,
+    scale 160ms ease;
+}
+
+.arrow:hover:not(:disabled) {
+  background: #fff;
+  scale: 1.06;
+}
+
+.arrow:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.arrowLeft {
+  left: max(1.5vw, 14px);
+}
+
+.arrowRight {
+  right: max(1.5vw, 14px);
+}
+
+@media (max-width: 900px) {
+  .journeyCard {
+    width: min(420px, 84vw);
+  }
+
+  .cardBelow {
+    margin-top: 48px;
+  }
+
+  .cardBullets {
+    width: 100%;
+    max-width: none;
+    padding-right: 24px;
+  }
+
+  .track {
+    padding: 0 8vw;
+  }
+
+  .car {
+    width: 120px;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * Good words
+ * --------------------------------------------------------------- */
 .words {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
   background: #f5f5f4;
+}
+
+/* Textured paper wall the notes are pinned to. */
+.wordsGrid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    url("/portfolio-august/journey/grid.svg"),
+    url("/portfolio-august/words/paper.webp");
+  background-size: cover, cover;
+  background-position: center, center;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.wordsTitle {
+  position: relative;
+  z-index: 2;
+  width: min(720px, 88vw);
+  margin: clamp(48px, 9vh, 130px) 0 0;
+  color: #003e2f;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 200;
+  font-size: clamp(2rem, 4.7vw, 72px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+/* --- Note carousel ---------------------------------------------- */
+.noteRailWrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 0;
+  margin-top: clamp(28px, 6vh, 72px);
+}
+
+.noteRail {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+  padding: 34px max(6vw, 92px) 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.noteRail::-webkit-scrollbar {
+  display: none;
+}
+
+.note {
+  position: relative;
+  flex: 0 0 auto;
+  width: 372px;
+}
+
+.notePaper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 372px;
+  padding: 34px 30px 26px;
+  /* Pivot at the pin, so hover swings the note from where it's tacked. */
+  transform-origin: 50% 8px;
+  /* Depth: a soft contact shadow plus a longer cast one, and a subtle sheen
+     across the paper so it reads as a physical note rather than a flat block. */
+  box-shadow:
+    0 2px 3px rgba(40, 30, 20, 0.12),
+    0 16px 28px rgba(40, 30, 20, 0.18);
+  will-change: transform;
+}
+
+/* Diagonal sheen, matching the design's gradient over each note. */
+.notePaper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    143deg,
+    rgba(255, 255, 255, 0) 1%,
+    rgba(255, 255, 255, 0) 49%,
+    rgba(255, 255, 255, 0.4) 75%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.notePin {
+  position: absolute;
+  left: 50%;
+  top: -18px;
+  z-index: 3;
+  width: 52px;
+  height: auto;
+  translate: -50% 0;
+  filter: drop-shadow(0 4px 5px rgba(40, 30, 20, 0.3));
+  pointer-events: none;
+}
+
+.noteQuoteMark {
+  color: rgba(0, 0, 0, 0.65);
+  font-family: var(--font-editorial), Georgia, serif;
+  font-size: 46px;
+  line-height: 0.5;
+}
+
+.noteQuote {
+  margin: 0;
+  color: #000;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.noteFooter {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: auto;
+}
+
+.noteAvatar {
+  flex-shrink: 0;
+  width: 69px;
+  height: 52px;
+  border-radius: 60px;
+  background: #fff;
+}
+
+.noteWho {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.noteName {
+  color: #000;
+  font-family: var(--font-editorial), Georgia, serif;
+  font-weight: 200;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.noteRole {
+  color: rgba(0, 0, 0, 0.5);
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+/* --- Bottom stationery spread ----------------------------------- */
+.propLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.prop {
+  position: absolute;
+  height: auto;
+  opacity: 0;
+  will-change: transform;
+  filter: drop-shadow(0 14px 20px rgba(50, 40, 25, 0.2));
+}
+
+@media (max-width: 900px) {
+  .note {
+    width: min(320px, 82vw);
+  }
+
+  .notePaper {
+    min-height: 320px;
+    padding: 28px 22px 20px;
+  }
+
+  .noteQuote {
+    font-size: 16px;
+  }
+
+  .noteRail {
+    padding: 34px 8vw 0;
+  }
+
+  .prop {
+    scale: 0.6;
+  }
 }
 
 /* ---------------------------------------------------------------
