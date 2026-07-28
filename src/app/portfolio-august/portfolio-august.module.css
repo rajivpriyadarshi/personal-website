@@ -639,18 +639,49 @@
   pointer-events: none;
 }
 
+/* Matches the Journey section's title scale. */
 .wordsTitle {
   position: relative;
   z-index: 2;
   width: min(720px, 88vw);
-  margin: clamp(48px, 9vh, 130px) 0 0;
+  margin: clamp(48px, 9vh, 118px) 0 0;
   color: #003e2f;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 200;
-  font-size: clamp(2rem, 4.7vw, 72px);
+  font-size: clamp(2rem, 4vw, 58px);
   line-height: 1.2;
   letter-spacing: -0.02em;
   text-align: center;
+}
+
+.titleWord {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Layered cloud band along the bottom edge. The source art is 1685x540, so
+   height is capped and object-fit crops to the crests — otherwise it scales up
+   to swallow the notes. Two copies parallax at different rates for depth. */
+.cloudBand {
+  position: absolute;
+  left: -6%;
+  bottom: 0;
+  z-index: 3;
+  width: 112%;
+  height: clamp(90px, 15vh, 165px);
+  object-fit: cover;
+  object-position: center top;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.cloudBandBack {
+  z-index: 2;
+  left: -12%;
+  width: 128%;
+  bottom: 5%;
+  height: clamp(70px, 12vh, 130px);
+  opacity: 0.5;
 }
 
 /* --- Note carousel ---------------------------------------------- */
@@ -662,7 +693,9 @@
   align-items: flex-start;
   width: 100%;
   min-height: 0;
-  margin-top: clamp(28px, 6vh, 72px);
+  margin-top: clamp(20px, 4vh, 52px);
+  /* Keeps the notes clear of the cloud band along the bottom. */
+  padding-bottom: clamp(90px, 15vh, 165px);
 }
 
 .noteRail {
@@ -671,7 +704,9 @@
   gap: 24px;
   width: 100%;
   min-width: 0;
-  padding: 34px max(6vw, 92px) 0;
+  /* Generous vertical padding: overflow-x:auto also clips on the y axis, which
+     was cutting off the notes' cast shadows and the pin heads. */
+  padding: 46px max(6vw, 92px) 48px;
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
@@ -686,6 +721,9 @@
   position: relative;
   flex: 0 0 auto;
   width: 372px;
+  /* Hidden until it slides in; GSAP reveals each with autoAlpha. */
+  opacity: 0;
+  visibility: hidden;
 }
 
 .notePaper {
@@ -784,23 +822,6 @@
   line-height: 1.3;
 }
 
-/* --- Bottom stationery spread ----------------------------------- */
-.propLayer {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.prop {
-  position: absolute;
-  height: auto;
-  opacity: 0;
-  will-change: transform;
-  filter: drop-shadow(0 14px 20px rgba(50, 40, 25, 0.2));
-}
-
 @media (max-width: 900px) {
   .note {
     width: min(320px, 82vw);
@@ -819,9 +840,6 @@
     padding: 34px 8vw 0;
   }
 
-  .prop {
-    scale: 0.6;
-  }
 }
 
 /* ---------------------------------------------------------------
