@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Frame sequence for the cube-reveal experiment (~15MB of generated WebPs).
+# Regenerate from the ZincBorrow source frames rather than versioning binaries.
+/public/experiments/cube-reveal/frames/

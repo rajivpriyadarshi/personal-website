@@ -1,0 +1,192 @@
+.scroller {
+  position: relative;
+  width: 100%;
+  background: #fdfbee;
+}
+
+/* Gives the reveal somewhere to land once the pin releases. */
+.outro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 0 6vw;
+  background: #fdfbee;
+  font-family: var(--font-sohne), "Inter", system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(61, 43, 20, 0.5);
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #fdfbee;
+}
+
+/* Own stacking context holding the frame sequence AND the cube grid. Sits
+   below .heading so cubes fly past behind the type, as in the reference. */
+.scene {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Fallback when the gitignored frame sequence isn't present locally. */
+.canvasMissing {
+  background: url("/experiments/cube-reveal/yacht.webp") center / cover no-repeat;
+}
+
+.sceneTint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.heading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 20;
+  width: 100%;
+  padding: 0 3vw;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(3rem, 7.5vw, 100px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  color: #3d2b14;
+  /* Blends the type into the scene below instead of stamping flat ink on top. */
+  mix-blend-mode: multiply;
+  text-shadow:
+    0 1px 0 rgba(255, 245, 220, 0.35),
+    0 2px 0 rgba(255, 235, 200, 0.18),
+    0 8px 24px rgba(60, 35, 10, 0.28),
+    0 20px 48px rgba(40, 25, 8, 0.22);
+}
+
+.line {
+  display: block;
+}
+
+.word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Cube grid sits above the heading so the type is uncovered as cubes clear. */
+.tiles {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.tile {
+  position: absolute;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.tileInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 1px solid rgba(30, 20, 10, 0.55);
+}
+
+.front {
+  background: #fdfbee;
+  transform: translateZ(var(--d));
+}
+.back {
+  background: #fdfbee;
+  transform: translateZ(calc(var(--d) * -1)) rotateY(180deg);
+}
+.right {
+  background: #f0edd8;
+  transform: rotateY(90deg) translateZ(var(--half-w));
+}
+.left {
+  background: #f0edd8;
+  transform: rotateY(-90deg) translateZ(var(--half-w));
+}
+.top {
+  background: #f7f4df;
+  transform: rotateX(90deg) translateZ(var(--half-h));
+}
+.bottom {
+  background: #e6e2c4;
+  transform: rotateX(-90deg) translateZ(var(--half-h));
+}
+
+/* Above the cube layer so the grid dissolves into the page instead of ending on a hard edge. */
+.topSeparator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 15%;
+  z-index: 26;
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    rgba(255, 255, 255, 0.9) 45%,
+    rgba(253, 251, 238, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.bottomSeparator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  z-index: 4;
+  width: 100%;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.bottomSeparator img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .heading {
+    font-size: clamp(2.5rem, 14vw, 68px);
+  }
+}

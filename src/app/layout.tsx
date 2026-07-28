@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ppEditorial, sohne } from "@/fonts";
+import { ppEditorial, satoshi, sohne } from "@/fonts";
 import "./globals.css";
 import { Geist, Dancing_Script } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", ppEditorial.variable, sohne.variable, "font-sans", geist.variable, dancingScript.variable)}
+      className={cn("h-full", "antialiased", ppEditorial.variable, satoshi.variable, sohne.variable, "font-sans", geist.variable, dancingScript.variable)}
     >
       <body className="min-h-full flex flex-col bg-gradient-warm">
         {children}

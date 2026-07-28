@@ -1,0 +1,468 @@
+/* Section-wise snappy scroll. Uses CSS scroll-snap on the scroll container so
+   it stays native (trackpad, keyboard, and reduced-motion all behave). */
+.page {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  background: #fcf9f6;
+}
+
+.snap {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+  }
+}
+
+/* Placeholder shells for the sections still to be designed. */
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100svh;
+  color: rgba(0, 0, 0, 0.35);
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.summary {
+  background: #fdfaf6;
+}
+
+.journey {
+  background: #fff8eb;
+}
+
+.words {
+  background: #f5f5f4;
+}
+
+/* ---------------------------------------------------------------
+ * Hero
+ * --------------------------------------------------------------- */
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  background: #fcf9f6;
+}
+
+/* Birds: a 10-cell sprite sheet flapping via steps(), with each flock drifting
+   across on its own longer loop. Two animations per bird — wings and path. */
+.birdsLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.birdContainer {
+  position: absolute;
+  top: 18%;
+  left: -10%;
+  will-change: transform;
+  animation-name: flyRightOne;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.bird {
+  position: absolute;
+  width: 88px;
+  height: 125px;
+  background-image: url("/portfolio-august/bird-cells.svg");
+  background-size: auto 100%;
+  /* Flatten the artwork to a soft silhouette so it reads against the gradient. */
+  filter: brightness(0) opacity(0.72);
+  will-change: background-position;
+  animation-name: flyCycle;
+  animation-timing-function: steps(10);
+  animation-iteration-count: infinite;
+}
+
+/* Offsets within a flock. Scaled up because the container shrinks everything
+   to ~0.2, so raw px gaps here end up small on screen. */
+.birdA {
+  left: 0;
+  top: 0;
+}
+.birdB {
+  left: 210px;
+  top: 150px;
+}
+.birdC {
+  left: 380px;
+  top: -70px;
+}
+
+/* Sprite is 10 cells; at 125px tall the sheet scales to 900px wide. */
+@keyframes flyCycle {
+  100% {
+    background-position: -900px 0;
+  }
+}
+
+@keyframes flyRightOne {
+  0% { transform: translateX(-10vw) translateY(0) scale(0.27); }
+  20% { transform: translateX(18vw) translateY(3vh) scale(0.34); }
+  40% { transform: translateX(46vw) translateY(-2vh) scale(0.41); }
+  60% { transform: translateX(74vw) translateY(2vh) scale(0.37); }
+  80% { transform: translateX(100vw) translateY(-1vh) scale(0.34); }
+  100% { transform: translateX(120vw) translateY(0) scale(0.34); }
+}
+
+@keyframes flyRightTwo {
+  0% { transform: translateX(-10vw) translateY(-2vh) scale(0.37); }
+  25% { transform: translateX(22vw) translateY(1vh) scale(0.31); }
+  50% { transform: translateX(54vw) translateY(-4vh) scale(0.44); }
+  75% { transform: translateX(88vw) translateY(0) scale(0.34); }
+  100% { transform: translateX(120vw) translateY(-1vh) scale(0.34); }
+}
+
+@keyframes flyRightThree {
+  0% { transform: translateX(-10vw) translateY(2vh) scale(0.31); }
+  25% { transform: translateX(20vw) translateY(-1vh) scale(0.41); }
+  50% { transform: translateX(52vw) translateY(3vh) scale(0.51); }
+  75% { transform: translateX(86vw) translateY(-2vh) scale(0.37); }
+  100% { transform: translateX(120vw) translateY(0) scale(0.34); }
+}
+
+/* Prime-ish durations and offset delays so flocks overlap without visibly looping. */
+.birdOne { top: 16%; animation-duration: 17s; animation-delay: -2s; }
+.birdOne .bird { animation-duration: 1s; animation-delay: -0.5s; }
+
+.birdTwo { top: 24%; animation-duration: 19s; animation-delay: -9s; animation-name: flyRightTwo; }
+.birdTwo .bird { animation-duration: 0.9s; animation-delay: -0.75s; }
+
+.birdThree { top: 31%; animation-duration: 23s; animation-delay: -14s; animation-name: flyRightThree; }
+.birdThree .bird { animation-duration: 1.25s; animation-delay: -0.25s; }
+
+.birdFour { top: 20%; animation-duration: 29s; animation-delay: -21s; }
+.birdFour .bird { animation-duration: 1.1s; animation-delay: -0.4s; }
+
+.birdFive { top: 36%; animation-duration: 13s; animation-delay: -5s; animation-name: flyRightTwo; }
+.birdFive .bird { animation-duration: 0.95s; animation-delay: -0.1s; }
+
+.birdSix { top: 12%; animation-duration: 31s; animation-delay: -26s; animation-name: flyRightThree; }
+.birdSix .bird { animation-duration: 1.05s; animation-delay: -0.3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .birdContainer,
+  .bird {
+    animation: none;
+  }
+  .birdContainer {
+    transform: translateX(12vw) scale(0.37);
+  }
+}
+
+.nav {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 54px;
+  padding: 8px;
+  border-radius: 60px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  border: 0;
+  border-radius: 50px;
+  background: transparent;
+  color: #000;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.navItemActive {
+  background: #fff;
+}
+
+.navItemActive:hover {
+  background: #fff;
+}
+
+.navIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.travelLink {
+  position: absolute;
+  right: 3vw;
+  top: 59px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 60px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #000;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 200ms ease;
+}
+
+.travelLink:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.travelThumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  width: min(596px, 88vw);
+  /* Bottom room reserves the band the tag pile settles into. */
+  padding: 24px 0 32vh;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------
+ * Photo stack
+ * --------------------------------------------------------------- */
+.stack {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 130px;
+  margin-bottom: 20px;
+}
+
+.stackCard {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 1px solid #fff;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #d9d9d9;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.stackCard:active {
+  cursor: grabbing;
+}
+
+.stackImage {
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.stackCaption {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 50;
+  transform: translate(-50%, -100%);
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.6);
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------
+ * Hero copy
+ * --------------------------------------------------------------- */
+.greeting {
+  margin: 0;
+  color: #000;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 22px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.headline {
+  margin: 0;
+  color: #000;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 200;
+  font-size: clamp(2rem, 3.4vw, 52px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.blurb {
+  margin: 0;
+  color: #000;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* ---------------------------------------------------------------
+ * Tag physics
+ * --------------------------------------------------------------- */
+/* Spans the whole hero, not just the bottom strip. A short scene would clip the
+   pills until they entered its box, making them appear from behind the copy
+   instead of falling in from the top of the screen. Sits below .heroInner so
+   the text stays legible as they pass. */
+.tagScene {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Slightly less bottom than top: PP Editorial's cap-height sits high in the
+     em box, so symmetric padding reads bottom-heavy. */
+  padding: 18px 22px 15px;
+  border-radius: 60px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.05);
+  color: #000;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  /* The solver owns transforms; keep the browser from fighting it. */
+  will-change: transform;
+}
+
+/* Reduced motion: no simulation, so lay the pills out as a plain wrap. */
+.tagSceneStatic {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  justify-content: center;
+  gap: 12px;
+  height: auto;
+  padding: 0 6vw 48px;
+}
+
+@media (max-width: 768px) {
+  .nav {
+    margin-top: 20px;
+    gap: 2px;
+    padding: 6px;
+  }
+
+  .navItem {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  .navLabel {
+    display: none;
+  }
+
+  .navItemActive .navLabel {
+    display: inline;
+  }
+
+  .travelLink {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: 16px;
+    transform: translateX(-50%);
+    padding: 10px 14px;
+  }
+
+  .greeting {
+    font-size: 18px;
+  }
+
+  .blurb {
+    font-size: 13px;
+  }
+
+  .birds {
+    width: 110px;
+    top: 20%;
+    opacity: 0;
+  }
+
+  .tagScene {
+    height: 38vh;
+  }
+
+  .tag {
+    padding: 16px 20px;
+    font-size: 14px;
+  }
+}
