@@ -299,7 +299,7 @@ export default function Home() {
                   },
                   {
                     title: "Lending Against Securities",
-                    description: "Giving users liquidity against financial assets, especially stock holdings, without forcing them to sell, for large purchases or funding needs.",
+                    description: "Giving users liquidity against financial assets, especially stoc k holdings, without forcing them to sell, for large purchases or funding needs.",
                   },
                 ],
               },
@@ -641,6 +641,7 @@ export default function Home() {
             companyTooltip="Nirvana was a workspace collaboration and task management tool. It was designed to help teams control projects with minimum effort, save precious time and get the clarity they need to build the next big thing at maximum speed."
             description={<>Worked <Highlight>directly with founders</Highlight> to shape a workspace collaboration and task management tool. Designed to help teams control projects with minimum effort and build at maximum speed.</>}
             tags={["Productivity", "SaaS", "0→1", "Volunteer"]}
+            showGallery
           />
 
           {/* Blackboard Radio - Volunteer */}
@@ -657,6 +658,7 @@ export default function Home() {
               "Pioneered conversational-English mastery for children from all socio-economic backgrounds",
             ]}
             tags={["Edtech", "AI", "0→1", "Volunteer"]}
+            showGallery
           />
 
           {/* OYO Rooms */}
@@ -670,6 +672,7 @@ export default function Home() {
             companyTooltip="OYO is a global platform that empowers entrepreneurs and small businesses with hotels and homes by providing full-stack technology products and services. OYO offers 40+ integrated products and solutions to patrons who operate over 157K hotel and home storefronts in more than 35 countries including India, Europe, and Southeast Asia."
             description={<>Worked on new initiatives at OYO to <Highlight>expand the business globally</Highlight>. Contributed to product strategy and design for <Highlight>international market entry</Highlight>.</>}
             tags={["Travel", "Hospitality", "Global Expansion"]}
+            showGallery
           />
 
           {/* Porter - First stint */}
@@ -683,6 +686,7 @@ export default function Home() {
             companyTooltip="Porter is one of India's leading players in the intra-city logistics market, connecting businesses and individuals with local truckers for last-mile deliveries. It serves 30 lakh+ (3M+) customers every month and works with 3 lakh+ (300k+) driver-partners, operating across 35+ cities in India."
             description={<>First stint at Porter before returning as Design Lead. Worked on core product experiences for <Highlight>India's leading intra-city logistics platform</Highlight> serving <Highlight>3M+ customers monthly</Highlight>.</>}
             tags={["Logistics", "Consumer", "Mobile"]}
+            showGallery
           />
 
           {/* Coding Ninjas */}
@@ -739,6 +743,7 @@ export default function Home() {
               "Built Maple Mobile POS (Queue Buster) for faster checkout and on-the-go billing",
             ]}
             tags={["Hospitality", "POS", "Acquired by Zomato"]}
+            showGallery
           />
 
           {/* La Musique */}
@@ -753,6 +758,7 @@ export default function Home() {
               "Pioneered social features that transformed passive listening into community-driven experiences",
             ]}
             tags={["Consumer", "Music", "Social", "Freelance"]}
+            showGallery
           />
         </div>
       </section>

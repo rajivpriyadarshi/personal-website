@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { ImagePlaceholder, LogoPlaceholder } from "./ImagePlaceholder";
 import { useWorkView } from "./WorkViewToggle";
+import { WorkGallery } from "./WorkGallery";
 
 // ============================================================================
 // TYPES
@@ -34,6 +35,9 @@ interface WorkItemProps {
   logo?: string;
   companyUrl?: string;
   companyTooltip?: string;
+  galleryImages?: string[];
+  galleryCount?: number;
+  showGallery?: boolean;
 }
 
 // ============================================================================
@@ -373,6 +377,9 @@ export function WorkItem({
   logo,
   companyUrl,
   companyTooltip,
+  galleryImages,
+  galleryCount = 6,
+  showGallery = false,
 }: WorkItemProps) {
   const companySlug = typeof company === "string"
     ? company.toLowerCase().replace(/\s+/g, "-")
@@ -430,6 +437,11 @@ export function WorkItem({
         companyUrl={companyUrl}
         companyTooltip={companyTooltip}
       />
+
+      {/* Gallery - always visible regardless of view mode */}
+      {(showGallery || hasProjects) && (
+        <WorkGallery images={galleryImages} itemCount={galleryCount} />
+      )}
 
       {hasProjects && (
         <div
