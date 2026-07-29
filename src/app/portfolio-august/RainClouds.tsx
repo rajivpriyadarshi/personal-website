@@ -13,15 +13,23 @@ const CLOUD_PATHS = [
   "M28 80 A24 24 0 0 1 34 36 A24 24 0 0 1 70 18 A26 26 0 0 1 110 34 A22 22 0 0 1 124 74 A20 20 0 0 1 98 82 A24 24 0 0 1 60 86 A20 20 0 0 1 28 80 Z",
 ];
 
-/* Only the clouds above the copy — they all rain. */
+/* Only the clouds above the copy — they all rain. Drift durations are spread so
+ * they cross at different speeds and the whole width gets rained on over time
+ * rather than one band of the skyline taking every drop. */
 const CLOUDS = [
   { top: "5%", width: 340, variant: 0, drift: 68 },
   { top: "15%", width: 240, variant: 1, drift: 52 },
   { top: "26%", width: 300, variant: 2, drift: 86 },
+  { top: "9%", width: 280, variant: 1, drift: 61 },
+  { top: "21%", width: 320, variant: 2, drift: 76 },
 ] as const;
 
 const DROP_RADIUS = 2.6;
-const MAX_DROPS = 320;
+const MAX_DROPS = 460;
+/* Fractions of each cloud's loop to start at. Deliberately irregular: spacing
+ * them evenly by index left the clouds travelling as a clump, so only a narrow
+ * band of the skyline was ever under rain. */
+const CLOUD_PHASE = [0.05, 0.42, 0.68, 0.24, 0.85];
 // Drops per second, per cloud.
 const RAIN_RATE = 11;
 // Cursor pushes drops inside this radius, scattering the fall.
@@ -33,6 +41,53 @@ const FLOOR_AT = 0.965;
 // Drops live this long after landing, so the puddle grows and then recedes
 // instead of accumulating forever and pinning the solver.
 const PUDDLE_LIFE = 5200;
+
+/* Rooftops die faster than ground water: a roof holds a thin film, and letting
+ * it linger as long as the puddle built visible mounds on every ledge. Long
+ * enough, though, that a landing visibly sits before it drains. */
+const ROOF_LIFE = 2600;
+
+const SKYLINE_SRC = "/portfolio-august/summary/marina-bay-sands.webp";
+/* Columns in the skyline's collision profile. Each becomes one static box, so
+ * this trades silhouette fidelity against body count — 96 resolves the three
+ * tower gaps and the ArtScience lobe without flooding the solver. */
+const SKYLINE_COLUMNS = 96;
+// Alpha above this counts as solid roof.
+const ALPHA_SOLID = 128;
+/* Roofs are thin ledges, not columns. Thick enough that a fast drop can't
+ * tunnel through between solver steps. */
+const ROOF_THICKNESS = 14;
+
+/* Reads the skyline's own alpha channel into a per-column height profile, in
+ * 0..1 units of the image box. Using the photo rather than a separate outline
+ * asset means the collision shape can never drift out of register with what's
+ * drawn — and the fully transparent columns at the left and right edges are
+ * reported as null so no invisible wall stands there. */
+async function traceSkyline(src: string): Promise<(number | null)[]> {
+  const img = new Image();
+  img.src = src;
+  await img.decode();
+
+  const w = SKYLINE_COLUMNS;
+  const h = Math.max(
+    1,
+    Math.round(w * (img.naturalHeight / img.naturalWidth)),
+  );
+  const probe = document.createElement("canvas");
+  probe.width = w;
+  probe.height = h;
+  const pctx = probe.getContext("2d", { willReadFrequently: true });
+  if (!pctx) return Array.from({ length: w }, () => null);
+  pctx.drawImage(img, 0, 0, w, h);
+
+  const { data } = pctx.getImageData(0, 0, w, h);
+  return Array.from({ length: w }, (_, x) => {
+    for (let y = 0; y < h; y += 1) {
+      if (data[(y * w + x) * 4 + 3] > ALPHA_SOLID) return y / h;
+    }
+    return null;
+  });
+}
 
 export function RainClouds() {
   const host = useRef<HTMLDivElement>(null);
@@ -63,7 +118,7 @@ export function RainClouds() {
             duration: drift,
             ease: "none",
             repeat: -1,
-            delay: -drift * (i / CLOUDS.length + 0.1),
+            delay: -drift * CLOUD_PHASE[i],
           },
         );
       });
@@ -107,7 +162,86 @@ export function RainClouds() {
     let bounds = makeBounds();
     Matter.Composite.add(world, bounds);
 
+    /* ---------------------------------------------------------------
+     * Skyline roofs. One static box per profile column, so drops land on the
+     * towers and rooftops instead of falling through to the ground. Positions
+     * are rebuilt from the live element rect, which means they follow the
+     * entrance slide and the looping push-in scale for free.
+     * --------------------------------------------------------------- */
+    const skylineEl = layer
+      .closest("section")
+      ?.querySelector<HTMLImageElement>(`img.${styles.skyline}`);
+    let profile: (number | null)[] = [];
+    let roofs: Matter.Body[] = [];
+    // Marks bodies as roof so landed water can be expired sooner than puddles.
+    const roofIds = new Set<number>();
+
+    const buildRoofs = () => {
+      Matter.Composite.remove(world, roofs);
+      roofs = [];
+      roofIds.clear();
+      if (!skylineEl || !profile.length) return;
+
+      const box = skylineEl.getBoundingClientRect();
+      const layerRect = layer.getBoundingClientRect();
+
+      /* `object-fit: contain` letterboxes: the element box is wider than the
+       * drawn image, so the picture occupies only a centred band of it. Tracing
+       * the box instead of that band put roof ledges out in the empty margins,
+       * which showed up as rain resting in mid-air beside the building. */
+      const natRatio = skylineEl.naturalWidth / skylineEl.naturalHeight;
+      if (!natRatio) return;
+      const boxRatio = box.width / box.height;
+      const drawnWidth = boxRatio > natRatio ? box.height * natRatio : box.width;
+      const drawnHeight = boxRatio > natRatio ? box.height : box.width / natRatio;
+      // object-position is `center bottom`: centred on x, flush to the box floor.
+      const rect = {
+        left: box.left + (box.width - drawnWidth) / 2,
+        top: box.bottom - drawnHeight,
+        width: drawnWidth,
+        height: drawnHeight,
+      };
+
+      const left = rect.left - layerRect.left;
+      const top = rect.top - layerRect.top;
+      const colWidth = rect.width / profile.length;
+
+      /* Each roof is a thin slab at the silhouette's surface, NOT a solid column
+       * down to the floor. A full-depth column reaches below the ground plane at
+       * height * FLOOR_AT, and since the floor is added first the drops settle
+       * on the floor and never touch the roof at all. */
+      const floorY = layerRect.height * FLOOR_AT;
+
+      profile.forEach((rowFraction, i) => {
+        if (rowFraction === null) return;
+        const surfaceY = top + rowFraction * rect.height;
+        // Skip surfaces that have slid out of view, or that sit below the ground
+        // plane where the floor already catches everything.
+        if (surfaceY > floorY - ROOF_THICKNESS || surfaceY < -40) return;
+        roofs.push(
+          Matter.Bodies.rectangle(
+            left + (i + 0.5) * colWidth,
+            surfaceY + ROOF_THICKNESS / 2,
+            // Slight overlap between neighbours, so drops can't slip through
+            // the hairline seam where two columns meet.
+            colWidth + 1,
+            ROOF_THICKNESS,
+            { isStatic: true, friction: 0.06, restitution: 0.2 },
+          ),
+        );
+      });
+
+      roofs.forEach((body) => roofIds.add(body.id));
+      Matter.Composite.add(world, roofs);
+    };
+
+    void traceSkyline(SKYLINE_SRC).then((traced) => {
+      profile = traced;
+      buildRoofs();
+    });
+
     const retire = (i: number) => {
+      onRoof.delete(drops[i].id);
       Matter.Composite.remove(world, drops[i]);
       drops.splice(i, 1);
       born.splice(i, 1);
@@ -149,6 +283,48 @@ export function RainClouds() {
     document.addEventListener("pointerleave", onPointerLeave);
 
     const spawnDebt = CLOUDS.map(() => 0);
+    let lastRoofBuild = 0;
+
+    /* Drops currently resting on the skyline. Tracked so roof water can expire
+     * on a shorter clock than ground puddles, and so a hit can throw a splash. */
+    const onRoof = new Set<number>();
+
+    /* Splash particles. Plain points rather than physics bodies — they're purely
+     * decorative, live under a third of a second, and adding 6 rigid bodies per
+     * impact would multiply the solver's work for no visual gain. */
+    type Splash = { x: number; y: number; vx: number; vy: number; life: number };
+    const splashes: Splash[] = [];
+
+    const onImpact = (event: Matter.IEventCollision<Matter.Engine>) => {
+      event.pairs.forEach(({ bodyA, bodyB }) => {
+        const roof = roofIds.has(bodyA.id)
+          ? bodyA
+          : roofIds.has(bodyB.id)
+            ? bodyB
+            : null;
+        if (!roof) return;
+        const drop = roof === bodyA ? bodyB : bodyA;
+        if (drop.isStatic) return;
+        onRoof.add(drop.id);
+
+        // Only a real fall splashes; water settling in a film shouldn't.
+        const speed = Math.hypot(drop.velocity.x, drop.velocity.y);
+        if (speed < 1.4 || splashes.length > 140) return;
+        const count = speed > 3.2 ? 3 : 2;
+        for (let i = 0; i < count; i += 1) {
+          splashes.push({
+            x: drop.position.x,
+            y: drop.position.y,
+            // Kicks outward and up, like water breaking on a hard surface.
+            vx: gsap.utils.random(-1.5, 1.5),
+            vy: gsap.utils.random(-2.2, -0.6),
+            life: 1,
+          });
+        }
+      });
+    };
+
+    Matter.Events.on(engine, "collisionStart", onImpact);
 
     const update = (time: number, deltaMs: number) => {
       const dt = Math.min(deltaMs, 32);
@@ -185,12 +361,22 @@ export function RainClouds() {
         });
       }
 
+      /* The skyline slides in and then loops a slow scale, so its roofs move.
+       * Rebuilding on a fixed interval rather than every frame: 90-odd static
+       * bodies is cheap to recreate but not free, and the motion is slow enough
+       * that ~6 times a second is imperceptible. */
+      if (now - lastRoofBuild > 160) {
+        lastRoofBuild = now;
+        buildRoofs();
+      }
+
       Matter.Engine.update(engine, dt);
 
       // Expire pooled water, and sweep up anything that escaped the bounds.
       for (let i = drops.length - 1; i >= 0; i -= 1) {
         const p = drops[i].position;
-        if (p.y > height + 60 || now - born[i] > PUDDLE_LIFE) retire(i);
+        const life = onRoof.has(drops[i].id) ? ROOF_LIFE : PUDDLE_LIFE;
+        if (p.y > height + 60 || now - born[i] > life) retire(i);
       }
 
       ctx.clearRect(0, 0, width, height);
@@ -208,6 +394,24 @@ export function RainClouds() {
         ctx.ellipse(x, y, DROP_RADIUS, DROP_RADIUS + speed * 0.55, 0, 0, Math.PI * 2);
         ctx.fill();
       });
+
+      /* Splash particles: ballistic, gravity-affected, fading over their life.
+       * Iterated backwards so removals don't skip the next entry. */
+      for (let i = splashes.length - 1; i >= 0; i -= 1) {
+        const s = splashes[i];
+        s.x += s.vx;
+        s.y += s.vy;
+        s.vy += 0.16;
+        s.life -= dt / 300;
+        if (s.life <= 0) {
+          splashes.splice(i, 1);
+          continue;
+        }
+        ctx.fillStyle = `rgba(120, 160, 195, ${0.5 * s.life})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, DROP_RADIUS * 0.55, 0, Math.PI * 2);
+        ctx.fill();
+      }
     };
 
     gsap.ticker.add(update);
@@ -217,6 +421,7 @@ export function RainClouds() {
       Matter.Composite.remove(world, bounds);
       bounds = makeBounds();
       Matter.Composite.add(world, bounds);
+      buildRoofs();
     });
     observer.observe(layer);
 
@@ -225,6 +430,7 @@ export function RainClouds() {
       observer.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("pointerleave", onPointerLeave);
+      Matter.Events.off(engine, "collisionStart", onImpact);
       Matter.Composite.clear(world, false);
       Matter.Engine.clear(engine);
     };

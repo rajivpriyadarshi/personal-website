@@ -68,10 +68,13 @@
 
 /* Outlined clouds drifting behind everything. Kept as strokes, not fills, so
    they read as a faint sketch layer rather than competing with the objects. */
+/* Above the skyline (z-index 1) so rain that lands on the rooftops is drawn on
+   top of them — at a lower index the water pooled correctly but was hidden
+   behind the building. Still below the props and copy. */
 .summaryClouds {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 2;
   overflow: hidden;
   pointer-events: none;
 }
@@ -115,9 +118,62 @@
 /* Outer element carries the spring's translate; the inner .summaryTilt carries
    the 3D rotation. Splitting them keeps the two systems from overwriting each
    other's transform. */
+/* Marina Bay Sands skyline. Above the grid but below the copy and the props, so
+   it reads as the backdrop the objects float in front of.
+   Pushed past the bottom edge by --skyline-sink, so the base plinth runs off
+   the viewport and the model reads as continuing below the fold rather than
+   sitting on the section's floor. The section's own overflow does the cropping. */
+.skylineLayer {
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: calc(var(--skyline-sink) * -1);
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  --skyline-sink: clamp(28px, 5.5svh, 62px);
+}
+
+/* Slow push-in, no pointer tracking: the props react to the cursor, this
+   doesn't. transform-origin sits at the bottom so the scale grows the skyline
+   upward from the section edge rather than pushing it out of frame.
+   Height-capped so it stays a band along the bottom — at full width the towers
+   reached the middle of the section and cut through the copy. */
+.skyline {
+  width: min(1240px, 86vw);
+  max-height: 46svh;
+  height: auto;
+  object-fit: contain;
+  object-position: center bottom;
+  transform-origin: 50% 100%;
+  animation: skylinePushIn 26s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes skylinePushIn {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.075);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skyline {
+    animation: none;
+  }
+
+  /* Entrance is skipped, so the layer must not stay parked off-screen. */
+  .skylineLayer {
+    translate: none !important;
+  }
+}
+
 .summaryObject {
   position: absolute;
-  z-index: 1;
+  z-index: 3;
   perspective: 800px;
   /* Hidden until its staggered turn; GSAP reveals each with autoAlpha. */
   opacity: 0;
@@ -143,7 +199,7 @@
 
 .summaryCopy {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -725,21 +781,51 @@
 /* --- Work cards -------------------------------------------------- */
 /* Stadium outlines from the design: a tall pill per project, with the preview
    disc tucked into the lower half. */
-.workRow {
+/* Carousel frame. Holds the arrows, which sit outside the scrolling rail so
+   they stay put while the cards move under them. */
+.workRailWrap {
   position: relative;
   z-index: 2;
   display: flex;
-  gap: clamp(16px, 2.2vw, 32px);
-  align-items: flex-start;
-  justify-content: center;
-  width: min(1300px, 92vw);
-  /* min-height: 0 lets the cards shrink to fit the viewport rather than
-     overflowing it, since their height comes from an aspect ratio. */
   flex: 1;
+  width: 100%;
   min-height: 0;
   margin-top: clamp(20px, 4vh, 56px);
-  /* Keeps the cards clear of the coin heap along the bottom. */
+  /* Clearance for the prop heap lives here, not on the scrolling rail: as rail
+     padding it would be added to the card's 100% height and overflow the box. */
   padding-bottom: clamp(120px, 22vh, 250px);
+}
+
+.workRow {
+  display: flex;
+  gap: clamp(16px, 2.2vw, 32px);
+  align-items: flex-start;
+  /* `safe center` centres while the cards fit, then falls back to flex-start on
+     overflow — plain `center` would push the first card out of reach. */
+  justify-content: safe center;
+  width: 100%;
+  min-height: 0;
+  /* Vertical padding is headroom for the hover lift (18px) and its shadow
+     (26px offset + 44px blur): a scroll container clips on BOTH axes, so
+     without it the raised card and its shadow were sliced off. Negative
+     margins cancel the padding so the cards stay put in the layout. */
+  padding: var(--work-bleed) max(6vw, 92px);
+  margin: calc(var(--work-bleed) * -1) 0;
+  --work-bleed: 80px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.workRow::-webkit-scrollbar {
+  display: none;
+}
+
+/* Arrows sit level with the pill bodies rather than the padded rail. */
+.workArrow {
+  top: clamp(140px, 26vh, 290px);
 }
 
 .workCard {
@@ -757,7 +843,10 @@
   height: 100%;
   max-height: 615px;
   aspect-ratio: 402 / 615;
-  flex: 0 1 auto;
+  /* No shrink: in a scrolling rail the cards keep their full width and the rail
+     scrolls, rather than compressing to fit. */
+  flex: 0 0 auto;
+  scroll-snap-align: center;
   padding: clamp(40px, 6vh, 74px) clamp(20px, 2.4vw, 34px) 0;
   overflow: hidden;
   border: 1px solid #000;
@@ -831,7 +920,7 @@
   color: #000;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 200;
-  font-size: clamp(1.6rem, 2.9vw, 42px);
+  font-size: 36px;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Fragment, useCallback, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -69,15 +69,25 @@ const WORK: { name: string; blurb: string; props: PropSetName }[] = [
     blurb: "India’s leading player in intra-city logistics market",
     props: "trucks",
   },
+  {
+    name: "Coding Ninjas",
+    blurb: "One of India’s largest edu-tech platform",
+    props: "study",
+  },
 ];
+
+const WORK_STEP = 402 + 32;
 
 export function WordsSection() {
   const root = useRef<HTMLElement>(null);
   const rail = useRef<HTMLDivElement>(null);
   const cubes = useRef<CubeWallHandle>(null);
   const props = useRef<PropPileHandle>(null);
+  const workRail = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
+  const [workAtStart, setWorkAtStart] = useState(true);
+  const [workAtEnd, setWorkAtEnd] = useState(false);
 
   const syncArrows = useCallback(() => {
     const el = rail.current;
@@ -86,8 +96,25 @@ export function WordsSection() {
     setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 8);
   }, []);
 
+  const syncWorkArrows = useCallback(() => {
+    const el = workRail.current;
+    if (!el) return;
+    setWorkAtStart(el.scrollLeft < 8);
+    // Also covers the case where all cards fit and there's nothing to scroll.
+    setWorkAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 8);
+  }, []);
+
+  useEffect(syncWorkArrows, [syncWorkArrows]);
+
   const nudge = (direction: 1 | -1) => {
     rail.current?.scrollBy({ left: direction * NOTE_STEP, behavior: "smooth" });
+  };
+
+  const nudgeWork = (direction: 1 | -1) => {
+    workRail.current?.scrollBy({
+      left: direction * WORK_STEP,
+      behavior: "smooth",
+    });
   };
 
   useGSAP(
@@ -143,26 +170,47 @@ export function WordsSection() {
         section,
       );
 
-      /* The entrance writes the same properties the exit scrubs (note x/y,
-       * autoAlpha, pin transforms). Scrolling in fast used to leave both
-       * running at once, each stamping those values every frame — most of what
-       * read as shake. This trigger's own onLeave settles the entrance as the
-       * board reaches the top, which is where the exit takes over, so only one
-       * timeline ever owns those properties.
+      /* Fires as soon as the section's top edge enters the viewport, which for a
+       * snap arrival is the instant the snap begins. Anchoring it later (70% of
+       * the viewport) left the entrance only the snap's ~300ms of travel to play
+       * a 3.2s sequence, so all six notes appeared at once.
        *
-       * It has to happen here rather than in the exit's onEnter: callbacks run
-       * after that tick's tweens have rendered, so finishing the entrance there
-       * would stamp the resting pose back over the exit's first frame — and a
-       * completed tween won't re-render to correct it. */
+       * No `end`/`onLeave`: the board parks at exit progress 0 after snapping,
+       * so the entrance gets its full duration in real time. It's settled by the
+       * exit instead, once scrolling actually starts moving things. */
       const intro = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           scroller,
-          start: "top 70%",
-          end: "top top",
-          onLeave: () => intro.progress(1).kill(),
+          start: "top bottom",
+          once: true,
+          /* Refresh order isn't guaranteed, so on a load or jump that lands
+           * mid-exit this trigger can fire *after* the exit has already run.
+           * Left alone the entrance would animate the notes back to full opacity
+           * on top of the revealed work section, so if the exit is already
+           * underway the entrance is skipped outright. */
+          onEnter: () => {
+            if (exit.progress() > 0) settleIntro();
+          },
         },
       });
+
+      /* Jumps the entrance to its finished state exactly once. Idempotent, since
+       * it's called from the exit's onUpdate on every scroll frame.
+       *
+       * progress(1) leaves the notes in their resting pose — visible and
+       * untransformed — which is only correct at the very start of the exit. Any
+       * further along, the exit has to re-render to reassert where the notes
+       * actually belong, and a scrubbed timeline won't do that on its own
+       * without a scroll event. */
+      let introSettled = false;
+      const settleIntro = () => {
+        if (introSettled) return;
+        introSettled = true;
+        intro.progress(1).kill();
+        const at = exit.progress();
+        if (at > 0) exit.progress(0).progress(at);
+      };
 
       // Title rises word by word, with a slight blur so it resolves into place.
       intro.from(`.${styles.titleWord}`, {
@@ -316,6 +364,12 @@ export function WordsSection() {
            * zero-duration callback can be skipped entirely when a scrub jumps
            * the playhead past it. setActive already ignores redundant calls. */
           onUpdate: (self) => {
+            /* Settles the entrance the moment the exit starts doing anything.
+             * Both write note x/y, autoAlpha and pin transforms, and two
+             * timelines stamping the same properties every frame was most of
+             * what read as shake. Guarded on progress so simply arriving at the
+             * board (progress 0) leaves the entrance free to play out. */
+            if (self.progress > 0) settleIntro();
             props.current?.setActive(self.progress >= COINS_START);
             const leaving = self.progress >= RAIL_RELEASE;
             if (leaving) releaseRailClip();
@@ -388,9 +442,12 @@ export function WordsSection() {
           );
       });
 
-      // Carousel arrows go with the first note; they'd be stranded controls.
+      /* Note arrows go with the first note; they'd be stranded controls. Scoped
+       * to the rail wrap — a bare `.arrow` selector also caught the work
+       * carousel's arrows, which live in the section being revealed and were
+       * left hidden by this tween's autoAlpha. */
       exit.to(
-        `.${styles.arrow}`,
+        `.${styles.noteRailWrap} .${styles.arrow}`,
         { autoAlpha: 0, duration: slice * 0.6, ease: "none" },
         0,
       );
@@ -450,22 +507,47 @@ export function WordsSection() {
         <div className={styles.selectedWork}>
           <h2 className={styles.selectedWorkTitle}>Some of my selected work</h2>
 
-          <div className={styles.workRow}>
-            {WORK.map((project) => (
-              <article
-                key={project.name}
-                className={styles.workCard}
-                /* The heap holds whatever was last hovered — no pointerleave
-                   handler, so it doesn't snap back when the cursor moves off. */
-                onPointerEnter={() => props.current?.setSet(project.props)}
-                onFocus={() => props.current?.setSet(project.props)}
-                tabIndex={0}
-              >
-                <h3 className={styles.workCardTitle}>{project.name}</h3>
-                <p className={styles.workCardSub}>{project.blurb}</p>
-                <div aria-hidden className={styles.workCardDisc} />
-              </article>
-            ))}
+          <div className={styles.workRailWrap}>
+            <div
+              ref={workRail}
+              className={styles.workRow}
+              onScroll={syncWorkArrows}
+            >
+              {WORK.map((project) => (
+                <article
+                  key={project.name}
+                  className={styles.workCard}
+                  /* The heap holds whatever was last hovered — no pointerleave
+                     handler, so it doesn't snap back when the cursor moves off. */
+                  onPointerEnter={() => props.current?.setSet(project.props)}
+                  onFocus={() => props.current?.setSet(project.props)}
+                  tabIndex={0}
+                >
+                  <h3 className={styles.workCardTitle}>{project.name}</h3>
+                  <p className={styles.workCardSub}>{project.blurb}</p>
+                  <div aria-hidden className={styles.workCardDisc} />
+                </article>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className={`${styles.arrow} ${styles.workArrow} ${styles.arrowLeft}`}
+              onClick={() => nudgeWork(-1)}
+              disabled={workAtStart}
+              aria-label="Previous project"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.arrow} ${styles.workArrow} ${styles.arrowRight}`}
+              onClick={() => nudgeWork(1)}
+              disabled={workAtEnd}
+              aria-label="Next project"
+            >
+              <ChevronRight size={20} />
+            </button>
           </div>
 
           <PropPile handleRef={props} />

@@ -75,9 +75,11 @@ const OBJECTS = [
     alt: "Card payment terminal",
     size: 401,
     left: "45%",
-    top: "72%",
+    // Raised to the top edge, matching the design and clearing the skyline
+    // that now occupies the bottom of the section.
+    top: "-13%",
     rotate: 0,
-    from: { x: 80, y: 520 },
+    from: { x: 80, y: -520 },
     mass: 0.9,
     spin: 44,
   },
@@ -143,10 +145,19 @@ export function SummarySection() {
       const headline = section.querySelector<HTMLElement>(`.${styles.summaryHeadline}`);
       const sub = section.querySelector<HTMLElement>(`.${styles.summarySub}`);
 
+      const skyline = section.querySelector<HTMLElement>(
+        `.${styles.skylineLayer}`,
+      );
+
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         gsap.set(items, { autoAlpha: 1 });
         return;
       }
+
+      /* Skyline rises into place from below the fold. Set on the wrapper, not the
+       * image — the image owns the looping push-in scale, and animating both on
+       * one element would have the entrance and the loop fight over transform. */
+      if (skyline) gsap.set(skyline, { yPercent: 100 });
 
       /* ---------------------------------------------------------------
        * Springs. Each object is a point mass tethered to its layout
@@ -312,6 +323,16 @@ export function SummarySection() {
         onEnter: () => {
           live = true;
 
+          // Skyline slides up first, so the setting is established before the
+          // props start arriving in front of it.
+          if (skyline) {
+            gsap.to(skyline, {
+              yPercent: 0,
+              duration: 1.7,
+              ease: "power3.out",
+            });
+          }
+
           /* Objects arrive one at a time. Each spring is parked off-screen and
            * only released — and only made visible — when its turn comes, so the
            * eye follows a single object in instead of six at once. */
@@ -385,6 +406,21 @@ export function SummarySection() {
             <div className={`${styles.bird} ${styles.birdC}`} />
           </div>
         ))}
+      </div>
+
+      {/* Skyline anchors the bottom of the section. Deliberately outside
+          OBJECTS: it's the setting rather than another prop, so it gets a slow
+          cinematic push-in instead of the pointer-reactive spring and tilt. */}
+      <div aria-hidden className={styles.skylineLayer}>
+        <Image
+          src="/portfolio-august/summary/marina-bay-sands.webp"
+          alt=""
+          width={1874}
+          height={1049}
+          className={styles.skyline}
+          sizes="100vw"
+          priority={false}
+        />
       </div>
 
       {OBJECTS.map((object) => (

@@ -13,7 +13,7 @@ import styles from "./portfolio-august.module.css";
  *
  * Each work card owns a set of props. Hovering a card swaps the heap: the old
  * set drops out through the floor while the new one rains in. */
-export type PropSetName = "coins" | "trucks" | "shopping";
+export type PropSetName = "coins" | "trucks" | "shopping" | "study";
 
 export type PropPileHandle = {
   setActive: (active: boolean) => void;
@@ -63,13 +63,29 @@ const SHOPPING = [
   { src: "s10.svg", w: 208.2, h: 168.1, scale: 0.4 },
   { src: "s11.svg", w: 175.8, h: 197.5, scale: 0.38 },
 ];
-// Per-item jitter on top of the normalising scale, so the heap isn't uniform.
+/* Study and desk icons for Coding Ninjas. Exported much larger than the other
+ * sets (up to 779px), hence the far smaller normalising scales. */
+const STUDY = [
+  { src: "d01.svg", w: 713.6, h: 514.3, scale: 0.15 },
+  { src: "d02.svg", w: 656, h: 511.9, scale: 0.155 },
+  { src: "d03.svg", w: 279.2, h: 304.7, scale: 0.27 },
+  { src: "d04.svg", w: 550.9, h: 435.8, scale: 0.17 },
+  { src: "d05.svg", w: 368, h: 628.5, scale: 0.15 },
+  { src: "d06.svg", w: 548.4, h: 395, scale: 0.175 },
+  { src: "d07.svg", w: 536.3, h: 173.8, scale: 0.2 },
+  { src: "d08.svg", w: 131.9, h: 152, scale: 0.5 },
+  { src: "d09.svg", w: 299.5, h: 382.1, scale: 0.23 },
+  { src: "d10.svg", w: 779.1, h: 693.5, scale: 0.13 },
+];
+
+// Per-item jitter on top of the normalising scale, so heaps aren't uniform.
 const SHOPPING_JITTER = [1, 0.88, 1.14, 0.94, 1.06, 0.82, 1.1];
 
 const SET_SEEDS: Record<PropSetName, number> = {
   coins: 20260729,
   trucks: 8675309,
   shopping: 4815162,
+  study: 3141592,
 };
 
 type PropItem = {
@@ -145,6 +161,19 @@ const PROP_SETS: Record<PropSetName, { items: PropItem[]; mobileCount: number }>
       };
     }),
     mobileCount: 26,
+  },
+  study: {
+    items: buildSet("study", 50, (i) => {
+      const icon = STUDY[i % STUDY.length];
+      const scale = icon.scale * SHOPPING_JITTER[i % SHOPPING_JITTER.length];
+      return {
+        kind: "image",
+        src: `/portfolio-august/work/study/${icon.src}`,
+        w: icon.w * scale,
+        h: icon.h * scale,
+      };
+    }),
+    mobileCount: 24,
   },
 };
 
