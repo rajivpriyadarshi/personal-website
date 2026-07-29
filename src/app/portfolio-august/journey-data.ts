@@ -18,9 +18,8 @@ export const ROLES: Role[] = [
     company: "Zinc · 🇸🇬 Singapore",
     logo: "/portfolio-august/journey/logos/zinc.svg",
     bullets: [
-      "Working directly with the CEO to shape Zinc’s future.",
+      "Working to shape future of Zinc. Building AI-native financial products across tax, wealth, agents, health, and more.",
       "In a lean team of 10, I own the full spectrum, from deep problem exploration to design to shipping.",
-      "Building AI-native financial products across tax, wealth, agents, health, and more.",
     ],
   },
   {

@@ -22,15 +22,6 @@ const HEADLINE =
 const HERO_PALETTE = 0;
 const HERO_GRADIENT = { ...DEFAULT_PARAMS, rotation: -0.55, spread: 1.7, scale: 0.9 };
 
-const BIRD_FLOCKS = [
-  "birdOne",
-  "birdTwo",
-  "birdThree",
-  "birdFour",
-  "birdFive",
-  "birdSix",
-] as const;
-
 const NAV = [
   { label: "About me", icon: "/portfolio-august/nav-user.svg", href: "#hero" },
   { label: "Work", icon: "/portfolio-august/nav-briefcase.svg", href: "#work" },
@@ -62,9 +53,7 @@ export function PortfolioAugustClient() {
         )
         .from(`.${styles.greeting}`, { y: 16, autoAlpha: 0, duration: 0.6 }, 0.3)
         .from(words, { y: 30, autoAlpha: 0, duration: 0.75, stagger: 0.035 }, 0.4)
-        .from(`.${styles.blurb}`, { y: 16, autoAlpha: 0, duration: 0.6 }, 0.75)
-        // Birds fly on their own CSS loops; just fade the layer up.
-        .from(`.${styles.birdsLayer}`, { autoAlpha: 0, duration: 1.4 }, 0.5);
+        .from(`.${styles.blurb}`, { y: 16, autoAlpha: 0, duration: 0.6 }, 0.75);
     },
     { scope: hero },
   );
@@ -78,17 +67,6 @@ export function PortfolioAugustClient() {
           initialPalette={HERO_PALETTE}
           cycle={false}
         />
-
-        <div aria-hidden className={styles.birdsLayer}>
-          {BIRD_FLOCKS.map((flock) => (
-            <div key={flock} className={`${styles.birdContainer} ${styles[flock]}`}>
-              {/* Several birds per flock, each offset so they read as a group. */}
-              <div className={`${styles.bird} ${styles.birdA}`} />
-              <div className={`${styles.bird} ${styles.birdB}`} />
-              <div className={`${styles.bird} ${styles.birdC}`} />
-            </div>
-          ))}
-        </div>
 
         <nav className={styles.nav}>
           {NAV.map((item, i) => (

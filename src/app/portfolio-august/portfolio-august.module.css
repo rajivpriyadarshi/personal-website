@@ -865,10 +865,12 @@
 
 /* Birds: a 10-cell sprite sheet flapping via steps(), with each flock drifting
    across on its own longer loop. Two animations per bird — wings and path. */
+/* Sits below the props and copy (both z-index 1 and 2 in the Summary), so
+   birds pass behind the objects rather than over them. */
 .birdsLayer {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
 }

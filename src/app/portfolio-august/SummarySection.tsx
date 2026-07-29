@@ -109,6 +109,15 @@ const TILT = 13;
 // Seconds between each object's arrival.
 const ARRIVAL_GAP = 0.34;
 
+const BIRD_FLOCKS = [
+  "birdOne",
+  "birdTwo",
+  "birdThree",
+  "birdFour",
+  "birdFive",
+  "birdSix",
+] as const;
+
 type Spring = {
   x: number;
   y: number;
@@ -365,6 +374,18 @@ export function SummarySection() {
       <div aria-hidden className={styles.summaryGrid} />
 
       <RainClouds />
+
+      {/* Sprite-sheet birds. Each flock drifts on its own CSS loop, so they run
+          independently of this section's scroll-triggered entrance. */}
+      <div aria-hidden className={styles.birdsLayer}>
+        {BIRD_FLOCKS.map((flock) => (
+          <div key={flock} className={`${styles.birdContainer} ${styles[flock]}`}>
+            <div className={`${styles.bird} ${styles.birdA}`} />
+            <div className={`${styles.bird} ${styles.birdB}`} />
+            <div className={`${styles.bird} ${styles.birdC}`} />
+          </div>
+        ))}
+      </div>
 
       {OBJECTS.map((object) => (
         <div
