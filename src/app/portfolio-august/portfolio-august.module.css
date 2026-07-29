@@ -1,12 +1,13 @@
-/* Section-wise snappy scroll. Uses CSS scroll-snap on the scroll container so
-   it stays native (trackpad, keyboard, and reduced-motion all behave). */
+/* Section-wise snappy scroll for the first three sections. `proximity`, not
+   `mandatory`: the Words section pins and scrubs through a long scroll range,
+   and mandatory snapping would jump straight past those intermediate
+   positions. Proximity only engages near a section that opts in via .snap. */
 .page {
   position: relative;
   width: 100%;
   height: 100svh;
   overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
   background: #fcf9f6;
 }
 
@@ -550,7 +551,9 @@
 /* --- Arrows ----------------------------------------------------- */
 .arrow {
   position: absolute;
-  top: 50%;
+  /* Centred on the note itself: the rail's top padding (46px, clearing pin
+     heads and shadows) plus half a note. */
+  top: calc(46px + var(--note-h, 372px) / 2);
   z-index: 5;
   display: flex;
   align-items: center;
@@ -617,22 +620,410 @@
 /* ---------------------------------------------------------------
  * Good words
  * --------------------------------------------------------------- */
+/* Tall scroll track for the exit: one viewport of board plus 3.4 of scrubbed
+   exit. ScrollTrigger maps the exit timeline across this height via
+   "bottom bottom", so changing this number changes the exit's pacing. */
 .words {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 100%;
+  height: 440svh;
+}
+
+/* Native sticky rather than ScrollTrigger's pin. The page scrolls inside
+   <main>, not the window, so pinning falls back to transform positioning —
+   which trails native scroll by a frame and reads as shake. Sticky is
+   composited by the browser and stays locked. */
+.wordsViewport {
+  position: sticky;
+  top: 0;
   height: 100svh;
   overflow: hidden;
   background: #f5f5f4;
 }
 
-/* Textured paper wall the notes are pinned to. */
-.wordsGrid {
+/* No exit runs, so the long scroll track would just be dead space and the cube
+   wall would never clear to uncover the work section. */
+@media (prefers-reduced-motion: reduce) {
+  .words {
+    height: 100svh;
+  }
+
+  .wordsViewport {
+    position: relative;
+  }
+
+  .cubeWall {
+    display: none;
+  }
+}
+
+/* Holds everything that scrubs away — title, notes, figurines — so the exit
+   can move them as a group above the work section (z-index 0) and below the
+   cube wall (z-index 1). */
+.wordsStage {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* The stage spans the whole viewport and outranks the work cards beneath it,
+     so as an opaque hit target it swallowed their hover even after the exit had
+     faded it out. Only its actual contents should catch the pointer. */
+  pointer-events: none;
+}
+
+/* Restores interaction for the parts of the stage that need it. The rail itself
+   is the hit target, not its wrapper: the wrapper's tall bottom padding (which
+   clears the figurines) spans nearly the whole viewport and, sitting above the
+   work cards, swallowed their hover. */
+.noteRail,
+.arrow {
+  pointer-events: auto;
+}
+
+/* Once the notes have left, nothing in the stage should intercept the pointer —
+   the work cards behind it need the hover. Toggled by the exit timeline. */
+.wordsStageInert .noteRail,
+.wordsStageInert .arrow {
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------
+ * Selected work — sits behind the cube wall inside the pinned Words
+ * section, so clearing the cubes uncovers it in place.
+ * --------------------------------------------------------------- */
+.selectedWork {
   position: absolute;
   inset: 0;
   z-index: 0;
+  /* Backdrop for the whole viewport once the cubes and paper have cleared. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fcf9f6;
+}
+
+.selectedWork {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.selectedWorkTitle {
+  margin: clamp(48px, 9vh, 118px) 0 0;
+  width: min(720px, 88vw);
+  color: #003e2f;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 200;
+  font-size: clamp(2rem, 4vw, 58px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+/* --- Work cards -------------------------------------------------- */
+/* Stadium outlines from the design: a tall pill per project, with the preview
+   disc tucked into the lower half. */
+.workRow {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: clamp(16px, 2.2vw, 32px);
+  align-items: flex-start;
+  justify-content: center;
+  width: min(1300px, 92vw);
+  /* min-height: 0 lets the cards shrink to fit the viewport rather than
+     overflowing it, since their height comes from an aspect ratio. */
+  flex: 1;
+  min-height: 0;
+  margin-top: clamp(20px, 4vh, 56px);
+  /* Keeps the cards clear of the coin heap along the bottom. */
+  padding-bottom: clamp(120px, 22vh, 250px);
+}
+
+.workCard {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  /* 402x615 in the design. The tall ratio is what makes a 260px radius read as
+     a stadium — on a short box the same radius collapses into an ellipse.
+     Height leads and width follows, so the pills keep their shape on short
+     viewports instead of overflowing the section. */
+  height: 100%;
+  max-height: 615px;
+  aspect-ratio: 402 / 615;
+  flex: 0 1 auto;
+  padding: clamp(40px, 6vh, 74px) clamp(20px, 2.4vw, 34px) 0;
+  overflow: hidden;
+  border: 1px solid #000;
+  border-radius: 260px;
+  /* Outlined, not filled: the props pile behind the cards, so a translucent
+     fill lets the heap read through all three consistently. */
+  background: rgba(255, 255, 255, 0.1);
+  text-align: center;
+  /* transform is animated on hover; translate keeps it composited. */
+  will-change: transform;
+  transition:
+    translate 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 420ms ease;
+}
+
+/* Lifts off the pile on hover, with a soft shadow selling the gap. */
+.workCard:hover,
+.workCard:focus-visible {
+  translate: 0 -18px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 26px 44px rgba(40, 30, 20, 0.16);
+  outline: none;
+}
+
+/* Idle bob, so the cards read as floating above the heap rather than sitting in
+   it. Uses `transform` while the hover lift uses `translate` — separate CSS
+   properties, so the two compose instead of one overriding the other, and no
+   wrapper element is needed. Offset delays keep the three from bobbing in sync. */
+.workCard {
+  animation: workCardBob 5.5s ease-in-out infinite;
+}
+
+.workCard:nth-child(2) {
+  animation-duration: 6.4s;
+  animation-delay: -2.1s;
+}
+
+.workCard:nth-child(3) {
+  animation-duration: 5s;
+  animation-delay: -3.6s;
+}
+
+.workCard:hover,
+.workCard:focus-visible {
+  animation-play-state: paused;
+}
+
+@keyframes workCardBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workCard {
+    transition: none;
+  }
+
+  .workCard {
+    animation: none;
+  }
+}
+
+.workCardTitle {
+  margin: 0;
+  color: #000;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 200;
+  font-size: clamp(1.6rem, 2.9vw, 42px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.workCardSub {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.5);
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: clamp(0.8rem, 1.1vw, 16px);
+  line-height: 1.3;
+}
+
+/* Preview disc. Bleeds past the card's bottom edge, which the pill's
+   border-radius crops into the design's flattened arc. */
+.workCardDisc {
+  width: 88%;
+  margin-top: auto;
+  margin-bottom: -18%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #d9d9d9;
+}
+
+/* --- Prop pile --------------------------------------------------- */
+/* Behind the cards (z-index 2) so the heap banks up against them rather than
+   burying them. The two translucent cards still let props read through. */
+.propScene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Image props (trucks and future sets). Positioned exactly like coins; the
+   artwork fills the body box the simulation measures. */
+.propImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.propImageArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Outline coin: a ring, a milled inner ring via dashed border, and the
+   currency glyph. Cheaper than an image per denomination and scales cleanly. */
+.coin {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 50%;
+  background: #fcfcfb;
+  will-change: transform;
+}
+
+.coin::before {
+  content: "";
+  position: absolute;
+  inset: 6%;
+  border: 1px dashed rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+}
+
+.coinGlyph {
+  color: #000;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 900px) {
+  .workRow {
+    gap: 12px;
+    padding-bottom: clamp(60px, 10vh, 120px);
+  }
+
+  .workCard {
+    padding-top: clamp(28px, 4vh, 48px);
+    border-radius: 160px;
+  }
+}
+
+/* Three pills across a phone leaves each too narrow to read. Scroll them
+   horizontally at a usable width instead of compressing them. */
+@media (max-width: 640px) {
+  .workRow {
+    justify-content: flex-start;
+    width: 100%;
+    padding: 0 6vw clamp(60px, 10vh, 120px);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .workRow::-webkit-scrollbar {
+    display: none;
+  }
+
+  .workCard {
+    flex: 0 0 auto;
+    width: 72vw;
+    height: auto;
+    max-height: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * Cube wall — real preserve-3d cubes that fly toward the camera as the
+ * Words section scrubs out, uncovering the section behind it. Ported from
+ * the cube-reveal experiment.
+ * --------------------------------------------------------------- */
+/* Between the work section (0) and the paper wall (2): the cubes are the
+   *backdrop* the notes hang against, so they must not cover them. */
+.cubeWall {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* Camera at centre, so cubes near the edges naturally show their inner
+     sides while the middle ones read flat. */
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.cubeTile {
+  position: absolute;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.cubeTileInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* Solid opaque faces with hard edges, so the wall reads as stacked blocks
+   rather than translucent panels. */
+.cubeFace {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 1px solid rgba(60, 60, 58, 0.28);
+}
+
+/* Tinted to the section's paper wall; sides slightly darker so depth reads
+   when the perspective reveals them. */
+.cubeFront {
+  background: #f5f5f4;
+  transform: translateZ(var(--d));
+}
+.cubeBack {
+  background: #f5f5f4;
+  transform: translateZ(calc(var(--d) * -1)) rotateY(180deg);
+}
+.cubeRight {
+  background: #e8e8e6;
+  transform: rotateY(90deg) translateZ(var(--half-w));
+}
+.cubeLeft {
+  background: #e8e8e6;
+  transform: rotateY(-90deg) translateZ(var(--half-w));
+}
+.cubeTop {
+  background: #efefed;
+  transform: rotateX(90deg) translateZ(var(--half-h));
+}
+.cubeBottom {
+  background: #dededa;
+  transform: rotateX(-90deg) translateZ(var(--half-h));
+}
+
+/* Textured paper wall the notes are pinned to. Above the cubes, below the
+   stage: it's the surface the cube grid resolves into once they fly off. */
+.wordsGrid {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   background-image:
     url("/portfolio-august/journey/grid.svg"),
     url("/portfolio-august/words/paper.webp");
@@ -701,6 +1092,10 @@
   width: 100%;
   min-height: 0;
   margin-top: clamp(20px, 4vh, 52px);
+  /* Note height, so the arrows can centre on the notes instead of on this
+     wrapper — its tall bottom padding (clearing the figurines) would otherwise
+     push them well below the cards. */
+  --note-h: 372px;
   /* Keeps the notes clear of the figurine group along the bottom. */
   padding-bottom: clamp(120px, 22vh, 250px);
 }
@@ -718,6 +1113,16 @@
   overflow-y: hidden;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
+}
+
+/* The exit drops each note ~200px, well past the rail's padding edge — and a
+   scroll container clips on both axes, so the fall would be guillotined. Note
+   that `overflow-y: clip` + `overflow-clip-margin` does NOT work here: the spec
+   coerces clip to hidden when the other axis scrolls. Releasing the clip only
+   for the exit is the way, and by then the carousel is on its way out anyway.
+   Applied with a snapshot of scrollLeft — see the exit timeline. */
+.noteRailReleased {
+  overflow: visible;
 }
 
 .noteRail::-webkit-scrollbar {
@@ -847,6 +1252,15 @@
     padding: 34px 8vw 0;
   }
 
+  /* Matches the shorter note and tighter rail padding above, so the arrows stay
+     centred on the notes at this breakpoint too. */
+  .noteRailWrap {
+    --note-h: 320px;
+  }
+
+  .arrow {
+    top: calc(34px + var(--note-h) / 2);
+  }
 }
 
 /* ---------------------------------------------------------------
