@@ -662,29 +662,33 @@
   will-change: transform, opacity;
 }
 
-/* Layered cloud band along the bottom edge. The source art is 1685x540, so
-   height is capped and object-fit crops to the crests — otherwise it scales up
-   to swallow the notes. Two copies parallax at different rates for depth. */
-.cloudBand {
+/* Figurine group along the bottom edge. The wrapper carries the scroll
+   parallax; the image itself carries the entrance. */
+.figurineLayer {
   position: absolute;
-  left: -6%;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 3;
-  width: 112%;
-  height: clamp(90px, 15vh, 165px);
-  object-fit: cover;
-  object-position: center top;
+  display: flex;
+  justify-content: center;
   pointer-events: none;
   will-change: transform;
 }
 
-.cloudBandBack {
-  z-index: 2;
-  left: -12%;
-  width: 128%;
-  bottom: 5%;
-  height: clamp(70px, 12vh, 130px);
-  opacity: 0.5;
+/* Height-capped so the group doesn't bury the notes. contain, not cover: the
+   art is a transparent cutout, so cropping would slice through the figures
+   rather than revealing more background. */
+.figurines {
+  width: min(1180px, 92%);
+  max-height: clamp(180px, 30vh, 330px);
+  height: auto;
+  object-fit: contain;
+  object-position: center bottom;
+  /* Hidden until it rises on entry; GSAP reveals it with autoAlpha. */
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform;
 }
 
 /* --- Note carousel ---------------------------------------------- */
@@ -697,8 +701,8 @@
   width: 100%;
   min-height: 0;
   margin-top: clamp(20px, 4vh, 52px);
-  /* Keeps the notes clear of the cloud band along the bottom. */
-  padding-bottom: clamp(90px, 15vh, 165px);
+  /* Keeps the notes clear of the figurine group along the bottom. */
+  padding-bottom: clamp(120px, 22vh, 250px);
 }
 
 .noteRail {

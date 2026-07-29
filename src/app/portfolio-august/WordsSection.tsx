@@ -63,8 +63,8 @@ export function WordsSection() {
       const scroller = section.closest("main");
 
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        // The notes are hidden in CSS until the entrance runs, so reveal them.
-        gsap.set(`.${styles.note}`, { autoAlpha: 1 });
+        // Notes and figurines are hidden in CSS until the entrance runs.
+        gsap.set([`.${styles.note}`, `.${styles.figurines}`], { autoAlpha: 1 });
         return;
       }
 
@@ -88,20 +88,35 @@ export function WordsSection() {
         ease: "power3.out",
       });
 
-      /* Cloud band parallax: the two layers shift at different rates as the
-       * section scrolls through, so the band has depth. */
-      gsap.to(`.${styles.cloudBandBack}`, {
-        yPercent: -14,
-        xPercent: 3,
-        ease: "none",
-        scrollTrigger: { trigger: section, scroller, start: "top bottom", end: "bottom top", scrub: true },
-      });
-      gsap.to(`.${styles.cloudBandFront}`, {
-        yPercent: -26,
-        xPercent: -4,
-        ease: "none",
-        scrollTrigger: { trigger: section, scroller, start: "top bottom", end: "bottom top", scrub: true },
-      });
+      // Figurines rise from below the fold as the section arrives.
+      intro.fromTo(
+        `.${styles.figurines}`,
+        { yPercent: 42, autoAlpha: 0 },
+        { yPercent: 0, autoAlpha: 1, duration: 1.4, ease: "power3.out" },
+        0.3,
+      );
+
+      /* Parallax on pointer, not scroll. The page snap-scrolls a whole
+       * viewport at a time, so a scrubbed ScrollTrigger has no intermediate
+       * positions to interpolate — it just jumps between two values. Tracking
+       * the cursor gives the depth cue somewhere continuous to come from.
+       * Lives on the wrapper because the entrance owns the image's yPercent. */
+      const layer = section.querySelector<HTMLElement>(`.${styles.figurineLayer}`);
+      if (layer) {
+        const driftX = gsap.quickTo(layer, "x", { duration: 1.1, ease: "power2.out" });
+        const driftY = gsap.quickTo(layer, "y", { duration: 1.1, ease: "power2.out" });
+
+        const onDrift = (event: PointerEvent) => {
+          const rect = section.getBoundingClientRect();
+          const px = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+          const py = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+          driftX(-px * 26);
+          driftY(-py * 10);
+        };
+
+        window.addEventListener("pointermove", onDrift, { passive: true });
+        cleanups.push(() => window.removeEventListener("pointermove", onDrift));
+      }
 
       /* Notes slide in from off the right edge, one at a time. Each one's pin
        * only drops once that note has reached its spot — so the sequence reads
@@ -240,24 +255,21 @@ export function WordsSection() {
         </button>
       </div>
 
-      {/* Two copies at different scales and parallax rates, so the band reads
-          as layered depth rather than one flat cutout. */}
-      <Image
-        src="/portfolio-august/words/cloud-band.svg"
-        alt=""
-        width={1685}
-        height={540}
-        aria-hidden
-        className={`${styles.cloudBand} ${styles.cloudBandBack}`}
-      />
-      <Image
-        src="/portfolio-august/words/cloud-band.svg"
-        alt=""
-        width={1685}
-        height={540}
-        aria-hidden
-        className={`${styles.cloudBand} ${styles.cloudBandFront}`}
-      />
+      {/* Figurine group along the bottom. Exported as a rendered PNG rather
+          than the raw image fill, so Figma's dither effect is baked in. */}
+      <div aria-hidden className={styles.figurineLayer}>
+        {/* unoptimized: the optimizer re-encodes this as JPEG, which has no
+            alpha channel, turning the cutout into an opaque white box. The
+            source WebP is already sized and compressed. */}
+        <Image
+          src="/portfolio-august/words/figurines.webp"
+          alt=""
+          width={1900}
+          height={784}
+          unoptimized
+          className={styles.figurines}
+        />
+      </div>
     </section>
   );
 }
