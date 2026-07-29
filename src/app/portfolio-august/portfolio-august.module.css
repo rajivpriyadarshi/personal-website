@@ -258,18 +258,18 @@
   filter: drop-shadow(0 18px 22px rgba(60, 45, 20, 0.22));
 }
 
+/* Angles live in JS (CAR_REST_ANGLE), not here — the pointer-aim tweens
+   GSAP's `rotation`, and a CSS `rotate` on the same element would fight it. */
 .carLeft {
   left: -9.9%;
   top: -12.1%;
   width: 30.9%;
-  rotate: 40.67deg;
 }
 
 .carRight {
   left: 78.4%;
   top: -7.1%;
   width: 27.1%;
-  rotate: 147.15deg;
 }
 
 .journeyHeading {

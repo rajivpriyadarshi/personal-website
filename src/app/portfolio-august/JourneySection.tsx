@@ -21,6 +21,13 @@ const DRIFT_SPEED = 16;
 const DRIFT_TILT = 1.6;
 // How far off its own edge each car starts, in px.
 const CAR_ENTRY = 620;
+/* Resting angles from the design. Both source images point nose-right, so an
+ * absolute aim angle is just atan2 of the vector to the cursor. */
+const CAR_REST_ANGLE = [40.67, 147.15];
+// Most a car may swing off its resting angle while tracking the pointer.
+const CAR_AIM_LIMIT = 26;
+// Magnetic creep toward the cursor, in px at full deflection.
+const CAR_PULL = 22;
 
 export function JourneySection() {
   const root = useRef<HTMLElement>(null);
@@ -73,14 +80,28 @@ export function JourneySection() {
           {
             x: fromLeft ? -CAR_ENTRY : CAR_ENTRY,
             y: -60,
+            rotation: CAR_REST_ANGLE[i],
             autoAlpha: 0,
           },
           {
             x: 0,
             y: 0,
+            rotation: CAR_REST_ANGLE[i],
             autoAlpha: 1,
             duration: 1.6,
             ease: "power3.out",
+            // Aiming starts once the last car has parked, so the pointer
+            // doesn't fight the entrance.
+            onComplete:
+              i === cars.length - 1
+                ? () => {
+                    measureCars();
+                    window.addEventListener("pointermove", onCarAim, { passive: true });
+                    cleanups.push(() =>
+                      window.removeEventListener("pointermove", onCarAim),
+                    );
+                  }
+                : undefined,
           },
           i * 0.2,
         );
@@ -91,6 +112,59 @@ export function JourneySection() {
         { y: 26, autoAlpha: 0, duration: 0.9, stagger: 0.12, ease: "power3.out" },
         0.25,
       );
+
+      /* Magnetic cars. Each one steers its nose toward the cursor and creeps a
+       * little way after it, then eases back to its resting pose. The aim is
+       * clamped so they stay recognisably parked in the design's composition
+       * rather than spinning to follow the pointer all the way round. */
+      const aim = cars.map((car) => ({
+        rot: gsap.quickTo(car, "rotation", { duration: 0.7, ease: "power2.out" }),
+        x: gsap.quickTo(car, "x", { duration: 0.9, ease: "power2.out" }),
+        y: gsap.quickTo(car, "y", { duration: 0.9, ease: "power2.out" }),
+      }));
+
+      // Rest centres cached once — reading layout per frame would thrash.
+      let carHomes = cars.map(() => ({ x: 0, y: 0 }));
+      const measureCars = () => {
+        const rect = section.getBoundingClientRect();
+        carHomes = cars.map((car) => {
+          const r = car.getBoundingClientRect();
+          return {
+            x: r.left - rect.left + r.width / 2,
+            y: r.top - rect.top + r.height / 2,
+          };
+        });
+      };
+
+      const onCarAim = (event: PointerEvent) => {
+        const rect = section.getBoundingClientRect();
+        const px = event.clientX - rect.left;
+        const py = event.clientY - rect.top;
+
+        cars.forEach((_, i) => {
+          const home = carHomes[i];
+          const dx = px - home.x;
+          const dy = py - home.y;
+          const dist = Math.hypot(dx, dy) || 1;
+
+          // Absolute heading to the cursor, then clamped to a small deviation
+          // from the car's parked angle.
+          const target = (Math.atan2(dy, dx) * 180) / Math.PI;
+          const rest = CAR_REST_ANGLE[i];
+          // Wrap into -180..180 so the shorter way round always wins.
+          const delta = gsap.utils.clamp(
+            -CAR_AIM_LIMIT,
+            CAR_AIM_LIMIT,
+            ((target - rest + 540) % 360) - 180,
+          );
+          aim[i].rot(rest + delta);
+
+          // Creep toward the cursor, easing off with distance.
+          const pull = Math.min(CAR_PULL, dist * 0.06);
+          aim[i].x((dx / dist) * pull);
+          aim[i].y((dy / dist) * pull);
+        });
+      };
 
       /* Track art slides up from below the bottom edge. fromTo, not from — the
        * CSS keeps these hidden until entry, so `from` would read opacity 0 as
