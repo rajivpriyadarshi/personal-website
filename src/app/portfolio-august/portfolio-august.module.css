@@ -228,6 +228,9 @@
   position: absolute;
   z-index: 1;
   height: auto;
+  /* Hidden until it slides up on entry; GSAP reveals it with autoAlpha. */
+  opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 
@@ -984,7 +987,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 16px;
+  padding: 8px 16px 8px 12px;
   border: 0;
   border-radius: 50px;
   background: transparent;

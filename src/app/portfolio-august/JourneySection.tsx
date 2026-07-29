@@ -19,6 +19,8 @@ const CARD_TILT = 7;
 const DRIFT_SPEED = 16;
 // Extra degrees a card leans based on where it sits across the viewport.
 const DRIFT_TILT = 1.6;
+// How far off its own edge each car starts, in px.
+const CAR_ENTRY = 620;
 
 export function JourneySection() {
   const root = useRef<HTMLElement>(null);
@@ -43,7 +45,11 @@ export function JourneySection() {
       if (!section) return;
       const scroller = section.closest("main");
 
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        // Cars and track art are hidden in CSS until the entrance runs.
+        gsap.set([`.${styles.car}`, `.${styles.trackArt}`], { autoAlpha: 1 });
+        return;
+      }
 
       const cleanups: (() => void)[] = [];
 
@@ -55,17 +61,23 @@ export function JourneySection() {
         scrollTrigger: { trigger: section, scroller, start: "top 70%", once: true },
       });
 
-      /* Each car drives in along its own nose direction, so it looks like it
-       * came down the road rather than sliding sideways. The elements carry a
-       * CSS `rotate`, which GSAP's x/y would apply along the *rotated* axes —
-       * so the offsets below are already expressed in the car's local frame. */
+      /* Each car drives in from its own side of the screen — left car off the
+       * left edge, right car off the right. `x` in px (not xPercent) because
+       * GSAP applies the translate in page space before the element's CSS
+       * rotate, so a percentage of the car's own width wouldn't map to a
+       * predictable screen direction. */
       cars.forEach((car, i) => {
+        const fromLeft = i === 0;
         intro.fromTo(
           car,
-          { xPercent: -175, yPercent: i === 0 ? -40 : 40, autoAlpha: 0 },
           {
-            xPercent: 0,
-            yPercent: 0,
+            x: fromLeft ? -CAR_ENTRY : CAR_ENTRY,
+            y: -60,
+            autoAlpha: 0,
+          },
+          {
+            x: 0,
+            y: 0,
             autoAlpha: 1,
             duration: 1.6,
             ease: "power3.out",
@@ -78,6 +90,22 @@ export function JourneySection() {
         `.${styles.journeyHeading} > *`,
         { y: 26, autoAlpha: 0, duration: 0.9, stagger: 0.12, ease: "power3.out" },
         0.25,
+      );
+
+      /* Track art slides up from below the bottom edge. fromTo, not from — the
+       * CSS keeps these hidden until entry, so `from` would read opacity 0 as
+       * the *end* state and leave them invisible. */
+      intro.fromTo(
+        `.${styles.trackArt}`,
+        { yPercent: 70, autoAlpha: 0 },
+        {
+          yPercent: 0,
+          autoAlpha: 1,
+          duration: 1.3,
+          stagger: 0.14,
+          ease: "power3.out",
+        },
+        0.3,
       );
 
       // Cards rise in as the section lands, so the track isn't static on arrival.
