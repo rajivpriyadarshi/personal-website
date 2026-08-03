@@ -2132,7 +2132,7 @@
     flex-wrap: nowrap;
     justify-content: center;
     transform: translateX(-50%);
-    gap: 6px;
+    gap: 10px;
   }
 
   /* Pills must never be squeezed — a shrunken box left the label spilling past
@@ -2142,6 +2142,12 @@
     flex-shrink: 0;
     padding: 9px 12px;
     font-size: 11px;
+  }
+
+  /* No hover on touch, so the grid preview only ever fired on tap and covered
+     the hero. The pill still links to the profile. */
+  .travelPeek {
+    display: none;
   }
 
   .travelThumb {
@@ -2160,6 +2166,7 @@
      photo stack doesn't run into them. */
   .heroInner {
     padding-top: 132px;
+    gap: 8px;
   }
 
   .greeting {
