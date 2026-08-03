@@ -17,8 +17,6 @@ const CARD_STEP = 473 + 31;
 const CARD_TILT = 7;
 // Auto-drift speed in px/sec — slow enough to read as ambient, not as scrolling.
 const DRIFT_SPEED = 16;
-// Extra degrees a card leans based on where it sits across the viewport.
-const DRIFT_TILT = 1.6;
 // How far off its own edge each car starts, in px.
 const CAR_ENTRY = 620;
 /* Resting angles from the design. Both source images point nose-right, so an
@@ -259,17 +257,11 @@ export function JourneySection() {
           if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 1) drifting = false;
         }
 
-        // Tilt eases with each card's horizontal position, so cards breathe
-        // as they travel instead of holding one fixed angle.
-        const mid = el.clientWidth / 2;
-        cards.forEach((card, i) => {
-          const inner = card.querySelector<HTMLElement>(`.${styles.cardInner}`);
-          if (!inner) return;
-          const rect = card.getBoundingClientRect();
-          const offset = (rect.left + rect.width / 2 - mid) / mid;
-          const base = i % 2 === 1 ? -3 : 3;
-          gsap.set(card, { rotate: `${base + offset * DRIFT_TILT}deg` });
-        });
+        /* No position-driven tilt here. It used to scale by each card's distance
+         * from centre, but that ratio is unbounded once a card is off-screen —
+         * cards deep in the row reached wild angles, and because gsap.set writes
+         * an inline transform, the last drift frame's value stayed baked in after
+         * the drift stopped. Cards now hold the static ±3° from their markup. */
       };
 
       gsap.ticker.add(drift);

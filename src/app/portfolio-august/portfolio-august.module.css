@@ -445,8 +445,11 @@
      wins and the cards compress instead of overflowing into a scroll. */
   min-width: 0;
   height: 100%;
-  /* Clears the floating arrows at both ends. */
-  padding: 0 max(6vw, 92px);
+  /* Clears the floating arrows at both ends. Vertical padding gives the ±3°
+     rotation room: a rotated card's bounding box is taller than the card, and
+     overflow-y: hidden (required to suppress a second scrollbar) was slicing
+     the raised top corner off. */
+  padding: 18px max(6vw, 92px) 0;
   overflow-x: auto;
   overflow-y: hidden;
   /* No scroll-snap: it fights the slow auto-drift's sub-pixel steps and yanks
@@ -469,7 +472,7 @@
   gap: 8px;
   width: 473px;
   /* Pushed down so the pill-above cards clear the heading; .cardBelow resets
-     this to 0 to produce the alternating stagger. */
+     this to the track's own top padding to produce the alternating stagger. */
   margin-top: 58px;
 }
 
