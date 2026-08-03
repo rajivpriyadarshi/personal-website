@@ -87,22 +87,6 @@ export function PortfolioAugustClient() {
 
   return (
     <>
-      {/* Holding screen until the small-screen layout is built. CSS-only so it
-          shows on the first paint — a JS width check would flash the unstyled
-          desktop layout first. */}
-      <div className={styles.mobileGate}>
-        {/* Same gradient as the hero, so the holding screen looks like part of
-            the site rather than a blank error page. */}
-        <div aria-hidden className={styles.mobileGateGradient}>
-          <GradFlow config={HERO_GRADIENT} />
-        </div>
-
-        <p className={styles.mobileGateTitle}>Mobile version coming soon</p>
-        <p className={styles.mobileGateBody}>
-          This site is built for a bigger screen. Please open it on your laptop or desktop.
-        </p>
-      </div>
-
       <main className={styles.page}>
       <section ref={hero} id="hero" className={`${styles.hero} ${styles.snap}`}>
         {/* Wrapper carries the positioning the old canvas had inline, since
@@ -214,11 +198,24 @@ export function PortfolioAugustClient() {
         <TagPhysics />
       </section>
 
-      <SummarySection />
+      {/* Small screens get the hero — Matter.js tags and all — then this notice
+          in place of the sections below, which aren't laid out for mobile yet.
+          Hidden on desktop; the sections after it are hidden on mobile. */}
+      <section className={`${styles.mobileNotice} ${styles.snap}`}>
+        <p className={styles.mobileNoticeTitle}>Mobile version coming soon</p>
+        <p className={styles.mobileNoticeBody}>
+          The rest of this site is built for a bigger screen. Please open it on your
+          laptop or desktop.
+        </p>
+      </section>
 
-      <JourneySection />
+      <div className={styles.desktopOnly}>
+        <SummarySection />
 
-      <WordsSection />
+        <JourneySection />
+
+        <WordsSection />
+      </div>
       </main>
     </>
   );

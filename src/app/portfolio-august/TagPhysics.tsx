@@ -235,6 +235,22 @@ export function TagPhysics() {
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     document.addEventListener("pointerleave", onPointerLeave);
 
+    /* Touch has no hover, so a tap has to do the shoving instead. The repulsion
+     * force is applied over a short window rather than a single frame, or the
+     * pile would barely register a quick tap. */
+    const onTouchPoke = (event: PointerEvent) => {
+      if (event.pointerType === "mouse") return;
+      const rect = container.getBoundingClientRect();
+      pointer.x = event.clientX - rect.left;
+      pointer.y = event.clientY - rect.top;
+      pointer.active = true;
+      releasePen();
+      gsap.delayedCall(0.32, () => {
+        pointer.active = false;
+      });
+    };
+    window.addEventListener("pointerdown", onTouchPoke, { passive: true });
+
     /* ---------------------------------------------------------------
      * Collision clicks. Autoplay policy blocks audio until the user has
      * interacted, so the falling pile is silent on a cold load and starts
@@ -347,6 +363,7 @@ export function TagPhysics() {
       visibility.disconnect();
       observer.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerdown", onTouchPoke);
       window.removeEventListener("pointermove", unlock);
       window.removeEventListener("pointerdown", unlock);
       window.removeEventListener("keydown", unlock);
