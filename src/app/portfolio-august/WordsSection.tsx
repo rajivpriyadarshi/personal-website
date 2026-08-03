@@ -776,10 +776,13 @@ export function WordsSection() {
 
           {/* Figurine group along the bottom. Exported as a rendered PNG rather
             than the raw image fill, so Figma's dither effect is baked in. */}
-          <div aria-hidden className={styles.figurineLayer}>
-            {/* unoptimized: the optimizer re-encodes this as JPEG, which has no
-              alpha channel, turning the cutout into an opaque white box. The
-              source WebP is already sized and compressed. */}
+          {/* Figurines hidden for now. The layer stays mounted because the
+              entrance and exit timelines both target .figurines; removing it
+              would leave those tweens with an empty target.
+            unoptimized: the optimizer re-encodes this as JPEG, which has no
+            alpha channel, turning the cutout into an opaque white box. The
+            source WebP is already sized and compressed. */}
+          <div aria-hidden className={styles.figurineLayer} style={{ display: "none" }}>
             <Image
               src="/portfolio-august/words/figurines.webp"
               alt=""

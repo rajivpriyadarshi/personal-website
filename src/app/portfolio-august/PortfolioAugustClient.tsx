@@ -24,11 +24,33 @@ const HERO_GRADIENT = { ...DEFAULT_PARAMS, rotation: -0.55, spread: 1.7, scale: 
 
 const NAV = [
   { label: "About me", icon: "/portfolio-august/nav-user.svg", href: "#hero" },
-  { label: "Work", icon: "/portfolio-august/nav-briefcase.svg", href: "#work" },
+  { label: "Work", icon: "/portfolio-august/nav-briefcase.svg", href: "#contact" },
 ];
+
+/* The Selected Work panel isn't a section of its own — it's uncovered partway
+ * through the Words section's scrubbed exit, once the notes have left and the
+ * cube wall has cleared. So "Work" can't just jump to a section top; it has to
+ * land at the scroll offset where that reveal has finished. Matches CUBES_END
+ * in WordsSection, with a little past it so the panel is fully clear. */
+const WORK_REVEAL_PROGRESS = 0.92;
 
 export function PortfolioAugustClient() {
   const hero = useRef<HTMLElement>(null);
+
+  /* Scrolls to the point in the Words section's scrub where Selected Work has
+   * been uncovered. The page scrolls inside <main>, not the window, so this
+   * drives that element rather than using an anchor jump. */
+  const scrollToWork = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    const scroller = hero.current?.closest("main");
+    const words = document.getElementById("contact");
+    if (!scroller || !words) return;
+    const range = words.offsetHeight - scroller.clientHeight;
+    scroller.scrollTo({
+      top: words.offsetTop + range * WORK_REVEAL_PROGRESS,
+      behavior: "smooth",
+    });
+  };
 
   useGSAP(
     () => {
@@ -84,6 +106,7 @@ export function PortfolioAugustClient() {
               key={item.label}
               href={item.href}
               className={`${styles.navItem} ${i === 0 ? styles.navItemActive : ""}`}
+              onClick={item.href === "#contact" ? scrollToWork : undefined}
             >
               <Image src={item.icon} alt="" width={16} height={16} className={styles.navIcon} />
               <span className={styles.navLabel}>{item.label}</span>

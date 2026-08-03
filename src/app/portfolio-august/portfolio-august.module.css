@@ -960,16 +960,14 @@
 /* Card rendered as an anchor. Resets the link defaults so it's visually
    identical to the non-clickable cards, and lifts on hover to signal it opens
    a case study. */
+/* Link resets only. Deliberately no `transition` or hover `box-shadow` here:
+   both are already declared on .workCard, and because this class is defined
+   later, a shorthand `transition` would replace that one wholesale — dropping
+   the translate and background easing, so the lift snapped instead of gliding. */
 .workCardLink {
   color: inherit;
   text-decoration: none;
   cursor: pointer;
-  transition: box-shadow 240ms ease;
-}
-
-.workCardLink:hover,
-.workCardLink:focus-visible {
-  box-shadow: 0 12px 34px rgba(70, 50, 30, 0.14);
 }
 
 .workCard {
@@ -984,6 +982,13 @@
 .workCard:nth-child(3) {
   animation-duration: 5s;
   animation-delay: -3.6s;
+}
+
+/* The rail grew to four cards, so the fourth needs its own offset — otherwise
+   it bobs in lockstep with the first. */
+.workCard:nth-child(4) {
+  animation-duration: 5.9s;
+  animation-delay: -1.2s;
 }
 
 .workCard:hover,
@@ -1801,13 +1806,15 @@
   color: #000;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 200;
-  font-size: clamp(2rem, 3.4vw, 52px);
+  font-size: 52px;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
 
 .blurb {
-  margin: 0;
+  /* Pulls back against .heroInner's 18px flex gap, which is right for the
+     other pairs but too loose under the headline. */
+  margin: -8px 0 0;
   color: #000;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-size: 14px;
