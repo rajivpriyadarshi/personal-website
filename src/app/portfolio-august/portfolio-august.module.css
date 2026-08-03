@@ -1773,7 +1773,13 @@
   margin-top: 54px;
   padding: 8px;
   border-radius: 60px;
+  /* Glass edge: a bright hairline catches light on the top rim and fades toward
+     the bottom, which is what separates the pill from the gradient behind it. */
+  border: 1px solid rgba(255, 255, 255, 0.45);
   background: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 2px 12px rgba(60, 45, 30, 0.08);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
@@ -1832,7 +1838,11 @@
   gap: 6px;
   padding: 12px 16px;
   border-radius: 60px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
   background: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 2px 12px rgba(60, 45, 30, 0.08);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   color: #000;
