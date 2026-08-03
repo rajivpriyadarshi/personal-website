@@ -140,8 +140,16 @@ export function PortfolioAugustClient() {
             </a>
 
             {/* Grid preview on hover. Hosted on the wrapper rather than the
-                anchor so it stays open while the cursor travels down onto it. */}
-            <div aria-hidden className={styles.travelPeek}>
+                anchor so it stays open while the cursor travels down onto it,
+                and it's a link itself so the grid is clickable too. */}
+            <a
+              className={styles.travelPeek}
+              href="https://www.instagram.com/rajivpriyadarshi"
+              target="_blank"
+              rel="noreferrer"
+              tabIndex={-1}
+              aria-hidden
+            >
               <Image
                 src="/portfolio-august/travel-grid.webp"
                 alt=""
@@ -150,7 +158,7 @@ export function PortfolioAugustClient() {
                 sizes="320px"
                 className={styles.travelPeekImage}
               />
-            </div>
+            </a>
           </div>
 
           {/* Icon only: the label would crowd the hero at this width, and the

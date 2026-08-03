@@ -993,7 +993,9 @@
      scrolls, rather than compressing to fit. */
   flex: 0 0 auto;
   scroll-snap-align: center;
-  padding: clamp(40px, 6vh, 74px) clamp(20px, 2.4vw, 34px) 0;
+  /* Small, even top inset: the disc leads now, so the old deep top padding
+     (which made room for the title) would push it too far down. */
+  padding: clamp(14px, 1.8vh, 24px) clamp(20px, 2.4vw, 34px) 0;
   overflow: hidden;
   border: 1px solid #000;
   border-radius: 260px;
@@ -1117,15 +1119,21 @@
 
 /* Preview disc. Bleeds past the card's bottom edge, which the pill's
    border-radius crops into the design's flattened arc. */
-/* Brand disc. The tint is set inline per project; the fallback grey only shows
-   if a project ever lands here without one. */
+/* Brand disc, sitting at the top of the pill with the copy beneath it. The tint
+   is set inline per project; the fallback grey only shows if a project ever
+   lands here without one. */
 .workCardDisc {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 88%;
-  margin-top: auto;
-  margin-bottom: -18%;
+  /* Sized against the card's full width, not its content box. The card carries
+     34px of side padding for the copy, and 87% of that narrower box left the
+     circle far smaller than the design's — so the disc reaches back out over
+     the padding with a negative inline margin. */
+  width: calc((100% + 2 * clamp(20px, 2.4vw, 34px)) * 0.87);
+  max-width: none;
+  margin-bottom: 16px;
   aspect-ratio: 1;
   border-radius: 50%;
   background: #d9d9d9;
@@ -1815,7 +1823,9 @@
   top: calc(100% + 10px);
   right: 0;
   z-index: 21;
+  display: block;
   width: 320px;
+  cursor: pointer;
   overflow: hidden;
   border: 3px solid #fff;
   border-radius: 18px;

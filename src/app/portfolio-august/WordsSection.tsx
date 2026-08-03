@@ -599,11 +599,6 @@ export function WordsSection() {
               {WORK.map((project) => {
                 const body = (
                   <>
-                    <h3 className={styles.workCardTitle}>{project.name}</h3>
-                    <p className={styles.workCardSub}>{project.blurb}</p>
-                    {project.comingSoon ? (
-                      <span className={styles.workCardBadge}>Coming soon</span>
-                    ) : null}
                     <div
                       aria-hidden
                       className={styles.workCardDisc}
@@ -623,6 +618,11 @@ export function WordsSection() {
                         }
                       />
                     </div>
+                    <h3 className={styles.workCardTitle}>{project.name}</h3>
+                    <p className={styles.workCardSub}>{project.blurb}</p>
+                    {project.comingSoon ? (
+                      <span className={styles.workCardBadge}>Coming soon</span>
+                    ) : null}
                   </>
                 );
 
