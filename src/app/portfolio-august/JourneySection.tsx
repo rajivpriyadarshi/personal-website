@@ -320,7 +320,8 @@ export function JourneySection() {
       <div className={styles.journeyHeading}>
         <h2 className={styles.journeyTitle}>10 years of journey so far</h2>
         <p className={styles.journeySub}>
-          I have worn multiple hats throughout my career span of almost 10 years
+          I&rsquo;ve worn many hats across fintech, logistics, ed-tech, hospitality, and
+          SaaS &mdash; from 0&rarr;1 products to systems at scale
         </p>
       </div>
 

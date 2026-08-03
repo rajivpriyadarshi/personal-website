@@ -24,6 +24,7 @@ const SUBHEAD =
 const OBJECTS = [
   {
     key: "paper",
+    tip: "right",
     src: "/portfolio-august/summary/paper.webp",
     alt: "Crumpled paper ball",
     size: 372,
@@ -36,6 +37,7 @@ const OBJECTS = [
   },
   {
     key: "knife",
+    tip: "low",
     src: "/portfolio-august/summary/knife.webp",
     alt: "Craft knife",
     size: 420,
@@ -48,6 +50,7 @@ const OBJECTS = [
   },
   {
     key: "room",
+    tip: "left",
     src: "/portfolio-august/summary/room.webp",
     alt: "Miniature living room",
     size: 356,
@@ -60,6 +63,7 @@ const OBJECTS = [
   },
   {
     key: "truck",
+    tip: "right",
     src: "/portfolio-august/summary/truck.webp",
     alt: "Toy pickup truck",
     size: 383,
@@ -72,6 +76,7 @@ const OBJECTS = [
   },
   {
     key: "pos",
+    tip: "low",
     src: "/portfolio-august/summary/pos.webp",
     alt: "Card payment terminal",
     size: 401,
@@ -86,6 +91,7 @@ const OBJECTS = [
   },
   {
     key: "computer",
+    tip: "left",
     src: "/portfolio-august/summary/computer.webp",
     alt: "Retro desktop computer",
     size: 443,
@@ -111,6 +117,14 @@ const REACH = 78;
 const TILT = 13;
 // Seconds between each object's arrival.
 const ARRIVAL_GAP = 0.34;
+
+/* Where each prop's bubble hangs. Props that overhang a section edge would push
+ * a centred bubble off-screen, so they anchor inward instead. */
+const TIP_CLASS = {
+  left: styles.propTipLeft,
+  right: styles.propTipRight,
+  low: styles.propTipLow,
+} as const;
 
 const BIRD_FLOCKS = [
   "birdOne",
@@ -464,6 +478,14 @@ export function SummarySection() {
               sizes="(max-width: 768px) 45vw, 30vw"
             />
           </div>
+
+          {/* Outside .summaryTilt on purpose: that element carries the 3D hover
+              rotation, and a child of it inherits the tilt — the bubble came out
+              visibly skewed. Sitting here it stays upright. The tip variant pulls
+              it inward for props that hang off an edge. */}
+          <span className={`${styles.propTip} ${TIP_CLASS[object.tip]}`} aria-hidden>
+            What do you think this means?
+          </span>
         </div>
       ))}
 
