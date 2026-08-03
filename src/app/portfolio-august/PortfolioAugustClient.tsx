@@ -105,6 +105,10 @@ export function PortfolioAugustClient() {
           <GradFlow config={HERO_GRADIENT} />
         </div>
 
+        <p className={styles.wipNotice}>
+          This website is a work in progress. Please ignore the issues :)
+        </p>
+
         <nav className={styles.nav}>
           {NAV.map((item, i) => (
             <a

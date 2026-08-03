@@ -1597,6 +1597,26 @@
   background: #fcf9f6;
 }
 
+/* Work-in-progress notice across the very top of the hero. Absolute rather than
+   in flow: the hero centres its content vertically, so a flow-level strip would
+   shift the whole composition down. Above the nav's z-index so the translucent
+   black reads over the gradient. */
+.wipNotice {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 21;
+  margin: 0;
+  padding: 10px 24px;
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 12px;
+  line-height: normal;
+  text-align: center;
+}
+
 /* Host for the animated gradient. GradFlow fills its parent, so the parent
    carries the full-bleed positioning the previous canvas had inline. */
 .heroGradient {
