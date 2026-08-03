@@ -17,7 +17,7 @@ const PHOTOS = [
 const SWIPE_THRESHOLD = 30;
 const CLICK_SLOP = 5;
 // Seconds each photo holds before the stack advances on its own.
-const AUTO_ADVANCE = 3.2;
+const AUTO_ADVANCE = 2;
 
 function positionFor(posIdx: number) {
   if (posIdx === 0) return { rotate: -16, x: -46, scale: 0.9, opacity: 0.85, zIndex: 10 };
