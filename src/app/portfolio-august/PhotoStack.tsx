@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import styles from "./portfolio-august.module.css";
 
@@ -16,6 +16,8 @@ const PHOTOS = [
 
 const SWIPE_THRESHOLD = 30;
 const CLICK_SLOP = 5;
+// Seconds each photo holds before the stack advances on its own.
+const AUTO_ADVANCE = 3.2;
 
 function positionFor(posIdx: number) {
   if (posIdx === 0) return { rotate: -16, x: -46, scale: 0.9, opacity: 0.85, zIndex: 10 };
@@ -76,6 +78,23 @@ export function PhotoStack() {
     },
     [cycle],
   );
+
+  /* Auto-advance. Pauses while the pointer is over the stack so the caption
+   * stays readable and a photo doesn't slide out from under a click. Uses
+   * gsap.delayedCall rather than setInterval so it shares the same clock as the
+   * shuffle tween and can't fire mid-animation. */
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (hovered !== null) return;
+
+    const tick = gsap.delayedCall(AUTO_ADVANCE, () => {
+      cycle(1);
+      tick.restart(true);
+    });
+    return () => {
+      tick.kill();
+    };
+  }, [cycle, hovered]);
 
   const onPointerDown = (event: React.PointerEvent, photoIdx: number) => {
     dragStart.current = { x: event.clientX, cardIdx: photoIdx };
