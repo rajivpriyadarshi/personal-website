@@ -91,6 +91,12 @@ export function PortfolioAugustClient() {
           shows on the first paint — a JS width check would flash the unstyled
           desktop layout first. */}
       <div className={styles.mobileGate}>
+        {/* Same gradient as the hero, so the holding screen looks like part of
+            the site rather than a blank error page. */}
+        <div aria-hidden className={styles.mobileGateGradient}>
+          <GradFlow config={HERO_GRADIENT} />
+        </div>
+
         <p className={styles.mobileGateTitle}>Mobile version coming soon</p>
         <p className={styles.mobileGateBody}>
           This site is built for a bigger screen. Please open it on your laptop or desktop.
