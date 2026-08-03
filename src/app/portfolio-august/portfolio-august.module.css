@@ -1609,12 +1609,32 @@
   z-index: 21;
   margin: 0;
   padding: 10px 24px;
-  background: rgba(0, 0, 0, 0.2);
+  background: #0004;
   color: #fff;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-size: 12px;
   line-height: normal;
   text-align: center;
+  /* Slides down after the hero's intro timeline has played, so it arrives as a
+     deliberate afterthought rather than competing with the headline. */
+  animation: wipNoticeIn 700ms cubic-bezier(0.22, 1, 0.36, 1) 1.9s both;
+}
+
+@keyframes wipNoticeIn {
+  from {
+    opacity: 0;
+    translate: 0 -100%;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wipNotice {
+    animation: none;
+  }
 }
 
 /* Host for the animated gradient. GradFlow fills its parent, so the parent
@@ -1810,7 +1830,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 16px;
+  padding: 12px 16px;
   border-radius: 60px;
   background: rgba(255, 255, 255, 0.3);
   -webkit-backdrop-filter: blur(12px);
@@ -1884,7 +1904,9 @@
 /* Square pill for a link with no label, so the icon isn't sitting in a
    lopsided capsule sized for text. */
 .iconOnlyLink {
-  padding: 16px;
+  /* Matches .travelLink's vertical padding so both pills share a height; the
+     aspect-ratio then squares it off. */
+  padding: 12px;
   aspect-ratio: 1;
   justify-content: center;
 }
