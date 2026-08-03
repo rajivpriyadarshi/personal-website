@@ -306,20 +306,6 @@
   top: 74%;
 }
 
-/* The tail. A rotated square peeking out of the bubble's underside. */
-.propTip::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -3px;
-  width: 10px;
-  height: 10px;
-  translate: -50% 0;
-  rotate: 45deg;
-  border-radius: 2px;
-  background: inherit;
-}
-
 /* The image is inside .summaryTilt, so the tip is its uncle rather than its
    sibling — :has lets the shared .summaryObject parent drive the reveal. */
 .summaryObject:has(.summaryImage:hover) .propTip {
