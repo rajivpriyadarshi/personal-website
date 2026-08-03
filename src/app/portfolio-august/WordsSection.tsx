@@ -123,7 +123,7 @@ const WORK: {
     logo: "/portfolio-august/work/logos/lazypay.webp",
     disc: "#fbdae2",
     logoScale: 0.56,
-    href: "https://www.figma.com/proto/i0tcuT99LJyD9I1wIIdd6q/Personal-portfolio-website?node-id=648-60461&viewport=-1777%2C606%2C0.27&t=fDNF48kuHvAN6s56-1&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=648%3A60461&show-proto-sidebar=1&page-id=625%3A51083",
+    href: "https://www.figma.com/proto/i0tcuT99LJyD9I1wIIdd6q/Personal-portfolio-website?node-id=648-60461&viewport=-1777%2C606%2C0.27&t=fDNF48kuHvAN6s56-1&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=648%3A60461&page-id=625%3A51083",
   },
   {
     name: "Zinc Money",
