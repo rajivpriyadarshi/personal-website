@@ -116,12 +116,48 @@ export function PortfolioAugustClient() {
         <div className={styles.socialLinks}>
           {/* Wrapper so the peek panel can hang off the link without joining the
               row's flex layout. */}
+          {/* wa.me opens the app on mobile and WhatsApp Web on desktop. */}
+          <a
+            className={`${styles.travelLink} ${styles.iconOnlyLink}`}
+            href="https://wa.me/918852078989"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Chat on WhatsApp"
+          >
+            <Image
+              src="/portfolio-august/whatsapp-icon.svg"
+              alt=""
+              width={24}
+              height={24}
+              className={styles.travelThumb}
+            />
+          </a>
+
+          <a
+            className={`${styles.travelLink} ${styles.iconOnlyLink}`}
+            href="https://www.linkedin.com/in/rajivpriyadarshi/"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="LinkedIn profile"
+          >
+            <Image
+              src="/portfolio-august/linkedin-icon.svg"
+              alt=""
+              width={24}
+              height={24}
+              className={styles.travelThumb}
+            />
+          </a>
+
+          {/* Icon only now, so the wrapper still hosts the hover grid preview
+              while the pill itself carries no label. */}
           <div className={styles.travelPeekHost}>
             <a
-              className={styles.travelLink}
+              className={`${styles.travelLink} ${styles.iconOnlyLink}`}
               href="https://www.instagram.com/rajivpriyadarshi"
               target="_blank"
               rel="noreferrer"
+              aria-label="Travel stories on Instagram"
             >
               <Image
                 src="/portfolio-august/travel-thumb.png"
@@ -130,7 +166,6 @@ export function PortfolioAugustClient() {
                 height={24}
                 className={styles.travelThumb}
               />
-              Check my travel stories
             </a>
 
             {/* Grid preview on hover. Hosted on the wrapper rather than the
@@ -154,41 +189,6 @@ export function PortfolioAugustClient() {
               />
             </a>
           </div>
-
-          {/* Icon only: the label would crowd the hero at this width, and the
-              accessible name carries the meaning instead. */}
-          <a
-            className={`${styles.travelLink} ${styles.iconOnlyLink}`}
-            href="https://www.linkedin.com/in/rajivpriyadarshi/"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="LinkedIn profile"
-          >
-            <Image
-              src="/portfolio-august/linkedin-icon.svg"
-              alt=""
-              width={24}
-              height={24}
-              className={styles.travelThumb}
-            />
-          </a>
-
-          {/* wa.me opens the app on mobile and WhatsApp Web on desktop. */}
-          <a
-            className={`${styles.travelLink} ${styles.iconOnlyLink}`}
-            href="https://wa.me/918852078989"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Chat on WhatsApp"
-          >
-            <Image
-              src="/portfolio-august/whatsapp-icon.svg"
-              alt=""
-              width={24}
-              height={24}
-              className={styles.travelThumb}
-            />
-          </a>
         </div>
 
         <div className={styles.heroInner}>
