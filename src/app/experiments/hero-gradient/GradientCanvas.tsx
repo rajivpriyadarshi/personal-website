@@ -375,8 +375,24 @@ export function GradientCanvas({
       gl!.drawArrays(gl!.TRIANGLES, 0, 3);
     }
 
+    /* Only animate while the canvas is on screen. This is a full-viewport
+     * fragment shader redrawing every frame; off-screen it was burning GPU and
+     * CPU for something nobody could see. */
+    let onScreen = true;
+    let looping = false;
+
     function loop() {
+      if (!onScreen) {
+        looping = false;
+        return;
+      }
       draw(true);
+      raf = requestAnimationFrame(loop);
+    }
+
+    function startLoop() {
+      if (looping || !onScreen) return;
+      looping = true;
       raf = requestAnimationFrame(loop);
     }
 
@@ -384,16 +400,27 @@ export function GradientCanvas({
     resize();
     redrawRef.current = () => draw(false);
 
+    const visibility = new IntersectionObserver(
+      (entries) => {
+        onScreen = entries[entries.length - 1]?.isIntersecting ?? true;
+        if (onScreen && !reduceMotion) startLoop();
+      },
+      { rootMargin: "10% 0px" },
+    );
+    visibility.observe(canvas);
+
     if (reduceMotion) {
       draw(false);
     } else {
       window.addEventListener("mousemove", onPointerMove, { passive: true });
       if (cycleRef.current) window.addEventListener("click", onBackgroundClick);
-      loop();
+      startLoop();
     }
 
     return () => {
       redrawRef.current = null;
+      onScreen = false;
+      visibility.disconnect();
       cancelAnimationFrame(raf);
       cancelAnimationFrame(pointerRaf);
       clearTimeout(resizeTimer);

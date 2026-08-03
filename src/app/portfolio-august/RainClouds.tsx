@@ -414,7 +414,31 @@ export function RainClouds() {
       }
     };
 
-    gsap.ticker.add(update);
+    /* Only simulate while the section is on screen. Rain is a few hundred rigid
+     * bodies plus a canvas redraw every frame, and it used to keep solving the
+     * whole time you were reading other sections — the single largest slice of
+     * the page's idle CPU. */
+    let running = false;
+    const setRunning = (active: boolean) => {
+      if (active === running) return;
+      running = active;
+      if (active) gsap.ticker.add(update);
+      else gsap.ticker.remove(update);
+    };
+
+    const visibility = new IntersectionObserver(
+      /* Gate on ratio, not isIntersecting. Sections are exactly one viewport
+         tall and sit flush, so the neighbouring section is always "intersecting"
+         by a zero-height edge — isIntersecting stayed true at every scroll
+         position and the solver never paused. */
+      (entries) => {
+        const entry = entries[entries.length - 1];
+        setRunning((entry?.intersectionRatio ?? 0) > 0.05);
+      },
+      // Several steps, so crossing the 5% line always fires a callback.
+      { threshold: [0, 0.05, 0.2] },
+    );
+    visibility.observe(layer);
 
     const observer = new ResizeObserver(() => {
       sizeCanvas();
@@ -426,7 +450,8 @@ export function RainClouds() {
     observer.observe(layer);
 
     return () => {
-      gsap.ticker.remove(update);
+      setRunning(false);
+      visibility.disconnect();
       observer.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("pointerleave", onPointerLeave);
