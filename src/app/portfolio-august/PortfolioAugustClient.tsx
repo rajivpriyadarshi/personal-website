@@ -120,21 +120,38 @@ export function PortfolioAugustClient() {
         </nav>
 
         <div className={styles.socialLinks}>
-          <a
-            className={styles.travelLink}
-            href="https://www.instagram.com/rajivpriyadarshi"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Image
-              src="/portfolio-august/travel-thumb.png"
-              alt=""
-              width={24}
-              height={24}
-              className={styles.travelThumb}
-            />
-            Check my travel stories
-          </a>
+          {/* Wrapper so the peek panel can hang off the link without joining the
+              row's flex layout. */}
+          <div className={styles.travelPeekHost}>
+            <a
+              className={styles.travelLink}
+              href="https://www.instagram.com/rajivpriyadarshi"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Image
+                src="/portfolio-august/travel-thumb.png"
+                alt=""
+                width={24}
+                height={24}
+                className={styles.travelThumb}
+              />
+              Check my travel stories
+            </a>
+
+            {/* Grid preview on hover. Hosted on the wrapper rather than the
+                anchor so it stays open while the cursor travels down onto it. */}
+            <div aria-hidden className={styles.travelPeek}>
+              <Image
+                src="/portfolio-august/travel-grid.webp"
+                alt=""
+                width={700}
+                height={1254}
+                sizes="320px"
+                className={styles.travelPeekImage}
+              />
+            </div>
+          </div>
 
           {/* Icon only: the label would crowd the hero at this width, and the
               accessible name carries the meaning instead. */}
