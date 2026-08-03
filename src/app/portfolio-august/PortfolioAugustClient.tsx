@@ -5,7 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { GradientCanvas, DEFAULT_PARAMS } from "../experiments/hero-gradient/GradientCanvas";
+import { GradFlow } from "gradflow";
 import { JourneySection } from "./JourneySection";
 import { PhotoStack } from "./PhotoStack";
 import { SummarySection } from "./SummarySection";
@@ -18,9 +18,15 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 const HEADLINE =
   "I’m a dreamer, big-picture thinker, I tell stories, and I love solving complex problems.";
 
-// Palette 0 ("Ocean") light gives the sky-blue → terracotta wash the hero is built around.
-const HERO_PALETTE = 0;
-const HERO_GRADIENT = { ...DEFAULT_PARAMS, rotation: -0.55, spread: 1.7, scale: 0.9 };
+const HERO_GRADIENT = {
+  color1: { r: 211, g: 113, b: 249 },
+  color2: { r: 246, g: 255, b: 245 },
+  color3: { r: 251, g: 138, b: 101 },
+  speed: 0.6,
+  scale: 1.2,
+  type: "smoke" as const,
+  noise: 0.18,
+};
 
 const NAV = [
   { label: "About me", icon: "/portfolio-august/nav-user.svg", href: "#hero" },
@@ -93,12 +99,11 @@ export function PortfolioAugustClient() {
 
       <main className={styles.page}>
       <section ref={hero} id="hero" className={`${styles.hero} ${styles.snap}`}>
-        <GradientCanvas
-          theme="light"
-          params={HERO_GRADIENT}
-          initialPalette={HERO_PALETTE}
-          cycle={false}
-        />
+        {/* Wrapper carries the positioning the old canvas had inline, since
+            GradFlow renders its own canvas and only fills its parent. */}
+        <div aria-hidden className={styles.heroGradient}>
+          <GradFlow config={HERO_GRADIENT} />
+        </div>
 
         <nav className={styles.nav}>
           {NAV.map((item, i) => (

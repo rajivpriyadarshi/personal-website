@@ -1589,6 +1589,21 @@
   background: #fcf9f6;
 }
 
+/* Host for the animated gradient. GradFlow fills its parent, so the parent
+   carries the full-bleed positioning the previous canvas had inline. */
+.heroGradient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.heroGradient canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 /* Birds: a 10-cell sprite sheet flapping via steps(), with each flock drifting
    across on its own longer loop. Two animations per bird — wings and path. */
 /* Sits below the props and copy (both z-index 1 and 2 in the Summary), so
