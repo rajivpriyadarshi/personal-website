@@ -14,25 +14,69 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const TITLE = "Some good words from the folks I’ve worked with";
 
-const QUOTE =
-  "You are by far the #1 designer I have ever worked with. All the PMs I know always want to work only with you. Also you are the most fun friend to hang out with. All the dance parties all the outings have been lovely because your were there.";
-
-/* Placeholder content — the real testimonials land later. Tint and the note's
- * resting angle come from the design's alternating rhythm. */
+/* Tint and the resting angle come from the design's alternating rhythm. */
 const NOTES = [
-  { tint: "#e2c7ff", angle: -1.5 },
-  { tint: "#b0e0e5", angle: 1.6 },
-  { tint: "#c4edba", angle: 3.9 },
-  { tint: "#ffd1db", angle: -1.2 },
-  { tint: "#ffe9b8", angle: 2.4 },
-  { tint: "#cfe0ff", angle: -2.8 },
-].map((note, i) => ({
-  ...note,
-  id: i,
-  quote: QUOTE,
-  name: "Bhavik Kaul",
-  role: "CPO, SuperMoney by Flipkart",
-}));
+  {
+    tint: "#e2c7ff",
+    angle: -1.5,
+    quote:
+      "You are by far the #1 designer I have ever worked with. All the PMs I know always want to work only with you. Also you are the most fun friend to hang out with. All the dance parties all the outings have been lovely because your were there.",
+    name: "Bhavik Kaul",
+    role: "CPO, SuperMoney by Flipkart",
+    linkedin: "https://www.linkedin.com/in/kaulbhavik/",
+    avatar: "/portfolio-august/words/bhavik-kaul.jpeg",
+  },
+  {
+    tint: "#b0e0e5",
+    angle: 1.6,
+    quote:
+      "You are one of the biggest contributor to our progress so far. I will miss working with you. :)",
+    name: "Ankush Singla",
+    role: "Co-founder, Coding Ninjas",
+    linkedin: "https://www.linkedin.com/in/ankushsingla/",
+    avatar: "/portfolio-august/words/ankush-singla.jpeg",
+  },
+  {
+    tint: "#c4edba",
+    angle: 3.9,
+    quote:
+      "You have been very instrumental in what company is today. I wish I could hug you and say good bye and good luck. I am confident you would do great in your next challenge. Keep rocking ;)",
+    name: "Uttam Digga",
+    role: "Co-founder and CEO, Porter",
+    linkedin: "https://www.linkedin.com/in/uttamdigga/",
+    avatar: "/portfolio-august/words/uttam-digga.jpeg",
+  },
+  {
+    tint: "#ffd1db",
+    angle: -1.2,
+    quote:
+      "Your contribution has been phenomenal. Thanks for being always available and always solving more than asked.",
+    name: "Shruti Anand",
+    role: "Director of Technical Program Management, PayU",
+    linkedin: "https://www.linkedin.com/in/anandshruti/",
+    avatar: "/portfolio-august/words/shruti-anand.jpeg",
+  },
+  {
+    tint: "#ffe9b8",
+    angle: 2.4,
+    quote:
+      "Whenever Porter goes from here, it will always be indebted to the pivotal role you played in helping it grow.",
+    name: "Ambuj Singh",
+    role: "VP Engineering, Porter",
+    linkedin: "https://www.linkedin.com/in/ambuj-singh-100b1663/",
+    avatar: "/portfolio-august/words/ambuj-singh.jpeg",
+  },
+  {
+    tint: "#cfe0ff",
+    angle: -2.8,
+    quote:
+      "Rajiv has an eye for great design, and is one of the best designers I’ve worked with.",
+    name: "Rahul Sharma",
+    role: "Senior Director of Product, Smallcase",
+    linkedin: "https://www.linkedin.com/in/rahulsharma1729/",
+    avatar: "/portfolio-august/words/rahul-sharma.jpeg",
+  },
+].map((note, i) => ({ ...note, id: i }));
 
 const NOTE_STEP = 372 + 24;
 // Max degrees a note swings about its pin on hover.
@@ -57,22 +101,61 @@ const COINS_START = 0.62;
 const RAIL_RELEASE = 0.06;
 
 // Each card owns the prop set that heaps up while it's hovered.
-const WORK: { name: string; blurb: string; props: PropSetName }[] = [
-  { name: "Zinc Money", blurb: "Money beyond borders", props: "coins" },
+/* `disc` is the circle behind the logo, sampled from the design so each brand
+ * sits on its own tint rather than a shared grey. `logoScale` trims wordmarks
+ * that would otherwise crowd the circle compared with the square marks. */
+const WORK: {
+  name: string;
+  blurb: string;
+  props: PropSetName;
+  logo: string;
+  disc: string;
+  logoScale?: number;
+  /** Case study link. Cards without one are not clickable. */
+  href?: string;
+  /** Flags the card as pending, so it reads as deliberate rather than broken. */
+  comingSoon?: boolean;
+}[] = [
+  {
+    name: "Zinc Money",
+    blurb: "Money beyond borders",
+    props: "coins",
+    href: "https://www.figma.com/proto/i0tcuT99LJyD9I1wIIdd6q/Personal-portfolio-website?node-id=649-6298&viewport=541%2C215%2C0.17&t=gpOIj2U94a3rl8va-1&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=649%3A6298&page-id=625%3A51083",
+    // White variant: the stock mark is black and would vanish on the dark disc.
+    logo: "/portfolio-august/journey/logos/zinc-mark-white.svg",
+    disc: "#121412",
+    logoScale: 0.34,
+  },
   {
     name: "LazyPay",
-    blurb: "India’s new age digital credit provider",
+    blurb: "India’s credit superapp",
     props: "shopping",
+    logo: "/portfolio-august/work/logos/lazypay.webp",
+    disc: "#fbdae2",
+    logoScale: 0.56,
+    href: "https://www.figma.com/proto/i0tcuT99LJyD9I1wIIdd6q/Personal-portfolio-website?node-id=648-60461&viewport=-1777%2C606%2C0.27&t=fDNF48kuHvAN6s56-1&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=648%3A60461&show-proto-sidebar=1&page-id=625%3A51083",
   },
   {
     name: "Porter",
     blurb: "India’s leading player in intra-city logistics market",
     props: "trucks",
+    logo: "/portfolio-august/work/logos/porter.webp",
+    disc: "#e5edff",
+    // Wordmark, so it needs more width than the square marks to read.
+    logoScale: 0.66,
+    comingSoon: true,
   },
   {
     name: "Coding Ninjas",
     blurb: "One of India’s largest edu-tech platform",
     props: "study",
+    logo: "/portfolio-august/journey/logos/codingninjas.webp",
+    /* Its source art is a solid dark tile with no alpha, so instead of floating
+     * it on a tint it fills the disc — the circular mask turns it into a dark
+     * disc like Zinc's. Tint matches the art so any AA seam is invisible. */
+    disc: "#414141",
+    logoScale: 1,
+    comingSoon: true,
   },
 ];
 
@@ -513,21 +596,67 @@ export function WordsSection() {
               className={styles.workRow}
               onScroll={syncWorkArrows}
             >
-              {WORK.map((project) => (
-                <article
-                  key={project.name}
-                  className={styles.workCard}
-                  /* The heap holds whatever was last hovered — no pointerleave
-                     handler, so it doesn't snap back when the cursor moves off. */
-                  onPointerEnter={() => props.current?.setSet(project.props)}
-                  onFocus={() => props.current?.setSet(project.props)}
-                  tabIndex={0}
-                >
-                  <h3 className={styles.workCardTitle}>{project.name}</h3>
-                  <p className={styles.workCardSub}>{project.blurb}</p>
-                  <div aria-hidden className={styles.workCardDisc} />
-                </article>
-              ))}
+              {WORK.map((project) => {
+                const body = (
+                  <>
+                    <h3 className={styles.workCardTitle}>{project.name}</h3>
+                    <p className={styles.workCardSub}>{project.blurb}</p>
+                    {project.comingSoon ? (
+                      <span className={styles.workCardBadge}>Coming soon</span>
+                    ) : null}
+                    <div
+                      aria-hidden
+                      className={styles.workCardDisc}
+                      style={{ background: project.disc }}
+                    >
+                      <Image
+                        src={project.logo}
+                        alt=""
+                        width={232}
+                        height={232}
+                        sizes="240px"
+                        className={styles.workCardLogo}
+                        style={
+                          project.logoScale
+                            ? { width: `${project.logoScale * 100}%` }
+                            : undefined
+                        }
+                      />
+                    </div>
+                  </>
+                );
+
+                /* The heap holds whatever was last hovered — no pointerleave
+                   handler, so it doesn't snap back when the cursor moves off. */
+                const swapProps = () => props.current?.setSet(project.props);
+
+                /* Cards with a case study are the anchor itself, so the whole
+                   pill is the hit target. An <a href> is natively focusable, so
+                   it doesn't need the tabIndex the plain card carries. */
+                return project.href ? (
+                  <a
+                    key={project.name}
+                    className={`${styles.workCard} ${styles.workCardLink}`}
+                    href={project.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    onPointerEnter={swapProps}
+                    onFocus={swapProps}
+                  >
+                    {body}
+                  </a>
+                ) : (
+                  <article
+                    key={project.name}
+                    className={styles.workCard}
+                    onPointerEnter={swapProps}
+                    onFocus={swapProps}
+                    tabIndex={0}
+                  >
+                    {body}
+                  </article>
+                );
+              })}
             </div>
 
             <button
@@ -580,9 +709,34 @@ export function WordsSection() {
                     </span>
                     <p className={styles.noteQuote}>{note.quote}</p>
                     <footer className={styles.noteFooter}>
-                      <span aria-hidden className={styles.noteAvatar} />
+                      <Image
+                        src={note.avatar}
+                        alt=""
+                        width={124}
+                        height={124}
+                        sizes="62px"
+                        className={styles.noteAvatar}
+                      />
                       <span className={styles.noteWho}>
-                        <span className={styles.noteName}>{note.name}</span>
+                        {note.linkedin ? (
+                          <a
+                            className={`${styles.noteName} ${styles.noteNameLink}`}
+                            href={note.linkedin}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {note.name}
+                            <Image
+                              src="/portfolio-august/linkedin-icon.svg"
+                              alt=""
+                              width={16}
+                              height={16}
+                              className={styles.noteLinkedin}
+                            />
+                          </a>
+                        ) : (
+                          <span className={styles.noteName}>{note.name}</span>
+                        )}
                         <span className={styles.noteRole}>{note.role}</span>
                       </span>
                     </footer>

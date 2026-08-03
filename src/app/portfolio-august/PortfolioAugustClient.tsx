@@ -25,7 +25,6 @@ const HERO_GRADIENT = { ...DEFAULT_PARAMS, rotation: -0.55, spread: 1.7, scale: 
 const NAV = [
   { label: "About me", icon: "/portfolio-august/nav-user.svg", href: "#hero" },
   { label: "Work", icon: "/portfolio-august/nav-briefcase.svg", href: "#work" },
-  { label: "Contact", icon: "/portfolio-august/nav-contact.svg", href: "#contact" },
 ];
 
 export function PortfolioAugustClient() {
@@ -40,7 +39,7 @@ export function PortfolioAugustClient() {
       const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       intro
-        .from(`.${styles.nav}, .${styles.travelLink}`, {
+        .from(`.${styles.nav}, .${styles.socialLinks}`, {
           y: -24,
           autoAlpha: 0,
           duration: 0.7,
@@ -59,7 +58,18 @@ export function PortfolioAugustClient() {
   );
 
   return (
-    <main className={styles.page}>
+    <>
+      {/* Holding screen until the small-screen layout is built. CSS-only so it
+          shows on the first paint — a JS width check would flash the unstyled
+          desktop layout first. */}
+      <div className={styles.mobileGate}>
+        <p className={styles.mobileGateTitle}>Mobile version coming soon</p>
+        <p className={styles.mobileGateBody}>
+          This site is built for a bigger screen. Please open it on your laptop or desktop.
+        </p>
+      </div>
+
+      <main className={styles.page}>
       <section ref={hero} id="hero" className={`${styles.hero} ${styles.snap}`}>
         <GradientCanvas
           theme="light"
@@ -81,21 +91,41 @@ export function PortfolioAugustClient() {
           ))}
         </nav>
 
-        <a
-          className={styles.travelLink}
-          href="https://www.instagram.com/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <Image
-            src="/portfolio-august/travel-thumb.png"
-            alt=""
-            width={24}
-            height={24}
-            className={styles.travelThumb}
-          />
-          Check my travel stories
-        </a>
+        <div className={styles.socialLinks}>
+          <a
+            className={styles.travelLink}
+            href="https://www.instagram.com/rajivpriyadarshi"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Image
+              src="/portfolio-august/travel-thumb.png"
+              alt=""
+              width={24}
+              height={24}
+              className={styles.travelThumb}
+            />
+            Check my travel stories
+          </a>
+
+          {/* Icon only: the label would crowd the hero at this width, and the
+              accessible name carries the meaning instead. */}
+          <a
+            className={`${styles.travelLink} ${styles.iconOnlyLink}`}
+            href="https://www.linkedin.com/in/rajivpriyadarshi/"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="LinkedIn profile"
+          >
+            <Image
+              src="/portfolio-august/linkedin-icon.svg"
+              alt=""
+              width={24}
+              height={24}
+              className={styles.travelThumb}
+            />
+          </a>
+        </div>
 
         <div className={styles.heroInner}>
           <PhotoStack />
@@ -126,6 +156,7 @@ export function PortfolioAugustClient() {
       <JourneySection />
 
       <WordsSection />
-    </main>
+      </main>
+    </>
   );
 }

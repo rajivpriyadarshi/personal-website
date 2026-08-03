@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TextPlugin } from "gsap/TextPlugin";
 import { RainClouds } from "./RainClouds";
+// import { Droplets } from "@/components/canvasui/Droplets";
 import styles from "./portfolio-august.module.css";
 
 gsap.registerPlugin(ScrollTrigger, TextPlugin, useGSAP);
@@ -422,6 +423,24 @@ export function SummarySection() {
           priority={false}
         />
       </div>
+
+      {/* Disabled: the grey unrefracted droplets read as smudges over this
+          section's light background. Kept for reference in case we revisit it.
+          Rain on the glass, over the backdrop but under the props so the water
+          runs behind the objects. captureContent is off: refracting the scene
+          means re-parenting it into the capture canvas, which knocks the
+          absolutely-positioned props out of the composition.
+          Density is below the 0.5 default — at that level the second drop layer
+          runs at full strength and reads as a downpour against the Matter.js
+          rain already falling in this section.
+      <Droplets
+        className={styles.dropletsGlass}
+        style={{ position: "absolute", inset: 0 }}
+        captureContent={false}
+        intensity={0.3}
+        staticDrops={0.1}
+      />
+      */}
 
       {OBJECTS.map((object) => (
         <div

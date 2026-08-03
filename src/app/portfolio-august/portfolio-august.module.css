@@ -2,6 +2,13 @@
    `mandatory`: the Words section pins and scrubs through a long scroll range,
    and mandatory snapping would jump straight past those intermediate
    positions. Proximity only engages near a section that opts in via .snap. */
+/* Small-screen holding screen. Hidden by default and revealed by the media
+   query below, so desktop never renders it and there's no JS width check to
+   flash the wrong layout on first paint. */
+.mobileGate {
+  display: none;
+}
+
 .page {
   position: relative;
   width: 100%;
@@ -9,6 +16,50 @@
   overflow-y: auto;
   scroll-snap-type: y proximity;
   background: #fcf9f6;
+}
+
+@media (max-width: 700px) {
+  .mobileGate {
+    position: fixed;
+    inset: 0;
+    /* Above the nav (20) and every section layer. */
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 32px 28px;
+    background: #fcf9f6;
+    text-align: center;
+  }
+
+  /* Kept in the tree rather than display:none — the sections run GSAP and
+     Matter.js on mount, and unmounting them wholesale risks their teardown
+     paths. Hiding it from a11y and pointer input is enough. */
+  .page {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .mobileGateTitle {
+    margin: 0;
+    color: #111;
+    font-family: var(--font-editorial), Georgia, serif;
+    font-weight: 200;
+    font-size: 34px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .mobileGateBody {
+    margin: 0;
+    max-width: 30ch;
+    color: rgba(0, 0, 0, 0.55);
+    font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
 }
 
 .snap {
@@ -195,6 +246,15 @@
   object-fit: contain;
   /* Grounds the object so the tilt reads as a solid thing catching light. */
   filter: drop-shadow(0 18px 26px rgba(70, 50, 30, 0.16));
+}
+
+/* Rain-on-glass pane. Above the skyline and clouds but below the props
+   (z-index 3) and copy (4), so the water runs behind the objects. */
+.dropletsGlass {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .summaryCopy {
@@ -834,15 +894,17 @@
   flex: 1 1 0;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  /* Title and blurb read as one block; the disc below is pushed away by its own
+     `margin-top: auto`, so tightening this only closes the type pair. */
+  gap: 6px;
   min-width: 0;
-  /* 402x615 in the design. The tall ratio is what makes a 260px radius read as
-     a stadium — on a short box the same radius collapses into an ellipse.
-     Height leads and width follows, so the pills keep their shape on short
-     viewports instead of overflowing the section. */
-  height: 100%;
+  /* The tall ratio is what makes a 260px radius read as a stadium — on a short
+     box the same radius collapses into an ellipse. Height leads and width
+     follows, so the pills keep their shape on short viewports instead of
+     overflowing the section. */
+  height: 80%;
   max-height: 615px;
-  aspect-ratio: 402 / 615;
+  aspect-ratio: 260 / 475;
   /* No shrink: in a scrolling rail the cards keep their full width and the rail
      scrolls, rather than compressing to fit. */
   flex: 0 0 auto;
@@ -876,6 +938,37 @@
    it. Uses `transform` while the hover lift uses `translate` — separate CSS
    properties, so the two compose instead of one overriding the other, and no
    wrapper element is needed. Offset delays keep the three from bobbing in sync. */
+/* Pending case study. Sits just under the blurb, and the disc's `margin-top:
+   auto` keeps it clear of the logo. */
+.workCardBadge {
+  margin-top: 6px;
+  padding: 5px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 60px;
+  color: rgba(0, 0, 0, 0.45);
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Card rendered as an anchor. Resets the link defaults so it's visually
+   identical to the non-clickable cards, and lifts on hover to signal it opens
+   a case study. */
+.workCardLink {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: box-shadow 240ms ease;
+}
+
+.workCardLink:hover,
+.workCardLink:focus-visible {
+  box-shadow: 0 12px 34px rgba(70, 50, 30, 0.14);
+}
+
 .workCard {
   animation: workCardBob 5.5s ease-in-out infinite;
 }
@@ -920,7 +1013,7 @@
   color: #000;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 200;
-  font-size: 36px;
+  font-size: 28px;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -935,13 +1028,29 @@
 
 /* Preview disc. Bleeds past the card's bottom edge, which the pill's
    border-radius crops into the design's flattened arc. */
+/* Brand disc. The tint is set inline per project; the fallback grey only shows
+   if a project ever lands here without one. */
 .workCardDisc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 88%;
   margin-top: auto;
   margin-bottom: -18%;
   aspect-ratio: 1;
   border-radius: 50%;
   background: #d9d9d9;
+}
+
+/* Two of the source logos are square rasters with their brand colour baked in
+   rather than transparent, so they're masked to a circle here — otherwise a
+   hard-edged tile sits on top of the disc. Percentage width keeps every mark
+   proportional to the disc as the card scales. */
+.workCardLogo {
+  width: 58%;
+  height: auto;
+  border-radius: 50%;
+  object-fit: contain;
 }
 
 /* --- Prop pile --------------------------------------------------- */
@@ -1293,12 +1402,16 @@
   margin-top: auto;
 }
 
+/* Circular, not the original landscape pill: the sources are square headshots,
+   and a wide crop cut the sides off both faces. */
 .noteAvatar {
   flex-shrink: 0;
-  width: 69px;
-  height: 52px;
-  border-radius: 60px;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
   background: #fff;
+  object-fit: cover;
+  object-position: center top;
 }
 
 .noteWho {
@@ -1314,6 +1427,27 @@
   font-size: 24px;
   line-height: 1.2;
   letter-spacing: -0.02em;
+}
+
+/* Name doubles as the LinkedIn link. Inherits .noteName's type so it still
+   reads as the name rather than a styled link, with the mark as the only
+   affordance until hover. */
+.noteNameLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  transition: opacity 200ms ease;
+}
+
+.noteNameLink:hover {
+  opacity: 0.65;
+}
+
+.noteLinkedin {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
 }
 
 .noteRole {
@@ -1528,11 +1662,19 @@
   flex-shrink: 0;
 }
 
-.travelLink {
+/* Holds the social links as a row. Owns the positioning that used to sit on
+   .travelLink, so adding another link doesn't need a second set of offsets. */
+.socialLinks {
   position: absolute;
   right: 3vw;
   top: 59px;
   z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.travelLink {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1553,6 +1695,14 @@
 
 .travelLink:hover {
   background: rgba(255, 255, 255, 0.6);
+}
+
+/* Square pill for a link with no label, so the icon isn't sitting in a
+   lopsided capsule sized for text. */
+.iconOnlyLink {
+  padding: 16px;
+  aspect-ratio: 1;
+  justify-content: center;
 }
 
 .travelThumb {
@@ -1739,13 +1889,22 @@
     display: inline;
   }
 
-  .travelLink {
+  /* Offsets live on the group now that it owns the positioning. */
+  .socialLinks {
     right: auto;
     left: 50%;
     top: auto;
     bottom: 16px;
     transform: translateX(-50%);
+    gap: 8px;
+  }
+
+  .travelLink {
     padding: 10px 14px;
+  }
+
+  .iconOnlyLink {
+    padding: 10px;
   }
 
   .greeting {
