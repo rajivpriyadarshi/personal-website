@@ -172,6 +172,23 @@ export function PortfolioAugustClient() {
               className={styles.travelThumb}
             />
           </a>
+
+          {/* wa.me opens the app on mobile and WhatsApp Web on desktop. */}
+          <a
+            className={`${styles.travelLink} ${styles.iconOnlyLink}`}
+            href="https://wa.me/918852078989"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Chat on WhatsApp"
+          >
+            <Image
+              src="/portfolio-august/whatsapp-icon.svg"
+              alt=""
+              width={24}
+              height={24}
+              className={styles.travelThumb}
+            />
+          </a>
         </div>
 
         <div className={styles.heroInner}>
