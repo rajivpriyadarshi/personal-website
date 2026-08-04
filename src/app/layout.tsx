@@ -3,6 +3,7 @@ import { ppEditorial, satoshi, sohne } from "@/fonts";
 import "./globals.css";
 import { Geist, Dancing_Script } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/next";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 const dancingScript = Dancing_Script({subsets:['latin'],variable:'--font-dancing'});
@@ -25,6 +26,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-gradient-warm">
         {children}
+        <Analytics />
       </body>
     </html>
   );
