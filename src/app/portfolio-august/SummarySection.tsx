@@ -484,7 +484,7 @@ export function SummarySection() {
               visibly skewed. Sitting here it stays upright. The tip variant pulls
               it inward for props that hang off an edge. */}
           <span className={`${styles.propTip} ${TIP_CLASS[object.tip]}`} aria-hidden>
-            What do you think this means?
+            Guess what this means?
           </span>
         </div>
       ))}
