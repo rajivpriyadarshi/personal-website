@@ -39,7 +39,6 @@ export const ROLES: Role[] = [
     company: "LazyPay + PaySense · 🇮🇳 India",
     logo: "/portfolio-august/journey/logos/lazypay.webp",
     bullets: [
-      "Led the design org for PayU's credit products.",
       "Managed a team of product, illustration, and marketing designers while driving strategy across growth, revenue, retention, and lending verticals reaching 250M+ users.",
     ],
   },
