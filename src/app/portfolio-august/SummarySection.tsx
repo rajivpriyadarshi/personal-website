@@ -173,8 +173,25 @@ export function SummarySection() {
   /* The open card, or null. Holding the whole role rather than an index keeps
    * the modal a pure function of this one value. */
   const [openRole, setOpenRole] = useState<Role | null>(null);
+  /* The card element the modal should grow out of. A ref rather than state
+   * because the modal only reads it in its open effect — putting it in state
+   * would render twice for one click and change nothing on screen. */
+  const originCard = useRef<HTMLElement | null>(null);
+  /* How hard it's raining, 1 to 0. The handover timeline tweens this and the
+   * rain simulation reads it every frame — a plain box rather than state or a
+   * class toggle, because the value has to be interpolable by the scrub. A ref
+   * is already exactly the `{ current }` box the tween and the simulation want. */
+  const rainDial = useRef(1);
   // Stable, so the modal's `close` listener effect doesn't re-subscribe.
   const closeRole = useCallback(() => setOpenRole(null), []);
+
+  const openCard = useCallback(
+    (event: React.MouseEvent<HTMLElement>, card: Role) => {
+      originCard.current = event.currentTarget;
+      setOpenRole(card);
+    },
+    [],
+  );
 
   useGSAP(
     () => {
@@ -209,6 +226,9 @@ export function SummarySection() {
       const role = section.querySelector<HTMLElement>(`.${styles.role}`);
       const roleCopy = section.querySelector<HTMLElement>(`.${styles.roleCopy}`);
       const roleCards = gsap.utils.toArray<HTMLElement>(`.${styles.roleCard}`, section);
+      const sceneFar = section.querySelector<HTMLElement>(`.${styles.roleSceneFar}`);
+      const sceneNear = section.querySelector<HTMLElement>(`.${styles.roleSceneNear}`);
+      const birds = section.querySelector<HTMLElement>(`.${styles.birdsLayer}`);
 
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         gsap.set(items, { autoAlpha: 1 });
@@ -560,6 +580,88 @@ export function SummarySection() {
         );
       }
 
+      /* The landscape rises from below the fold as the screen arrives. Both
+       * layers cover the same time, but the far one travels a third of the
+       * distance — same scrub, different displacement, which is the parallax.
+       * It also starts a touch earlier, so the depth is established before the
+       * foreground closes over it.
+       *
+       * yPercent rather than y: each layer is a different height, so a shared
+       * pixel offset would sink the short one further out of frame than the
+       * tall one. */
+      const sceneFrom = PROPS_EXIT_END * 0.9;
+      const sceneSpan = (ROLE_ARRIVAL_END - PROPS_EXIT_END) * 0.85;
+
+      if (sceneFar) {
+        handover.fromTo(
+          sceneFar,
+          { yPercent: 34, autoAlpha: 0 },
+          {
+            yPercent: 0,
+            autoAlpha: 0.85,
+            duration: sceneSpan,
+            ease: "power2.out",
+            immediateRender: false,
+          },
+          sceneFrom,
+        );
+      }
+
+      if (sceneNear) {
+        handover.fromTo(
+          sceneNear,
+          { yPercent: 100, autoAlpha: 0 },
+          {
+            yPercent: 0,
+            autoAlpha: 1,
+            duration: sceneSpan,
+            ease: "power2.out",
+            immediateRender: false,
+          },
+          sceneFrom + sceneSpan * 0.14,
+        );
+      }
+
+      /* The weather clears as the role screen arrives: the rain tapers off and
+       * the clouds drain their water, then the birds come out over the cleared
+       * sky. The dial is the rain simulation's own emission multiplier, so this
+       * eases the rate to zero rather than cutting it — the drops already in the
+       * air finish falling and the puddle recedes on its own clock.
+       *
+       * Ends before the cards land: the sky should already be clearing while
+       * they deal in, not still raining behind them. */
+      handover.fromTo(
+        rainDial,
+        { current: 1 },
+        {
+          current: 0,
+          duration: (ROLE_ARRIVAL_END - PROPS_EXIT_END) * 0.85,
+          ease: "power1.inOut",
+          immediateRender: false,
+        },
+        PROPS_EXIT_END * 0.8,
+      );
+
+      if (birds) {
+        /* Hidden up front, not just by the tween's from-state: with
+         * immediateRender off the tween writes nothing until the scrub reaches
+         * it, and by then .role has already faded up — so the flock would be
+         * drawn at full opacity for the beat before its own fade starts. */
+        gsap.set(birds, { autoAlpha: 0 });
+        handover.fromTo(
+          birds,
+          { autoAlpha: 0 },
+          {
+            autoAlpha: 1,
+            duration: (ROLE_ARRIVAL_END - PROPS_EXIT_END) * 0.5,
+            ease: "power1.out",
+            immediateRender: false,
+          },
+          // Once the rain is most of the way out, so the two don't overlap.
+          PROPS_EXIT_END + (ROLE_ARRIVAL_END - PROPS_EXIT_END) * 0.3,
+        );
+      }
+
       /* Cards deal in from below with a little rotation, so the four read as
        * being laid down in sequence rather than a row fading up together. The
        * slice is sized so the last one lands exactly at ROLE_ARRIVAL_END. */
@@ -605,19 +707,7 @@ export function SummarySection() {
       <div className={styles.summaryViewport}>
         <div aria-hidden className={styles.summaryGrid} />
 
-        <RainClouds />
-
-        {/* Sprite-sheet birds. Each flock drifts on its own CSS loop, so they run
-            independently of this section's scroll-triggered entrance. */}
-        <div aria-hidden className={styles.birdsLayer}>
-          {BIRD_FLOCKS.map((flock) => (
-            <div key={flock} className={`${styles.birdContainer} ${styles[flock]}`}>
-              <div className={`${styles.bird} ${styles.birdA}`} />
-              <div className={`${styles.bird} ${styles.birdB}`} />
-              <div className={`${styles.bird} ${styles.birdC}`} />
-            </div>
-          ))}
-        </div>
+        <RainClouds dial={rainDial} />
 
         {/* Skyline anchors the bottom of the section. Deliberately outside
             OBJECTS: it's the setting rather than another prop, so it gets a slow
@@ -697,6 +787,44 @@ export function SummarySection() {
           above, so it composites as its own layer and the reduced-motion
           fallback can drop it back into normal flow. */}
       <div className={styles.role}>
+        {/* Two-layer landscape behind the cards. Both are anchored to the bottom
+            and rise in on the scrub, the far one travelling less than the near
+            one — that difference is the parallax. The far layer carries the
+            design's 22px blur, which is what reads as depth. */}
+        <div aria-hidden className={styles.roleScene}>
+          <Image
+            src="/portfolio-august/summary/summary-far.webp"
+            alt=""
+            width={1600}
+            height={682}
+            className={`${styles.roleSceneLayer} ${styles.roleSceneFar}`}
+            sizes="100vw"
+          />
+          <Image
+            src="/portfolio-august/summary/summary-near.webp"
+            alt=""
+            width={1024}
+            height={296}
+            className={`${styles.roleSceneLayer} ${styles.roleSceneNear}`}
+            sizes="100vw"
+          />
+        </div>
+
+        {/* Sprite-sheet birds, on the role screen rather than the props screen:
+            the rain stops as this arrives, and the birds coming out are what
+            reads as the weather clearing. Each flock drifts on its own CSS loop,
+            so they're independent of the scrub — only the layer's fade is
+            scrubbed. */}
+        <div aria-hidden className={styles.birdsLayer}>
+          {BIRD_FLOCKS.map((flock) => (
+            <div key={flock} className={`${styles.birdContainer} ${styles[flock]}`}>
+              <div className={`${styles.bird} ${styles.birdA}`} />
+              <div className={`${styles.bird} ${styles.birdB}`} />
+              <div className={`${styles.bird} ${styles.birdC}`} />
+            </div>
+          ))}
+        </div>
+
         <div className={styles.roleCopy}>
           <p className={styles.roleHeadline}>{ROLE_HEADLINE}</p>
           <p className={styles.roleSub}>{ROLE_SUBHEAD}</p>
@@ -704,16 +832,29 @@ export function SummarySection() {
 
         <div className={styles.roleCards}>
           {ROLES.map((card) => (
-            <article key={card.key} className={styles.roleCard}>
+            /* The card is not the accessible control; the button inside it is,
+               and it stays keyboard-reachable. This handler only widens the
+               pointer target, and it has to live here rather than on the
+               button: the card's hover lift moves the surface mid-click, and
+               Chrome retargets a click whose press and release land on
+               different elements to their common ancestor — this article. */
+            <article
+              key={card.key}
+              className={styles.roleCard}
+              onClick={(event) => openCard(event, card)}
+            >
               <div className={styles.roleCardHead}>
                 <h3 className={styles.roleCardTitle}>{card.title}</h3>
                 <p className={styles.roleCardBody}>{card.blurb}</p>
               </div>
 
+              {/* Still a real button so the card is reachable and activatable by
+                  keyboard, and announced as one control rather than a block of
+                  text next to it. */}
               <button
                 type="button"
                 className={styles.roleCardCta}
-                onClick={() => setOpenRole(card)}
+                aria-label={`See examples of ${card.title}`}
               >
                 See examples
               </button>
@@ -722,7 +863,7 @@ export function SummarySection() {
         </div>
       </div>
 
-      <RoleModal role={openRole} onClose={closeRole} />
+      <RoleModal role={openRole} origin={originCard} onClose={closeRole} />
     </section>
   );
 }

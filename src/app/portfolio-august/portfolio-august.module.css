@@ -464,6 +464,58 @@
   pointer-events: auto;
 }
 
+/* Landscape behind the cards. Bottom-anchored and full-bleed, and outside the
+   .role flex flow so it doesn't take part in the column that centres the copy
+   and cards. */
+.roleScene {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.roleSceneLayer {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 105%;
+  height: auto;
+  /* Centring lives on `translate` rather than inside `transform`, so GSAP is
+     free to own `transform` for the parallax without the two fighting — the
+     properties compose. */
+  translate: -50% 0;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+
+/* The distant layer: taller, so it shows above the near one, and blurred to the
+   design's 22px. Blur on an element this large is the expensive part of the
+   frame, so it's rasterised once into its own layer rather than re-filtered as
+   the scrub moves it. */
+.roleSceneFar {
+  filter: blur(22px);
+  /* Pulled below the near layer's crest so the blurred edge never shows as a
+     hard line across the middle of the section. */
+  max-height: 62svh;
+  opacity: 0.85;
+}
+
+.roleSceneNear {
+  max-height: 34svh;
+  /* Widest of the two: the near layer reads as the foreground, and letting it
+     overrun the viewport keeps its cut-out edges off screen. */
+  width: 112%;
+}
+
+/* No scrub to ride in on, so the layers just sit at their resting position. */
+@media (prefers-reduced-motion: reduce) {
+  .roleSceneLayer {
+    translate: -50% 0;
+  }
+}
+
 .roleCopy {
   display: flex;
   flex-direction: column;
@@ -517,6 +569,9 @@
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
   text-align: left;
+  /* The CTA's stretched hit area covers the card, so the whole surface reads as
+     the target. */
+  cursor: pointer;
   /* Hidden until its stagger slot in the scrub; GSAP reveals with autoAlpha. */
   opacity: 0;
   visibility: hidden;
@@ -557,8 +612,9 @@
   line-height: 1.3;
 }
 
-/* Pill button. Click behaviour is still to come, so it's a real <button> with
-   no handler rather than a link to nowhere. */
+/* Pill button. It stays the only interactive element — a stretched ::after
+   below extends its hit area over the whole card, which keeps one button and
+   one accessible name instead of nesting a button inside a clickable div. */
 .roleCardCta {
   display: inline-flex;
   flex-shrink: 0;
@@ -578,8 +634,30 @@
   transition: filter 200ms ease;
 }
 
-.roleCardCta:hover {
+/* Covers the padded card, jointly with the card's own radius, so a click
+   anywhere on the card activates this button. Behind the text layers, so
+   selection and the pill's own hover still behave. */
+.roleCardCta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 30px;
+}
+
+.roleCardCta:hover,
+.roleCard:hover .roleCardCta {
   filter: brightness(1.15);
+}
+
+/* The card is the visible focus target now that its whole area is the hit
+   area — a ring around the pill alone would understate what's clickable. */
+.roleCardCta:focus-visible {
+  outline: 0;
+}
+
+.roleCard:has(.roleCardCta:focus-visible) {
+  outline: 2px solid #003e2f;
+  outline-offset: 3px;
 }
 
 @media (max-width: 1080px) {
@@ -650,7 +728,9 @@
   flex-shrink: 0;
   /* Side padding matches the accordion rows' 24px, so the title's left edge
      lines up with the panel headers below it. */
-  margin: 12px 0 clamp(20px, 3vh, 40px);
+  /* Fixed, not viewport-scaled: the gap to the first row is a typographic
+     relationship, so it shouldn't grow with the window. */
+  margin: 0 0 12px;
   padding: 0 24px;
   color: #003e2f;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
@@ -667,6 +747,11 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Inside the scroller, not on the surface: as surface padding it would sit
+     below the scroll viewport, so long content clipped mid-line just above a
+     dead band — which read as the panel leaking past its edge. Here it scrolls
+     with the content and becomes real breathing room at the end of the list. */
+  padding-bottom: 24px;
 }
 
 /* Hairline between rows, and none under the last so it doesn't double up with
@@ -2088,6 +2173,15 @@
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+}
+
+/* On the role screen the birds are sky, so they have to fall behind the copy and
+   the cards. Those are in-flow and unpositioned, which means they paint before
+   any positioned z-index: 0 element — a plain 0 here would put the flock over
+   the text. Negative pulls it behind them, and being after .roleScene in the DOM
+   at the same level keeps it in front of the landscape. */
+.role .birdsLayer {
+  z-index: -1;
 }
 
 .birdContainer {

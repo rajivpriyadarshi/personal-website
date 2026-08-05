@@ -89,10 +89,29 @@ async function traceSkyline(src: string): Promise<(number | null)[]> {
   });
 }
 
-export function RainClouds() {
+/* Drives the taper. The scroll timeline in SummarySection tweens `.current`
+ * from 1 to 0 as the role screen arrives, and the simulation reads it each frame
+ * — a mutable box rather than state, because it changes on every frame of the
+ * scrub and nothing here should re-render for it. Structural rather than
+ * RefObject so this file doesn't need to care where the value comes from. */
+export type RainDial = { current: number };
+
+type Props = {
+  /** Rainfall multiplier, 1 = full, 0 = dry. Omitted means always raining. */
+  dial?: RainDial;
+};
+
+export function RainClouds({ dial }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const cloudRefs = useRef<(HTMLDivElement | null)[]>([]);
+  /* Mirrored so the effect can stay on an empty dep list — it reads the box
+   * every frame and must not tear down and rebuild the world if the parent
+   * happens to hand over a new one. */
+  const dialRef = useRef(dial);
+  useEffect(() => {
+    dialRef.current = dial;
+  }, [dial]);
 
   useEffect(() => {
     const layer = host.current;
@@ -285,6 +304,23 @@ export function RainClouds() {
     const spawnDebt = CLOUDS.map(() => 0);
     let lastRoofBuild = 0;
 
+    /* Wet and dry cloud colours, interpolated by the dial so a cloud visibly
+     * empties as it stops raining. Read off the stylesheet rather than repeated
+     * here, so the two palettes stay in one place. `.cloud` is the dry base and
+     * `.cloudWet` overrides it, which is why the dry value has to be sampled
+     * from a throwaway element carrying only the base class. */
+    const dryProbe = document.createElement("div");
+    dryProbe.className = styles.cloud;
+    dryProbe.style.position = "absolute";
+    dryProbe.style.visibility = "hidden";
+    layer.append(dryProbe);
+    const dryColor = getComputedStyle(dryProbe).color;
+    const wetColor = clouds.length ? getComputedStyle(clouds[0]).color : dryColor;
+    dryProbe.remove();
+    const mixColor = gsap.utils.interpolate(dryColor, wetColor);
+    // Last value written, so an unchanged frame doesn't touch five style objects.
+    let paintedWetness = -1;
+
     /* Drops currently resting on the skyline. Tracked so roof water can expire
      * on a shorter clock than ground puddles, and so a hit can throw a splash. */
     const onRoof = new Set<number>();
@@ -331,9 +367,24 @@ export function RainClouds() {
       const now = time * 1000;
       const layerRect = layer.getBoundingClientRect();
 
+      /* How hard it's raining right now. Scaling the emission rate rather than
+       * stopping the ticker is what makes the stop gradual: the last drops keep
+       * falling and the puddle recedes on its own life clock, so the sky drains
+       * instead of the rain vanishing between two frames. */
+      const wetness = gsap.utils.clamp(0, 1, dialRef.current?.current ?? 1);
+
+      // Drain the colour out of the clouds on the same dial.
+      if (Math.abs(wetness - paintedWetness) > 0.004) {
+        paintedWetness = wetness;
+        const colour = mixColor(wetness);
+        clouds.forEach((el) => {
+          el.style.color = colour;
+        });
+      }
+
       // Emit from the underside of each cloud.
       clouds.forEach((el, i) => {
-        spawnDebt[i] += (RAIN_RATE * dt) / 1000;
+        spawnDebt[i] += (RAIN_RATE * wetness * dt) / 1000;
         while (spawnDebt[i] >= 1) {
           spawnDebt[i] -= 1;
           const rect = el.getBoundingClientRect();
