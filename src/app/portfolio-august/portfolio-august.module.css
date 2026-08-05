@@ -104,8 +104,34 @@
 /* ---------------------------------------------------------------
  * Summary
  * --------------------------------------------------------------- */
+/* Scroll track for the handover: one viewport of props-and-headline, then more
+   scroll for the scrubbed exit and the role cards arriving. The section itself
+   carries no visuals — .summaryViewport is the screen it holds. */
 .summary {
   position: relative;
+  width: 100%;
+  height: 260svh;
+}
+
+/* Nothing scrubs, so the extra track would be dead space and the role screen
+   never gets animated in. Both screens become plain stacked viewports. */
+@media (prefers-reduced-motion: reduce) {
+  .summary {
+    height: auto;
+  }
+
+  .summaryViewport {
+    position: relative;
+  }
+}
+
+/* Native sticky rather than ScrollTrigger's pin, matching the Words section:
+   the page scrolls inside <main>, so a transform-based pin trails scroll by a
+   frame. The viewport stays locked for the whole track, so the props leaving
+   and the cards arriving happen in place rather than scrolling past. */
+.summaryViewport {
+  position: sticky;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -400,6 +426,394 @@
 
   .summaryCopy {
     width: 88vw;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * Role — second screen of the pinned Summary section. Sits in the same
+ * sticky viewport as the props, above them, and is scrubbed in as they
+ * leave. Absolute + inset so it overlays rather than displacing.
+ * --------------------------------------------------------------- */
+.role {
+  /* Second sticky sibling, pulled back over the first by the negative margin so
+     it overlays the props screen from the very start of the track instead of
+     waiting for its own flow position a viewport further down. With the margin
+     cancelling its height, the two screens contribute 100svh of flow between
+     them and both stay stuck for the whole 260svh track. */
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  height: 100svh;
+  margin-top: -100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 5vh, 56px);
+  padding: clamp(32px, 6vh, 72px) max(4vw, 40px);
+  /* Nothing here answers the pointer until the cards have arrived — while the
+     props are still on screen this layer spans the whole viewport and would
+     swallow their hover. The JS flips it on at the end of the scrub. */
+  pointer-events: none;
+  /* Hidden until the scrub reveals it, so it can't sit over the props on load. */
+  opacity: 0;
+  visibility: hidden;
+}
+
+.roleLive {
+  pointer-events: auto;
+}
+
+.roleCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(12px, 1.8vh, 24px);
+  width: min(722px, 88vw);
+  text-align: center;
+}
+
+.roleHeadline {
+  margin: 0;
+  color: #003e2f;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 200;
+  font-size: clamp(1.6rem, 2.8vw, 42px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.roleSub {
+  margin: 0;
+  color: #445d5d;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: clamp(0.95rem, 1.35vw, 20px);
+  line-height: 1.3;
+}
+
+/* Four cards side by side at the design's width; below that they compress
+   evenly rather than scrolling, since the section is pinned and a horizontal
+   rail inside a scrubbed screen fights the page scroll. */
+.roleCards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 1.3vw, 16px);
+  width: min(1248px, 92vw);
+}
+
+.roleCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: clamp(16px, 3vh, 32px);
+  min-height: clamp(230px, 34vh, 275px);
+  padding: clamp(22px, 3.2vh, 32px) clamp(18px, 1.9vw, 24px) clamp(18px, 2.4vh, 24px);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 30px;
+  background: #fff;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  /* Hidden until its stagger slot in the scrub; GSAP reveals with autoAlpha. */
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform;
+  transition:
+    translate 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.roleCard:hover {
+  translate: 0 -8px;
+  box-shadow: 0 18px 34px rgba(40, 30, 20, 0.16);
+}
+
+.roleCardHead {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  overflow-wrap: break-word;
+}
+
+.roleCardTitle {
+  margin: 0;
+  color: #003e2f;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 200;
+  font-size: clamp(1.25rem, 1.75vw, 26px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.roleCardBody {
+  margin: 0;
+  color: #445d5d;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: clamp(0.85rem, 1.1vw, 16px);
+  line-height: 1.3;
+}
+
+/* Pill button. Click behaviour is still to come, so it's a real <button> with
+   no handler rather than a link to nowhere. */
+.roleCardCta {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 40px;
+  background: linear-gradient(172.7deg, #003e2f 5%, #00684f 84%);
+  color: #fff;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.3;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 200ms ease;
+}
+
+.roleCardCta:hover {
+  filter: brightness(1.15);
+}
+
+@media (max-width: 1080px) {
+  /* Two rows of two: at four across the cards get too narrow for the blurb to
+     hold its line length. */
+  .roleCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* --- Role modal --------------------------------------------------- */
+/* Native <dialog>, so the browser puts it in the top layer — above the sticky
+   viewport and every stacking context in the section, with no z-index needed.
+   The element is the centring frame; .roleModalSurface is the visible panel. */
+.roleModal {
+  /* UA styles give <dialog> a border, background, padding and an auto width
+     that centres via margin. All reset so the surface below is the only thing
+     drawn and it can be centred with flex instead. */
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding: clamp(20px, 5vh, 56px) max(4vw, 24px);
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.roleModal[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Blurred wash over the page, matching the design's treatment of the cards
+   behind the modal. */
+.roleModal::backdrop {
+  background: rgba(252, 249, 246, 0.55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation: roleBackdropIn 320ms ease both;
+}
+
+@keyframes roleBackdropIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.roleModalSurface {
+  display: flex;
+  flex-direction: column;
+  width: min(576px, 100%);
+  /* Caps at the padded viewport height, then the accordion scrolls inside.
+     Content-driven below that, so a two-panel modal isn't a tall empty box. */
+  max-height: 100%;
+  padding: clamp(28px, 4vh, 41px) 0 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 30px;
+  background: #fff;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.roleModalTitle {
+  flex-shrink: 0;
+  /* Side padding matches the accordion rows' 24px, so the title's left edge
+     lines up with the panel headers below it. */
+  margin: 12px 0 clamp(20px, 3vh, 40px);
+  padding: 0 24px;
+  color: #003e2f;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 4.4vw, 52px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* Scrolls independently of the title, so the heading stays put while a long
+   expanded panel is read. */
+.roleAccordion {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Hairline between rows, and none under the last so it doesn't double up with
+   the surface's own bottom edge. */
+.roleAccordionItem {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.roleAccordionItem:first-child {
+  border-top: 0;
+}
+
+.roleAccordionHeader {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  width: 100%;
+  padding: 24px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.roleAccordionTitle {
+  flex: 1;
+  color: #003e2f;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
+.roleAccordionChevron {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #003e2f;
+  color: #fff;
+  transition: rotate 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.roleAccordionHeader[aria-expanded="true"] .roleAccordionChevron {
+  rotate: 180deg;
+}
+
+/* Height animated via grid-template-rows rather than max-height: the row
+   resolves to the content's own height, so a panel opens to exactly its size
+   with no magic number to clip a long list. */
+.roleAccordionPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 340ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.roleAccordionPanel[data-expanded="true"] {
+  grid-template-rows: 1fr;
+}
+
+/* The grid row is what animates, so this child must be the thing that clips —
+   min-height: 0 is required or the content refuses to shrink below its
+   intrinsic height and the panel can't collapse. */
+.roleAccordionBody {
+  min-height: 0;
+  padding: 0 24px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.roleAccordionPanel[data-expanded="true"] .roleAccordionBody {
+  /* Fades in behind the height change, so text doesn't appear before there's
+     room for it. */
+  opacity: 1;
+  transition: opacity 260ms ease 120ms;
+}
+
+.roleAccordionPara,
+.roleAccordionList {
+  margin: 0 0 8px;
+  color: #445d5d;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.roleAccordionSubhead {
+  margin: 24px 0 8px;
+  color: #003e2f;
+  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-weight: 200;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.roleAccordionList {
+  /* Bottom padding is the panel's own breathing room at the end of the list;
+     as body padding it would show even while collapsed. */
+  padding: 0 0 24px 24px;
+  list-style: disc;
+}
+
+.roleAccordionList li {
+  margin-bottom: 8px;
+}
+
+.roleAccordionList li:last-child {
+  margin-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roleModal::backdrop {
+    animation: none;
+  }
+
+  .roleAccordionChevron,
+  .roleAccordionPanel,
+  .roleAccordionBody {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No scrub runs, so the screen has to be visible and interactive outright.
+     It also becomes a plain second screen below the props rather than an
+     overlay — nothing is going to animate it out of the way. */
+  .role {
+    position: relative;
+    margin-top: 0;
+    height: auto;
+    min-height: 100svh;
+    background: #fcf9f6;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .roleCard {
+    opacity: 1;
+    visibility: visible;
+    transition: none;
   }
 }
 

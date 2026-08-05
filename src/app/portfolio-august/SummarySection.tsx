@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TextPlugin } from "gsap/TextPlugin";
 import { RainClouds } from "./RainClouds";
+import { ROLES, type Role } from "./role-data";
+import { RoleModal } from "./RoleModal";
 // import { Droplets } from "@/components/canvasui/Droplets";
 import styles from "./portfolio-august.module.css";
 
@@ -16,6 +18,16 @@ const HEADLINE =
   "I’m a versatile product design generalist based in Singapore, with 10 years of building digital products across fintech, logistics, edtech, hospitality, and SaaS";
 const SUBHEAD =
   "I thrive in complex, ambiguous spaces where the problem isn’t clearly defined, and the stakes are high";
+
+/* Second screen of this section: the props clear out and this takes their
+ * place. Copy and cards come from the design. */
+const ROLE_HEADLINE =
+  "My role also has varied a lot — sometimes being heavily product-focused to sometimes when being visual-and-interaction-design-focused and at other times, development-focused.";
+const ROLE_SUBHEAD =
+  "With this diversity of work and teams, I’ve grown a lot both horizontally and vertically. I thrive in complex, ambiguous spaces where the problem isn’t clearly defined, and the stakes are high";
+
+/* Card titles, blurbs, and the modal content behind each one all live in
+ * role-data, so the copy is edited in one place. */
 
 /* Positions mirror the Figma layout as viewport-relative percentages so the
  * arrangement holds at any width. `from` is the off-screen offset each object
@@ -118,6 +130,18 @@ const TILT = 13;
 // Seconds between each object's arrival.
 const ARRIVAL_GAP = 0.34;
 
+/* --- Handover to the role screen ---------------------------------
+ * Fractions of the scrubbed track. The props and the first screen's copy leave
+ * over the first slice, the role screen arrives over the second, and the tail
+ * is padding so the cards sit still and readable before the section releases.
+ * ----------------------------------------------------------------- */
+const PROPS_EXIT_END = 0.42;
+const ROLE_ARRIVAL_END = 0.82;
+/* Progress past which the role screen owns the pointer. Just before its copy
+ * has finished arriving, so the cards are clickable as soon as they look
+ * settled rather than a scroll later. */
+const ROLE_LIVE_AT = 0.6;
+
 /* Where each prop's bubble hangs. Props that overhang a section edge would push
  * a centred bubble off-screen, so they anchor inward instead. */
 const TIP_CLASS = {
@@ -146,14 +170,32 @@ type Spring = {
 
 export function SummarySection() {
   const root = useRef<HTMLElement>(null);
+  /* The open card, or null. Holding the whole role rather than an index keeps
+   * the modal a pure function of this one value. */
+  const [openRole, setOpenRole] = useState<Role | null>(null);
+  // Stable, so the modal's `close` listener effect doesn't re-subscribe.
+  const closeRole = useCallback(() => setOpenRole(null), []);
 
   useGSAP(
     () => {
       const section = root.current;
       if (!section) return;
 
+      /* Everything positional measures against the sticky viewport, not the
+       * section. The section is now a 260svh scroll track whose top scrolls
+       * away, so section-relative coordinates drift as you scroll — the cached
+       * spring homes and the live pointer position would stop agreeing. The
+       * viewport is the box the props actually live in and it stays put. */
+      const stage = section.querySelector<HTMLElement>(`.${styles.summaryViewport}`);
+      if (!stage) return;
+
       const items = gsap.utils.toArray<HTMLElement>(`.${styles.summaryObject}`, section);
       const tilts = gsap.utils.toArray<HTMLElement>(`.${styles.summaryTilt}`, section);
+      /* The exit animates these rather than .summaryObject or .summaryTilt: the
+       * spring ticker rewrites the outer element's whole transform string every
+       * frame, and the float/tilt tweens own the middle one — a tween on either
+       * would be overwritten within a frame. The image is the one free layer. */
+      const artwork = gsap.utils.toArray<HTMLElement>(`.${styles.summaryImage}`, section);
       // The page scrolls inside <main>, not the window, so ScrollTrigger has to
       // be pointed at that element or it never sees the section enter.
       const scroller = section.closest("main");
@@ -163,6 +205,10 @@ export function SummarySection() {
       const skyline = section.querySelector<HTMLElement>(
         `.${styles.skylineLayer}`,
       );
+
+      const role = section.querySelector<HTMLElement>(`.${styles.role}`);
+      const roleCopy = section.querySelector<HTMLElement>(`.${styles.roleCopy}`);
+      const roleCards = gsap.utils.toArray<HTMLElement>(`.${styles.roleCard}`, section);
 
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         gsap.set(items, { autoAlpha: 1 });
@@ -195,24 +241,24 @@ export function SummarySection() {
       let homes = OBJECTS.map(() => ({ x: 0, y: 0 }));
 
       const measure = () => {
-        const sectionRect = section.getBoundingClientRect();
+        const stageRect = stage.getBoundingClientRect();
         homes = items.map((el, i) => {
           const rect = el.getBoundingClientRect();
           return {
-            x: rect.left - sectionRect.left + rect.width / 2 - springs[i].x,
-            y: rect.top - sectionRect.top + rect.height / 2 - springs[i].y,
+            x: rect.left - stageRect.left + rect.width / 2 - springs[i].x,
+            y: rect.top - stageRect.top + rect.height / 2 - springs[i].y,
           };
         });
       };
       measure();
 
       const observer = new ResizeObserver(measure);
-      observer.observe(section);
+      observer.observe(stage);
 
       const pointer = { x: 0, y: 0, inside: false };
 
       const onPointerMove = (event: PointerEvent) => {
-        const rect = section.getBoundingClientRect();
+        const rect = stage.getBoundingClientRect();
         pointer.x = event.clientX - rect.left;
         pointer.y = event.clientY - rect.top;
         pointer.inside =
@@ -285,7 +331,7 @@ export function SummarySection() {
       }));
 
       const onTilt = (event: PointerEvent) => {
-        const rect = section.getBoundingClientRect();
+        const rect = stage.getBoundingClientRect();
         const px = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         const py = ((event.clientY - rect.top) / rect.height) * 2 - 1;
         tilts.forEach((_, i) => {
@@ -395,6 +441,155 @@ export function SummarySection() {
         },
       });
 
+      /* ---------------------------------------------------------------
+       * Handover. The section's sticky viewport is held by CSS while this
+       * timeline is driven by scroll position, so scrolling back up plays it in
+       * reverse: props fly back in, role cards drop away. Two phases share one
+       * scrub — the props leaving, then the role screen arriving.
+       * --------------------------------------------------------------- */
+      const handover = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          scroller,
+          /* Maps the timeline over this section's own scroll track (the 260svh
+           * height in CSS). No `pin` — sticky already holds the viewport, and
+           * ScrollTrigger's pin would fall back to transform positioning on
+           * this non-window scroller and trail scroll by a frame. */
+          start: "top top",
+          end: "bottom bottom",
+          // No numeric scrub: smoothing adds catch-up lag on every scroll stop,
+          // which on a snap-scrolling page reads as the whole screen wobbling.
+          scrub: true,
+          onUpdate: (self) => {
+            /* Freezing the ticker once the props are gone stops the springs and
+             * the pointer maths running behind the role screen for the rest of
+             * the section. Re-armed on the way back up. */
+            live = self.progress < PROPS_EXIT_END;
+            role?.classList.toggle(styles.roleLive, self.progress >= ROLE_LIVE_AT);
+          },
+        },
+      });
+
+      /* Props leave outward — each along the vector it flew in on, so the exit
+       * reads as the entrance reversed rather than a generic sweep. Staggered in
+       * the same order they arrived. */
+      const exitSlice = PROPS_EXIT_END / OBJECTS.length;
+      OBJECTS.forEach((object, i) => {
+        /* fromTo with an explicit resting pose, not to(). A plain `to` records
+         * its start value when the scrubbed timeline first renders — which is at
+         * refresh, while the entrance may still have the prop at autoAlpha 0.
+         * That recorded 0 would become both ends of the fade. */
+        handover.fromTo(
+          artwork[i],
+          { x: 0, y: 0, scale: 1, rotate: 0, autoAlpha: 1 },
+          {
+            // Pushed a good way past where it came from, so nothing lingers at
+            // the edge of frame while the cards are arriving.
+            x: object.from.x * 1.5,
+            y: object.from.y * 1.5,
+            scale: 0.7,
+            rotate: object.spin * 0.6,
+            autoAlpha: 0,
+            duration: exitSlice * 1.6,
+            ease: "power2.in",
+            immediateRender: false,
+          },
+          i * exitSlice * 0.7,
+        );
+      });
+
+      // First screen's copy and setting go with the props.
+      if (headline && sub) {
+        handover.to(
+          [headline, sub],
+          {
+            y: -60,
+            autoAlpha: 0,
+            duration: PROPS_EXIT_END * 0.7,
+            ease: "none",
+          },
+          0.04,
+        );
+      }
+
+      if (skyline) {
+        handover.fromTo(
+          skyline,
+          { yPercent: 0, autoAlpha: 1 },
+          {
+            yPercent: 60,
+            autoAlpha: 0,
+            duration: PROPS_EXIT_END * 0.8,
+            ease: "none",
+            immediateRender: false,
+          },
+          PROPS_EXIT_END * 0.3,
+        );
+      }
+
+      /* Role screen arrives once the stage is clear. The layer fades up first so
+       * the copy isn't drawn over departing props, then the copy rises, then the
+       * cards deal in one at a time. */
+      if (role) {
+        handover.fromTo(
+          role,
+          { autoAlpha: 0 },
+          {
+            autoAlpha: 1,
+            duration: (ROLE_ARRIVAL_END - PROPS_EXIT_END) * 0.25,
+            ease: "none",
+            immediateRender: false,
+          },
+          PROPS_EXIT_END * 0.88,
+        );
+      }
+
+      if (roleCopy) {
+        handover.fromTo(
+          roleCopy,
+          { y: 46, autoAlpha: 0, filter: "blur(10px)" },
+          {
+            y: 0,
+            autoAlpha: 1,
+            filter: "blur(0px)",
+            duration: (ROLE_ARRIVAL_END - PROPS_EXIT_END) * 0.45,
+            ease: "power2.out",
+            immediateRender: false,
+          },
+          PROPS_EXIT_END * 0.92,
+        );
+      }
+
+      /* Cards deal in from below with a little rotation, so the four read as
+       * being laid down in sequence rather than a row fading up together. The
+       * slice is sized so the last one lands exactly at ROLE_ARRIVAL_END. */
+      const cardsFrom = PROPS_EXIT_END + (ROLE_ARRIVAL_END - PROPS_EXIT_END) * 0.32;
+      const cardSpan = ROLE_ARRIVAL_END - cardsFrom;
+      const cardStep = cardSpan / (roleCards.length + 1);
+
+      roleCards.forEach((card, i) => {
+        handover.fromTo(
+          card,
+          { y: 72, autoAlpha: 0, scale: 0.94, rotate: i % 2 === 0 ? -2.5 : 2.5 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            scale: 1,
+            rotate: 0,
+            duration: cardStep * 2,
+            ease: "power3.out",
+            immediateRender: false,
+          },
+          cardsFrom + i * cardStep,
+        );
+      });
+
+      /* Pads the timeline out to a full duration of 1. Without this its length
+       * would be whatever the last tween ends at, and scrub stretches the
+       * timeline across the whole track — so the cards would finish arriving
+       * exactly as the section releases and never be seen at rest. */
+      handover.to({}, { duration: 1 - ROLE_ARRIVAL_END }, ROLE_ARRIVAL_END);
+
       return () => {
         gsap.ticker.remove(update);
         observer.disconnect();
@@ -407,94 +602,127 @@ export function SummarySection() {
 
   return (
     <section ref={root} id="summary" className={`${styles.summary} ${styles.snap}`}>
-      <div aria-hidden className={styles.summaryGrid} />
+      <div className={styles.summaryViewport}>
+        <div aria-hidden className={styles.summaryGrid} />
 
-      <RainClouds />
+        <RainClouds />
 
-      {/* Sprite-sheet birds. Each flock drifts on its own CSS loop, so they run
-          independently of this section's scroll-triggered entrance. */}
-      <div aria-hidden className={styles.birdsLayer}>
-        {BIRD_FLOCKS.map((flock) => (
-          <div key={flock} className={`${styles.birdContainer} ${styles[flock]}`}>
-            <div className={`${styles.bird} ${styles.birdA}`} />
-            <div className={`${styles.bird} ${styles.birdB}`} />
-            <div className={`${styles.bird} ${styles.birdC}`} />
+        {/* Sprite-sheet birds. Each flock drifts on its own CSS loop, so they run
+            independently of this section's scroll-triggered entrance. */}
+        <div aria-hidden className={styles.birdsLayer}>
+          {BIRD_FLOCKS.map((flock) => (
+            <div key={flock} className={`${styles.birdContainer} ${styles[flock]}`}>
+              <div className={`${styles.bird} ${styles.birdA}`} />
+              <div className={`${styles.bird} ${styles.birdB}`} />
+              <div className={`${styles.bird} ${styles.birdC}`} />
+            </div>
+          ))}
+        </div>
+
+        {/* Skyline anchors the bottom of the section. Deliberately outside
+            OBJECTS: it's the setting rather than another prop, so it gets a slow
+            cinematic push-in instead of the pointer-reactive spring and tilt. */}
+        <div aria-hidden className={styles.skylineLayer}>
+          <Image
+            src="/portfolio-august/summary/marina-bay-sands.webp"
+            alt=""
+            width={1874}
+            height={1049}
+            className={styles.skyline}
+            sizes="100vw"
+            priority={false}
+          />
+        </div>
+
+        {/* Disabled: the grey unrefracted droplets read as smudges over this
+            section's light background. Kept for reference in case we revisit it.
+            Rain on the glass, over the backdrop but under the props so the water
+            runs behind the objects. captureContent is off: refracting the scene
+            means re-parenting it into the capture canvas, which knocks the
+            absolutely-positioned props out of the composition.
+            Density is below the 0.5 default — at that level the second drop layer
+            runs at full strength and reads as a downpour against the Matter.js
+            rain already falling in this section.
+        <Droplets
+          className={styles.dropletsGlass}
+          style={{ position: "absolute", inset: 0 }}
+          captureContent={false}
+          intensity={0.3}
+          staticDrops={0.1}
+        />
+        */}
+
+        {OBJECTS.map((object) => (
+          <div
+            key={object.key}
+            className={styles.summaryObject}
+            style={{
+              left: object.left,
+              top: object.top,
+              width: object.size,
+              height: object.size,
+            }}
+          >
+            <div className={styles.summaryTilt}>
+              <Image
+                src={object.src}
+                alt={object.alt}
+                width={object.size}
+                height={object.size}
+                className={styles.summaryImage}
+                style={object.rotate ? { rotate: `${object.rotate}deg` } : undefined}
+                sizes="(max-width: 768px) 45vw, 30vw"
+              />
+            </div>
+
+            {/* Outside .summaryTilt on purpose: that element carries the 3D hover
+                rotation, and a child of it inherits the tilt — the bubble came out
+                visibly skewed. Sitting here it stays upright. The tip variant pulls
+                it inward for props that hang off an edge. */}
+            <span className={`${styles.propTip} ${TIP_CLASS[object.tip]}`} aria-hidden>
+              Guess what this means?
+            </span>
           </div>
         ))}
-      </div>
 
-      {/* Skyline anchors the bottom of the section. Deliberately outside
-          OBJECTS: it's the setting rather than another prop, so it gets a slow
-          cinematic push-in instead of the pointer-reactive spring and tilt. */}
-      <div aria-hidden className={styles.skylineLayer}>
-        <Image
-          src="/portfolio-august/summary/marina-bay-sands.webp"
-          alt=""
-          width={1874}
-          height={1049}
-          className={styles.skyline}
-          sizes="100vw"
-          priority={false}
-        />
-      </div>
-
-      {/* Disabled: the grey unrefracted droplets read as smudges over this
-          section's light background. Kept for reference in case we revisit it.
-          Rain on the glass, over the backdrop but under the props so the water
-          runs behind the objects. captureContent is off: refracting the scene
-          means re-parenting it into the capture canvas, which knocks the
-          absolutely-positioned props out of the composition.
-          Density is below the 0.5 default — at that level the second drop layer
-          runs at full strength and reads as a downpour against the Matter.js
-          rain already falling in this section.
-      <Droplets
-        className={styles.dropletsGlass}
-        style={{ position: "absolute", inset: 0 }}
-        captureContent={false}
-        intensity={0.3}
-        staticDrops={0.1}
-      />
-      */}
-
-      {OBJECTS.map((object) => (
-        <div
-          key={object.key}
-          className={styles.summaryObject}
-          style={{
-            left: object.left,
-            top: object.top,
-            width: object.size,
-            height: object.size,
-          }}
-        >
-          <div className={styles.summaryTilt}>
-            <Image
-              src={object.src}
-              alt={object.alt}
-              width={object.size}
-              height={object.size}
-              className={styles.summaryImage}
-              style={object.rotate ? { rotate: `${object.rotate}deg` } : undefined}
-              sizes="(max-width: 768px) 45vw, 30vw"
-            />
-          </div>
-
-          {/* Outside .summaryTilt on purpose: that element carries the 3D hover
-              rotation, and a child of it inherits the tilt — the bubble came out
-              visibly skewed. Sitting here it stays upright. The tip variant pulls
-              it inward for props that hang off an edge. */}
-          <span className={`${styles.propTip} ${TIP_CLASS[object.tip]}`} aria-hidden>
-            Guess what this means?
-          </span>
+        {/* Copy is server-rendered in full so it's present for crawlers and with
+            JS off; the typewriter clears and retypes it on entry. */}
+        <div className={styles.summaryCopy}>
+          <p className={styles.summaryHeadline}>{HEADLINE}</p>
+          <p className={styles.summarySub}>{SUBHEAD}</p>
         </div>
-      ))}
-
-      {/* Copy is server-rendered in full so it's present for crawlers and with
-          JS off; the typewriter clears and retypes it on entry. */}
-      <div className={styles.summaryCopy}>
-        <p className={styles.summaryHeadline}>{HEADLINE}</p>
-        <p className={styles.summarySub}>{SUBHEAD}</p>
       </div>
+
+      {/* Second screen. A sticky sibling rather than a child of the viewport
+          above, so it composites as its own layer and the reduced-motion
+          fallback can drop it back into normal flow. */}
+      <div className={styles.role}>
+        <div className={styles.roleCopy}>
+          <p className={styles.roleHeadline}>{ROLE_HEADLINE}</p>
+          <p className={styles.roleSub}>{ROLE_SUBHEAD}</p>
+        </div>
+
+        <div className={styles.roleCards}>
+          {ROLES.map((card) => (
+            <article key={card.key} className={styles.roleCard}>
+              <div className={styles.roleCardHead}>
+                <h3 className={styles.roleCardTitle}>{card.title}</h3>
+                <p className={styles.roleCardBody}>{card.blurb}</p>
+              </div>
+
+              <button
+                type="button"
+                className={styles.roleCardCta}
+                onClick={() => setOpenRole(card)}
+              >
+                See examples
+              </button>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <RoleModal role={openRole} onClose={closeRole} />
     </section>
   );
 }
