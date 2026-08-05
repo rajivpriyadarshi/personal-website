@@ -173,8 +173,20 @@ export function SummarySection() {
   /* The open card, or null. Holding the whole role rather than an index keeps
    * the modal a pure function of this one value. */
   const [openRole, setOpenRole] = useState<Role | null>(null);
+  /* The card element the modal should grow out of. A ref rather than state
+   * because the modal only reads it in its open effect — putting it in state
+   * would render twice for one click and change nothing on screen. */
+  const originCard = useRef<HTMLElement | null>(null);
   // Stable, so the modal's `close` listener effect doesn't re-subscribe.
   const closeRole = useCallback(() => setOpenRole(null), []);
+
+  const openCard = useCallback(
+    (event: React.MouseEvent<HTMLElement>, card: Role) => {
+      originCard.current = event.currentTarget;
+      setOpenRole(card);
+    },
+    [],
+  );
 
   useGSAP(
     () => {
@@ -704,16 +716,29 @@ export function SummarySection() {
 
         <div className={styles.roleCards}>
           {ROLES.map((card) => (
-            <article key={card.key} className={styles.roleCard}>
+            /* The card is not the accessible control; the button inside it is,
+               and it stays keyboard-reachable. This handler only widens the
+               pointer target, and it has to live here rather than on the
+               button: the card's hover lift moves the surface mid-click, and
+               Chrome retargets a click whose press and release land on
+               different elements to their common ancestor — this article. */
+            <article
+              key={card.key}
+              className={styles.roleCard}
+              onClick={(event) => openCard(event, card)}
+            >
               <div className={styles.roleCardHead}>
                 <h3 className={styles.roleCardTitle}>{card.title}</h3>
                 <p className={styles.roleCardBody}>{card.blurb}</p>
               </div>
 
+              {/* Still a real button so the card is reachable and activatable by
+                  keyboard, and announced as one control rather than a block of
+                  text next to it. */}
               <button
                 type="button"
                 className={styles.roleCardCta}
-                onClick={() => setOpenRole(card)}
+                aria-label={`See examples of ${card.title}`}
               >
                 See examples
               </button>
@@ -722,7 +747,7 @@ export function SummarySection() {
         </div>
       </div>
 
-      <RoleModal role={openRole} onClose={closeRole} />
+      <RoleModal role={openRole} origin={originCard} onClose={closeRole} />
     </section>
   );
 }
