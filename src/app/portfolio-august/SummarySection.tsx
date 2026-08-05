@@ -565,6 +565,11 @@ export function SummarySection() {
       }
 
       if (roleCopy) {
+        /* Same reason as the scene layers below: .role fades up just before this
+         * tween's slot, so without an up-front hide the copy is briefly drawn in
+         * place and then jumps back down to start over. The cards get theirs from
+         * CSS instead, since they're hidden on load anyway. */
+        gsap.set(roleCopy, { y: 46, autoAlpha: 0, filter: "blur(10px)" });
         handover.fromTo(
           roleCopy,
           { y: 46, autoAlpha: 0, filter: "blur(10px)" },
@@ -591,6 +596,14 @@ export function SummarySection() {
        * tall one. */
       const sceneFrom = PROPS_EXIT_END * 0.9;
       const sceneSpan = (ROLE_ARRIVAL_END - PROPS_EXIT_END) * 0.85;
+
+      /* Parked below the fold up front, not just by the tweens' from-states.
+       * With immediateRender off those write nothing until the scrub reaches
+       * them, so the layers would sit at their natural CSS position — fully in
+       * place — through the beat where .role fades up, then snap back down and
+       * rise a second time. */
+      if (sceneFar) gsap.set(sceneFar, { yPercent: 34, autoAlpha: 0 });
+      if (sceneNear) gsap.set(sceneNear, { yPercent: 100, autoAlpha: 0 });
 
       if (sceneFar) {
         handover.fromTo(
