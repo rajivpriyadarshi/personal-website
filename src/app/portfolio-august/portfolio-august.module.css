@@ -735,7 +735,7 @@
   color: #003e2f;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 400;
-  font-size: clamp(2rem, 4.4vw, 52px);
+  font-size: clamp(1.75rem, 4.4vw, 42px);
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -781,7 +781,7 @@
   color: #003e2f;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 400;
-  font-size: 26px;
+  font-size: 22px;
   line-height: 1.4;
   letter-spacing: -0.02em;
 }
