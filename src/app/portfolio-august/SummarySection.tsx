@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TextPlugin } from "gsap/TextPlugin";
+import { ArrowRight } from "lucide-react";
 import { RainClouds } from "./RainClouds";
 import { ROLES, type Role } from "./role-data";
 import { RoleModal } from "./RoleModal";
@@ -863,13 +864,14 @@ export function SummarySection() {
 
               {/* Still a real button so the card is reachable and activatable by
                   keyboard, and announced as one control rather than a block of
-                  text next to it. */}
+                  text next to it. Icon-only per the design, so the aria-label is
+                  now the only accessible name — it isn't optional here. */}
               <button
                 type="button"
                 className={styles.roleCardCta}
                 aria-label={`See examples of ${card.title}`}
               >
-                See examples
+                <ArrowRight size={20} strokeWidth={1.5} aria-hidden />
               </button>
             </article>
           ))}

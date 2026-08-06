@@ -615,21 +615,20 @@
 /* Pill button. It stays the only interactive element — a stretched ::after
    below extends its hit area over the whole card, which keeps one button and
    one accessible name instead of nesting a button inside a clickable div. */
+/* Icon-only pill per the design: a flat green field, not the gradient the
+   labelled version carried, and sized by the icon plus the design's 16/10
+   padding. The accessible name lives in the button's aria-label. */
 .roleCardCta {
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
   padding: 10px 16px;
   border: 0;
   border-radius: 40px;
-  background: linear-gradient(172.7deg, #003e2f 5%, #00684f 84%);
+  background: #003e2f;
   color: #fff;
-  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: 14px;
-  line-height: 1.3;
-  white-space: nowrap;
   cursor: pointer;
   transition: filter 200ms ease;
 }
