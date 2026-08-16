@@ -387,7 +387,7 @@
   color: #000;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 200;
-  font-size: clamp(1.75rem, 2.8vw, 42px);
+  font-size: 42px;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -396,7 +396,7 @@
   margin: 0;
   color: #445d5d;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: clamp(1rem, 1.6vw, 24px);
+  font-size: 24px;
   line-height: 1.3;
 }
 
@@ -530,7 +530,7 @@
   color: #003e2f;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 200;
-  font-size: clamp(1.6rem, 2.8vw, 42px);
+  font-size: 42px;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -539,7 +539,7 @@
   margin: 0;
   color: #445d5d;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: clamp(0.95rem, 1.35vw, 20px);
+  font-size: 20px;
   line-height: 1.3;
 }
 
@@ -599,7 +599,7 @@
   color: #003e2f;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 200;
-  font-size: clamp(1.25rem, 1.75vw, 26px);
+  font-size: 26px;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -608,7 +608,7 @@
   margin: 0;
   color: #445d5d;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: clamp(0.85rem, 1.1vw, 16px);
+  font-size: 16px;
   line-height: 1.3;
 }
 
@@ -734,7 +734,7 @@
   color: #003e2f;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 400;
-  font-size: clamp(1.75rem, 4.4vw, 42px);
+  font-size: 42px;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -992,7 +992,7 @@
   color: #003e2f;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 200;
-  font-size: clamp(2rem, 4vw, 58px);
+  font-size: 58px;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -1002,7 +1002,7 @@
   max-width: 434px;
   color: #71717b;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: clamp(0.95rem, 1.4vw, 20px);
+  font-size: 20px;
   line-height: 1.3;
 }
 
@@ -1426,7 +1426,7 @@
   color: #003e2f;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 200;
-  font-size: clamp(2rem, 4vw, 58px);
+  font-size: 58px;
   line-height: 1.2;
   letter-spacing: -0.02em;
   text-align: center;
@@ -1623,7 +1623,7 @@
   margin: 0;
   color: rgba(0, 0, 0, 0.5);
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: clamp(0.8rem, 1.1vw, 16px);
+  font-size: 16px;
   line-height: 1.3;
 }
 
@@ -1847,7 +1847,7 @@
   color: #003e2f;
   font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
   font-weight: 200;
-  font-size: clamp(2rem, 4vw, 58px);
+  font-size: 58px;
   line-height: 1.2;
   letter-spacing: -0.02em;
   text-align: center;
