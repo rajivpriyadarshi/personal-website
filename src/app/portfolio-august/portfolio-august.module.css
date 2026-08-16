@@ -377,27 +377,36 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* 10px, matching the hero's title-to-blurb gap (18px .heroInner gap less the
+     blurb's -8px pull-up). */
   gap: 10px;
-  width: min(618px, 86vw);
+  /* Matches the hero's .heroInner: the headline is now Satoshi at a near-hero
+     size, so a narrower measure here would wrap it into more lines. */
+  width: min(660px, 86vw);
   text-align: center;
 }
 
+/* Matches the hero's headline treatment — Satoshi at 52px with the same tight
+   optical tracking — so the two screens read as one voice. Only the colour
+   differs: this one sits on the pale sand backdrop, not the dark gradient. */
 .summaryHeadline {
   margin: 0;
-  color: #000;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
-  font-weight: 200;
-  font-size: 42px;
+  color: #003e2f;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 40px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  /* Absolute px, matching the hero: a deliberate optical value for this size
+     rather than a ratio that would follow the size down. */
+  letter-spacing: -1.8px;
 }
 
 .summarySub {
   margin: 0;
   color: #445d5d;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: 24px;
-  line-height: 1.3;
+  font-size: 18px;
+  line-height: 1.4;
 }
 
 /* Blinking caret that rides the end of the text while it types. */
@@ -520,27 +529,34 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(12px, 1.8vh, 24px);
-  width: min(722px, 88vw);
+  /* Fixed, not the viewport-scaled clamp it carried: the summary screen above
+     pairs its title and sub at 2px, and this screen sits in the same sticky
+     viewport, so a gap that grew with height broke the match. */
+  /* 10px, matching the hero's title-to-blurb gap (18px .heroInner gap less the
+     blurb's -8px pull-up). */
+  gap: 10px;
+  width: min(800px, 88vw);
   text-align: center;
 }
 
+/* Same treatment as .summaryHeadline — the two share a viewport, so they have to
+   share a voice, colour included. */
 .roleHeadline {
   margin: 0;
   color: #003e2f;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
-  font-weight: 200;
-  font-size: 42px;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 40px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: -1.8px;
 }
 
 .roleSub {
   margin: 0;
   color: #445d5d;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: 20px;
-  line-height: 1.3;
+  font-size: 18px;
+  line-height: 1.4;
 }
 
 /* Four cards side by side at the design's width; below that they compress
@@ -981,29 +997,35 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  width: min(596px, 88vw);
+  /* 10px, matching the hero's title-to-blurb gap (18px .heroInner gap less the
+     blurb's -8px pull-up). */
+  gap: 10px;
+  width: min(800px, 88vw);
   margin-top: clamp(48px, 9vh, 118px);
   text-align: center;
 }
 
+/* Same treatment as .summaryHeadline and .roleHeadline. */
 .journeyTitle {
   margin: 0;
   color: #003e2f;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
-  font-weight: 200;
-  font-size: 58px;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 40px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: -1.8px;
 }
 
 .journeySub {
   margin: 0;
-  max-width: 434px;
-  color: #71717b;
+  /* Wide enough for the copy to settle on two lines rather than three. */
+  max-width: 680px;
+  /* Shares the title's green rather than carrying its own grey, so the pair
+     reads as one block. */
+  color: #003e2f;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: 20px;
-  line-height: 1.3;
+  font-size: 18px;
+  line-height: 1.4;
 }
 
 /* --- Carousel --------------------------------------------------- */
@@ -1424,11 +1446,11 @@
   margin: clamp(48px, 9vh, 118px) 0 0;
   width: min(720px, 88vw);
   color: #003e2f;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
-  font-weight: 200;
-  font-size: 58px;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 40px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: -1.8px;
   text-align: center;
 }
 
@@ -1444,7 +1466,9 @@
   flex: 1;
   width: 100%;
   min-height: 0;
-  margin-top: clamp(20px, 4vh, 56px);
+  /* Nets out against .workRow's -80px bleed margin, so the visible gap between
+     the title and the card tops is smaller than this figure. */
+  margin-top: clamp(48px, 7.5vh, 92px);
   /* Clearance for the prop heap lives here, not on the scrolling rail: as rail
      padding it would be added to the card's 100% height and overflow the box. */
   padding-bottom: clamp(120px, 22vh, 250px);
@@ -1845,11 +1869,12 @@
   width: min(720px, 88vw);
   margin: clamp(48px, 9vh, 118px) 0 0;
   color: #003e2f;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
-  font-weight: 200;
-  font-size: 58px;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 52px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  /* Matches the hero headline, which is the other 52px line on the page. */
+  letter-spacing: -2.5px;
   text-align: center;
 }
 
@@ -2104,7 +2129,9 @@
   width: 100%;
   height: 100svh;
   overflow: hidden;
-  background: #fcf9f6;
+  /* Matches the gradient's darkest palette stop, so the hero never flashes
+     cream before the canvas paints. */
+  background: #0b0510;
 }
 
 /* Work-in-progress notice across the very top of the hero. Absolute rather than
@@ -2160,6 +2187,26 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* Smoked scrim between the gradient and the copy. The fractal's bright amber
+   core lands right under the headline, where white type has almost no contrast;
+   this darkens that band without flattening the corners, so the gradient still
+   reads at full strength around the edges.
+   A radial ellipse rather than a flat fill: a uniform veil dulled the whole
+   field to get the middle dark enough. */
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse 74% 58% at 50% 46%,
+    rgba(10, 6, 16, 0.32) 0%,
+    rgba(10, 6, 16, 0.24) 45%,
+    rgba(10, 6, 16, 0.08) 78%,
+    rgba(10, 6, 16, 0) 100%
+  );
+  pointer-events: none;
 }
 
 /* Birds: a 10-cell sprite sheet flapping via steps(), with each flock drifting
@@ -2294,10 +2341,13 @@
   border-radius: 60px;
   /* Glass edge: a bright hairline catches light on the top rim and fades toward
      the bottom, which is what separates the pill from the gradient behind it. */
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  /* Dark glass, not the white it carried over the cream page: over the fluted
+     gradient a light pill picked up whatever colour was behind it and read as
+     muddy pink. Smoked glass stays neutral against every part of the field. */
+  background: rgba(12, 8, 20, 0.42);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
     0 2px 12px rgba(60, 45, 30, 0.08);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
@@ -2311,7 +2361,7 @@
   border: 0;
   border-radius: 50px;
   background: transparent;
-  color: #000;
+  color: rgba(255, 255, 255, 0.82);
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -2322,21 +2372,28 @@
 }
 
 .navItem:hover {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.navItemActive {
-  background: #fff;
-}
-
+/* The active item is the one lit pill in the row, so it needs to read as solid
+   rather than as another sheet of glass. */
+.navItemActive,
 .navItemActive:hover {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0c0814;
 }
 
 .navIcon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
+  /* The source SVGs are stroked black for the cream page. Inverted here so they
+     match the white label; the active pill inverts them back. */
+  filter: invert(1);
+}
+
+.navItemActive .navIcon {
+  filter: none;
 }
 
 /* Holds the social links as a row. Owns the positioning that used to sit on
@@ -2357,14 +2414,17 @@
   gap: 6px;
   padding: 12px 16px;
   border-radius: 60px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  /* Dark glass, not the white it carried over the cream page: over the fluted
+     gradient a light pill picked up whatever colour was behind it and read as
+     muddy pink. Smoked glass stays neutral against every part of the field. */
+  background: rgba(12, 8, 20, 0.42);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
     0 2px 12px rgba(60, 45, 30, 0.08);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  color: #000;
+  color: rgba(255, 255, 255, 0.82);
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -2375,7 +2435,7 @@
 }
 
 .travelLink:hover {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(12, 8, 20, 0.58);
 }
 
 /* Anchor for the travel grid preview. Not a flex item itself — it wraps the
@@ -2456,7 +2516,7 @@
   align-items: center;
   justify-content: center;
   gap: 18px;
-  width: min(596px, 88vw);
+  width: min(660px, 88vw);
   /* Bottom room reserves the band the tag pile settles into. */
   padding: 24px 0 32vh;
   text-align: center;
@@ -2521,7 +2581,7 @@
  * --------------------------------------------------------------- */
 .greeting {
   margin: 0;
-  color: #000;
+  color: #fff;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-size: 22px;
   line-height: 1.3;
@@ -2530,22 +2590,27 @@
 
 .headline {
   margin: 0;
-  color: #000;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
-  font-weight: 200;
+  /* White, not the page's near-black: this sits directly on the dark fluted
+     gradient. */
+  color: #fff;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-weight: 400;
   font-size: 52px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  /* Absolute px, not an em ratio: this is a deliberate optical value for 52px
+     and it must not scale with the responsive size below, where -2.5px would
+     collapse the letterforms. */
+  letter-spacing: -2.5px;
 }
 
 .blurb {
   /* Pulls back against .heroInner's 18px flex gap, which is right for the
      other pairs but too loose under the headline. */
   margin: -8px 0 0;
-  color: #000;
+  color: rgba(255, 255, 255, 0.72);
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: 16px;
-  line-height: 1.3;
+  font-size: 18px;
+  line-height: 1.4;
   letter-spacing: -0.01em;
 }
 
@@ -2577,22 +2642,71 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Slightly less bottom than top: PP Editorial's cap-height sits high in the
-     em box, so symmetric padding reads bottom-heavy. */
-  padding: 18px 22px 15px;
+  /* Symmetric, unlike the editorial version this used to carry: Satoshi sits
+     centred in its em box, so the optical correction isn't needed. */
+  padding: 16px 22px;
   border-radius: 60px;
-  background: rgba(255, 255, 255, 0.8);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.05);
-  color: #000;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  /* Liquid glass, not smoked plastic. The lens is the whole effect: it takes its
+     colour from whatever is behind it rather than from a fill of its own, and
+     saturate() pushes that colour through the pill so it reads as a refracting
+     body instead of a grey film. The small blur keeps the field legible through
+     it rather than frosting it out.
+     brightness is below 1, not above: the gradient's amber core is already near
+     white, and lifting it there blew the pills out until the labels vanished.
+     Darkening instead holds white type over every part of the field, and the
+     slight fill keeps the darkening from disappearing at the dim edges. */
+  background: rgba(16, 10, 22, 0.14);
+  -webkit-backdrop-filter: blur(3px) saturate(150%) brightness(72%);
+  backdrop-filter: blur(3px) saturate(150%) brightness(72%);
+  /* Glass has thickness, and thickness lives at the rim. Two inset rings do it:
+     a bright one biased to the top-left where the light comes from, and a dim
+     one opposite, so the edge turns as it goes round instead of being one flat
+     hairline. The wide inner shadow is the body catching light behind the face,
+     and the outer pair grounds the pill on the gradient. */
+  box-shadow:
+    inset 0 1.5px 0.5px -0.5px rgba(255, 255, 255, 0.75),
+    inset 1.5px 0 1px -1px rgba(255, 255, 255, 0.4),
+    inset 0 -1.5px 0.5px -0.5px rgba(255, 255, 255, 0.18),
+    inset 0 0 14px -4px rgba(255, 255, 255, 0.28),
+    0 1px 2px rgba(0, 0, 0, 0.18),
+    0 8px 22px -6px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-size: 16px;
+  font-weight: 400;
   line-height: 1.3;
   letter-spacing: -0.02em;
   white-space: nowrap;
+  /* Legibility comes from the type's own shadow rather than a tinted fill —
+     that's the trade that keeps the glass clear. */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   /* The solver owns transforms; keep the browser from fighting it. */
   will-change: transform;
+  /* Clips the ::before highlight to the capsule. */
+  isolation: isolate;
+}
+
+/* Specular sheen across the upper half. A real lens catches the light source as
+   a soft band near its top edge, and that band is most of what separates glass
+   from a translucent rectangle. Angled slightly so it doesn't read as a plain
+   horizontal split. */
+.tag::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Negative index so the sheen paints over the pill's background but under the
+     label — at z-index auto it washed across the type. `isolation` on .tag stops
+     it dropping behind the gradient instead. */
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(
+    148deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.07) 26%,
+    rgba(255, 255, 255, 0) 52%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  pointer-events: none;
 }
 
 /* Reduced motion: no simulation, so lay the pills out as a plain wrap. */
@@ -2684,6 +2798,9 @@
      into the tag pile. */
   .headline {
     font-size: 33px;
+    /* The base -2.5px is tuned for 52px; carried down to 33px it's nearly twice
+       as tight proportionally and the letters start colliding. */
+    letter-spacing: -1.6px;
   }
 
   .blurb {

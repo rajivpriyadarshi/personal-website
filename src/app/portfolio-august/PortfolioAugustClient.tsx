@@ -5,7 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { GradFlow } from "gradflow";
+import { FractalGlass } from "./FractalGlass";
 import { JourneySection } from "./JourneySection";
 import { PhotoStack } from "./PhotoStack";
 import { SummarySection } from "./SummarySection";
@@ -17,16 +17,6 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const HEADLINE =
   "I’m a dreamer, big-picture thinker, I tell stories, and I love solving complex problems.";
-
-const HERO_GRADIENT = {
-  color1: { r: 211, g: 113, b: 249 },
-  color2: { r: 246, g: 255, b: 245 },
-  color3: { r: 251, g: 138, b: 101 },
-  speed: 0.6,
-  scale: 1.2,
-  type: "smoke" as const,
-  noise: 0.18,
-};
 
 const NAV = [
   { label: "About me", icon: "/portfolio-august/nav-user.svg", href: "#hero" },
@@ -89,11 +79,16 @@ export function PortfolioAugustClient() {
     <>
       <main className={styles.page}>
       <section ref={hero} id="hero" className={`${styles.hero} ${styles.snap}`}>
-        {/* Wrapper carries the positioning the old canvas had inline, since
-            GradFlow renders its own canvas and only fills its parent. */}
+        {/* Fluted-glass gradient. The wrapper keeps the full-bleed positioning
+            and the canvas fills it. */}
         <div aria-hidden className={styles.heroGradient}>
-          <GradFlow config={HERO_GRADIENT} />
+          <FractalGlass />
         </div>
+
+        {/* Darkens the gradient's bright core so the white copy over it holds
+            contrast. Separate from .heroGradient so the canvas stays untinted
+            and the scrim can be tuned in CSS alone. */}
+        <div aria-hidden className={styles.heroScrim} />
 
         <p className={styles.wipNotice}>
           This website is a work in progress. Please ignore the issues :)
