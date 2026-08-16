@@ -217,7 +217,7 @@ export function PortfolioAugustClient() {
         <p className={styles.mobileNoticeTitle}>Mobile version coming soon</p>
         <p className={styles.mobileNoticeBody}>
           The rest of this site is built for a bigger screen. Please open it on your
-          laptop or desktop.
+          laptop or desktop. Sorry for the trouble!
         </p>
       </section>
 

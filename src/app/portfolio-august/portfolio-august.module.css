@@ -55,11 +55,11 @@
     z-index: 1;
     margin: 0;
     color: #111;
-    font-family: var(--font-editorial), Georgia, serif;
-    font-weight: 200;
-    font-size: 52px;
+    font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 40px;
     line-height: 1.15;
-    letter-spacing: -0.02em;
+    letter-spacing: -1.8px;
   }
 
   .mobileNoticeBody {
@@ -613,11 +613,12 @@
 .roleCardTitle {
   margin: 0;
   color: #003e2f;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
-  font-weight: 200;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-weight: 400;
   font-size: 26px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  /* Tighter than the section headings' -1.8px, scaled for 26px. */
+  letter-spacing: -0.8px;
 }
 
 .roleCardBody {
@@ -748,11 +749,12 @@
   margin: 0 0 12px;
   padding: 0 24px;
   color: #003e2f;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-weight: 400;
   font-size: 42px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  /* Scaled from the section headings' -1.8px at 40px. */
+  letter-spacing: -1.8px;
 }
 
 /* Scrolls independently of the title, so the heading stays put while a long
@@ -794,11 +796,11 @@
 .roleAccordionTitle {
   flex: 1;
   color: #003e2f;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-weight: 400;
   font-size: 22px;
   line-height: 1.4;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.6px;
 }
 
 .roleAccordionChevron {
@@ -861,11 +863,13 @@
 .roleAccordionSubhead {
   margin: 24px 0 8px;
   color: #003e2f;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
-  font-weight: 200;
-  font-size: 22px;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  /* Medium at 18px rather than regular at 22px: it has to read as subordinate
+     to the row title above it while still standing off the body copy. */
+  font-weight: 500;
+  font-size: 18px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.4px;
 }
 
 .roleAccordionList {
@@ -1001,7 +1005,9 @@
      blurb's -8px pull-up). */
   gap: 10px;
   width: min(800px, 88vw);
-  margin-top: clamp(48px, 9vh, 118px);
+  /* Was clamp(48px, 9vh, 118px). Raised so the title clears the Hot Wheels
+     hanging into the top corners rather than sitting level with them. */
+  margin-top: clamp(84px, 14vh, 186px);
   text-align: center;
 }
 
@@ -1039,7 +1045,7 @@
   align-items: flex-start;
   width: 100%;
   min-height: 0;
-  margin-top: clamp(20px, 4vh, 48px);
+  margin-top: clamp(36px, 6.5vh, 80px);
 }
 
 .track {
@@ -1448,9 +1454,10 @@
   color: #003e2f;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-weight: 400;
-  font-size: 40px;
+  font-size: 52px;
   line-height: 1.2;
-  letter-spacing: -1.8px;
+  /* Pairs with 52px, same as the hero and Words titles. */
+  letter-spacing: -2.5px;
   text-align: center;
 }
 
@@ -1636,11 +1643,12 @@
 .workCardTitle {
   margin: 0;
   color: #000;
-  font-family: var(--font-editorial), "Tiempos Headline", Georgia, serif;
-  font-weight: 200;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-weight: 400;
   font-size: 28px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  /* Scaled for 28px, in the same family as the headings' -1.8px at 40px. */
+  letter-spacing: -0.9px;
 }
 
 .workCardSub {
@@ -1867,7 +1875,7 @@
   position: relative;
   z-index: 2;
   width: min(720px, 88vw);
-  margin: clamp(48px, 9vh, 118px) 0 0;
+  margin: clamp(72px, 13vh, 172px) 0 0;
   color: #003e2f;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-weight: 400;
@@ -1921,7 +1929,9 @@
   align-items: flex-start;
   width: 100%;
   min-height: 0;
-  margin-top: clamp(20px, 4vh, 52px);
+  /* Nudged down from clamp(20px, 4vh, 52px) so the notes sit nearer the
+     viewport's middle rather than riding just under the title. */
+  margin-top: clamp(36px, 6.5vh, 84px);
   /* Note height, so the arrows can centre on the notes instead of on this
      wrapper — its tall bottom padding (clearing the figurines) would otherwise
      push them well below the cards. */
@@ -2339,18 +2349,49 @@
   margin-top: 54px;
   padding: 8px;
   border-radius: 60px;
-  /* Glass edge: a bright hairline catches light on the top rim and fades toward
-     the bottom, which is what separates the pill from the gradient behind it. */
   border: 1px solid rgba(255, 255, 255, 0.14);
-  /* Dark glass, not the white it carried over the cream page: over the fluted
-     gradient a light pill picked up whatever colour was behind it and read as
-     muddy pink. Smoked glass stays neutral against every part of the field. */
-  background: rgba(12, 8, 20, 0.42);
+  /* Liquid glass, same recipe as .tag: the pill takes its colour from the field
+     behind it rather than from a fill of its own, saturate() pushes that colour
+     through so it reads as a refracting body, and brightness sits below 1
+     because the gradient's amber core is already near white — lifting it there
+     blew the pill out. The thin fill keeps the darkening from vanishing at the
+     dim edges. */
+  background: rgba(16, 10, 22, 0.14);
+  -webkit-backdrop-filter: blur(6px) saturate(150%) brightness(72%);
+  backdrop-filter: blur(6px) saturate(150%) brightness(72%);
+  /* Thickness lives at the rim: a bright ring biased to the top-left where the
+     light is, a dim one opposite so the edge turns as it goes round, a wide
+     inner glow for the body catching light behind the face, and an outer pair
+     to ground the pill on the gradient. */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    0 2px 12px rgba(60, 45, 30, 0.08);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+    inset 0 1.5px 0.5px -0.5px rgba(255, 255, 255, 0.75),
+    inset 1.5px 0 1px -1px rgba(255, 255, 255, 0.4),
+    inset 0 -1.5px 0.5px -0.5px rgba(255, 255, 255, 0.18),
+    inset 0 0 14px -4px rgba(255, 255, 255, 0.28),
+    0 1px 2px rgba(0, 0, 0, 0.18),
+    0 8px 22px -6px rgba(0, 0, 0, 0.3);
+  /* Clips the ::before sheen to the capsule. */
+  isolation: isolate;
+}
+
+/* Specular sheen across the upper half, as on .tag: a real lens catches the
+   light source as a soft band near its top edge, and that band is most of what
+   separates glass from a tinted panel. Under the label (z-index -1 inside the
+   isolated pill), over the background. */
+.nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(
+    148deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.07) 26%,
+    rgba(255, 255, 255, 0) 52%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  pointer-events: none;
 }
 
 .navItem {
@@ -2409,21 +2450,36 @@
 }
 
 .travelLink {
+  /* Positioning context for the ::before sheen. */
+  position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 12px 16px;
   border-radius: 60px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  /* Dark glass, not the white it carried over the cream page: over the fluted
-     gradient a light pill picked up whatever colour was behind it and read as
-     muddy pink. Smoked glass stays neutral against every part of the field. */
-  background: rgba(12, 8, 20, 0.42);
+  /* Liquid glass, same recipe as .tag: the pill takes its colour from the field
+     behind it rather than from a fill of its own, saturate() pushes that colour
+     through so it reads as a refracting body, and brightness sits below 1
+     because the gradient's amber core is already near white — lifting it there
+     blew the pill out. The thin fill keeps the darkening from vanishing at the
+     dim edges. */
+  background: rgba(16, 10, 22, 0.14);
+  -webkit-backdrop-filter: blur(6px) saturate(150%) brightness(72%);
+  backdrop-filter: blur(6px) saturate(150%) brightness(72%);
+  /* Thickness lives at the rim: a bright ring biased to the top-left where the
+     light is, a dim one opposite so the edge turns as it goes round, a wide
+     inner glow for the body catching light behind the face, and an outer pair
+     to ground the pill on the gradient. */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    0 2px 12px rgba(60, 45, 30, 0.08);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+    inset 0 1.5px 0.5px -0.5px rgba(255, 255, 255, 0.75),
+    inset 1.5px 0 1px -1px rgba(255, 255, 255, 0.4),
+    inset 0 -1.5px 0.5px -0.5px rgba(255, 255, 255, 0.18),
+    inset 0 0 14px -4px rgba(255, 255, 255, 0.28),
+    0 1px 2px rgba(0, 0, 0, 0.18),
+    0 8px 22px -6px rgba(0, 0, 0, 0.3);
+  /* Clips the ::before sheen to the capsule. */
+  isolation: isolate;
   color: rgba(255, 255, 255, 0.82);
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-size: 14px;
@@ -2434,8 +2490,28 @@
   transition: background 200ms ease;
 }
 
+/* Specular sheen across the upper half, as on .tag: a real lens catches the
+   light source as a soft band near its top edge, and that band is most of what
+   separates glass from a tinted panel. Under the label (z-index -1 inside the
+   isolated pill), over the background. */
+.travelLink::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(
+    148deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.07) 26%,
+    rgba(255, 255, 255, 0) 52%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  pointer-events: none;
+}
+
 .travelLink:hover {
-  background: rgba(12, 8, 20, 0.58);
+  background: rgba(16, 10, 22, 0.3);
 }
 
 /* Anchor for the travel grid preview. Not a flex item itself — it wraps the
@@ -2788,6 +2864,7 @@
   .heroInner {
     padding-top: 132px;
     gap: 8px;
+    width: 90vw;
   }
 
   .greeting {
@@ -2797,10 +2874,12 @@
   /* The base size is a fixed 52px, which overflowed the phone width and ran
      into the tag pile. */
   .headline {
-    font-size: 33px;
-    /* The base -2.5px is tuned for 52px; carried down to 33px it's nearly twice
-       as tight proportionally and the letters start colliding. */
-    letter-spacing: -1.6px;
+    font-size: 30px;
+    /* The base -2.5px is tuned for 52px; carried down to this size it's nearly
+       twice as tight proportionally and the letters start colliding. */
+    letter-spacing: -1.2px;
+    /* The descenders on the last line sat right on the blurb at this size. */
+    padding-bottom: 8px;
   }
 
   .blurb {
