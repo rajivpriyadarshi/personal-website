@@ -189,6 +189,36 @@ export function WordsSection() {
 
   useEffect(syncWorkArrows, [syncWorkArrows]);
 
+  /* Touch equivalent of the desktop hover: the card snapped to the middle of
+   * the rail owns the prop heap. Hover can't do this job here — there's no
+   * cursor, and `pointerenter` fires on whichever card happens to be under the
+   * finger mid-swipe rather than on the one that ends up centred. */
+  const focusedProps = useRef<PropSetName | null>(null);
+  const syncWorkFocus = useCallback(() => {
+    const el = workRail.current;
+    if (!el || window.matchMedia("(hover: hover)").matches) return;
+
+    const middle = el.scrollLeft + el.clientWidth / 2;
+    let nearest: PropSetName | null = null;
+    let best = Infinity;
+    for (const card of el.children) {
+      if (!(card instanceof HTMLElement) || !card.dataset.props) continue;
+      const distance = Math.abs(card.offsetLeft + card.offsetWidth / 2 - middle);
+      if (distance < best) {
+        best = distance;
+        nearest = card.dataset.props as PropSetName;
+      }
+    }
+
+    // Guarded: onScroll fires per frame and setSet restages the whole pile.
+    if (!nearest || nearest === focusedProps.current) return;
+    focusedProps.current = nearest;
+    props.current?.setSet(nearest);
+  }, []);
+
+  // Seeds the heap for the first card, which is centred before any scroll.
+  useEffect(syncWorkFocus, [syncWorkFocus]);
+
   const nudge = (direction: 1 | -1) => {
     rail.current?.scrollBy({ left: direction * NOTE_STEP, behavior: "smooth" });
   };
@@ -339,8 +369,12 @@ export function WordsSection() {
           driftY(-py * 10);
         };
 
-        window.addEventListener("pointermove", onDrift, { passive: true });
-        cleanups.push(() => window.removeEventListener("pointermove", onDrift));
+        // Pointer parallax is a hover affordance; on touch there's no cursor to
+        // follow and a drag would just shove the figurines sideways.
+        if (window.matchMedia("(hover: hover)").matches) {
+          window.addEventListener("pointermove", onDrift, { passive: true });
+          cleanups.push(() => window.removeEventListener("pointermove", onDrift));
+        }
       }
 
       /* Notes slide in from off the right edge, one at a time. Each one's pin
@@ -380,8 +414,11 @@ export function WordsSection() {
       });
 
       /* Pin-anchored swing. Rotation origin sits on the pin, so a note pivots
-       * from where it's tacked rather than spinning about its middle. */
-      notes.forEach((note, i) => {
+       * from where it's tacked rather than spinning about its middle.
+       * Hover-only: on touch, dragging the rail fires pointermove on whichever
+       * note is under the finger, and pointerleave never comes to unswing it. */
+      const swingNotes = window.matchMedia("(hover: hover)").matches ? notes : [];
+      swingNotes.forEach((note, i) => {
         const paper = note.querySelector<HTMLElement>(`.${styles.notePaper}`);
         if (!paper) return;
 
@@ -594,7 +631,10 @@ export function WordsSection() {
             <div
               ref={workRail}
               className={styles.workRow}
-              onScroll={syncWorkArrows}
+              onScroll={() => {
+                syncWorkArrows();
+                syncWorkFocus();
+              }}
             >
               {WORK.map((project) => {
                 const body = (
@@ -637,6 +677,7 @@ export function WordsSection() {
                   <a
                     key={project.name}
                     className={`${styles.workCard} ${styles.workCardLink}`}
+                    data-props={project.props}
                     href={project.href}
                     target="_blank"
                     rel="noreferrer"
@@ -649,6 +690,7 @@ export function WordsSection() {
                   <article
                     key={project.name}
                     className={styles.workCard}
+                    data-props={project.props}
                     onPointerEnter={swapProps}
                     onFocus={swapProps}
                     tabIndex={0}

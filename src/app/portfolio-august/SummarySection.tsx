@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useRef, useState } from "react";
+import { type CSSProperties, useCallback, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -23,9 +23,9 @@ const SUBHEAD =
 /* Second screen of this section: the props clear out and this takes their
  * place. Copy and cards come from the design. */
 const ROLE_HEADLINE =
-  "My role also has varied a lot — sometimes being heavily product-focused to sometimes when being visual-and-interaction-design-focused and at other times, development-focused.";
+  "My role has varied widely—from being heavily product-focused to concentrating on visual and interaction design, and at other times, development.";
 const ROLE_SUBHEAD =
-  "With this diversity of work and teams, I’ve grown a lot both horizontally and vertically. I thrive in complex, ambiguous spaces where the problem isn’t clearly defined, and the stakes are high";
+  "Through this diversity of work and teams, I’ve grown both horizontally and vertically. I thrive in complex, ambiguous spaces where the problem isn’t clearly defined and the stakes are high.";
 
 /* Card titles, blurbs, and the modal content behind each one all live in
  * role-data, so the copy is edited in one place. */
@@ -759,13 +759,23 @@ export function SummarySection() {
         {OBJECTS.map((object) => (
           <div
             key={object.key}
+            data-prop={object.key}
             className={styles.summaryObject}
-            style={{
-              left: object.left,
-              top: object.top,
-              width: object.size,
-              height: object.size,
-            }}
+            /* The desktop composition's geometry, handed to CSS as variables
+               rather than as direct left/top/width. An inline style beats any
+               stylesheet rule, so the narrow-screen layout — which has to
+               reposition and resize every prop — could not override real
+               properties. Note the `-desktop` suffix: it can't override an
+               inline *variable* either, so CSS reads these into the
+               --prop-left/top/size it actually uses, and the media query
+               retargets those. */
+            style={
+              {
+                "--prop-left-desktop": object.left,
+                "--prop-top-desktop": object.top,
+                "--prop-size-desktop": `${object.size}px`,
+              } as CSSProperties
+            }
           >
             <div className={styles.summaryTilt}>
               <Image

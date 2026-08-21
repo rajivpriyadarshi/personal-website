@@ -447,8 +447,23 @@ export function PropPile({ handleRef }: { handleRef: Ref<PropPileHandle> }) {
       pointer.active = false;
     };
 
+    /* Touch needs both ends handled explicitly. A tap fires no `pointermove`
+     * at all, so without `pointerdown` the props could only be shoved by
+     * dragging; and `pointerleave` never arrives on touch, so without
+     * `pointerup` the last touch point would keep shoving forever. */
+    const onPointerDown = (event: PointerEvent) => {
+      onPointerMove(event);
+    };
+    const onPointerUp = () => {
+      if (window.matchMedia("(hover: hover)").matches) return;
+      pointer.active = false;
+    };
+
     // The scene is pointer-events: none so the cards stay clickable through it.
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerdown", onPointerDown, { passive: true });
+    window.addEventListener("pointerup", onPointerUp, { passive: true });
+    window.addEventListener("pointercancel", onPointerUp, { passive: true });
     document.addEventListener("pointerleave", onPointerLeave);
 
     const applyPointerForce = (group: Group) => {
@@ -555,6 +570,9 @@ export function PropPile({ handleRef }: { handleRef: Ref<PropPileHandle> }) {
       api.current = { setActive: () => {}, setSet: () => {} };
       observer.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
       document.removeEventListener("pointerleave", onPointerLeave);
       Matter.Composite.clear(world, false);
       Matter.Engine.clear(engine);

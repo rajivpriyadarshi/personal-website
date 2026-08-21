@@ -94,6 +94,9 @@ export function JourneySection() {
               i === cars.length - 1
                 ? () => {
                     measureCars();
+                    // Same reason as the card tilt: on touch a drag would swing
+                    // the cars and nothing would bring them home.
+                    if (!window.matchMedia("(hover: hover)").matches) return;
                     window.addEventListener("pointermove", onCarAim, { passive: true });
                     cleanups.push(() =>
                       window.removeEventListener("pointermove", onCarAim),
@@ -190,7 +193,12 @@ export function JourneySection() {
       /* Hover tilt. Each card turns toward the cursor in 3D, on top of its
        * static ±3° layout rotation — which lives on an inner element so the
        * two transforms don't overwrite each other. */
-      const cards = gsap.utils.toArray<HTMLElement>(`.${styles.card}`, section);
+      /* Skipped on touch: `pointermove` fires there while a finger drags the
+       * carousel, so cards tilted as you scrolled and `pointerleave` never
+       * arrived to reset them — they stayed skewed. */
+      const cards = window.matchMedia("(hover: hover)").matches
+        ? gsap.utils.toArray<HTMLElement>(`.${styles.card}`, section)
+        : [];
 
       cards.forEach((card) => {
         const inner = card.querySelector<HTMLElement>(`.${styles.cardInner}`);

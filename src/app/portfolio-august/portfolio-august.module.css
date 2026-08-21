@@ -2,13 +2,6 @@
    `mandatory`: the Words section pins and scrubs through a long scroll range,
    and mandatory snapping would jump straight past those intermediate
    positions. Proximity only engages near a section that opts in via .snap. */
-/* Small-screen notice that follows the hero. Hidden by default and revealed by
-   the media query below, so desktop never renders it and there's no JS width
-   check to flash the wrong layout on first paint. */
-.mobileNotice {
-  display: none;
-}
-
 .page {
   position: relative;
   width: 100%;
@@ -16,62 +9,6 @@
   overflow-y: auto;
   scroll-snap-type: y proximity;
   background: #fcf9f6;
-}
-
-@media (max-width: 700px) {
-  /* Hero stays live on mobile — physics, gradient and all. Everything past it
-     is replaced by the notice below, so those sections are pulled out of the
-     flow rather than merely hidden (they'd still add scroll height). */
-  .desktopOnly {
-    display: none;
-  }
-
-  .mobileNotice {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    width: 100%;
-    height: 100svh;
-    padding: 32px 28px;
-    overflow: hidden;
-    /* Checked grid rather than the gradient: the hero above already carries the
-       gradient, so repeating it made the two screens read as one. Drawn with
-       gradients because the project's grid.svg assets are vertical rules only —
-       using one gave stripes, not a grid. */
-    background-color: #fcf9f6;
-    background-image:
-      linear-gradient(to right, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
-    background-size: 66px 66px;
-    background-position: center;
-    text-align: center;
-  }
-
-  .mobileNoticeTitle {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    color: #111;
-    font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-    font-weight: 400;
-    font-size: 40px;
-    line-height: 1.15;
-    letter-spacing: -1.8px;
-  }
-
-  .mobileNoticeBody {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    max-width: 30ch;
-    color: rgba(0, 0, 0, 0.55);
-    font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
-  }
 }
 
 .snap {
@@ -262,6 +199,17 @@
 
 .summaryObject {
   position: absolute;
+  /* Geometry via variables so the narrow-screen block below can retarget it.
+     The component's values arrive as --prop-*-desktop and are read into these:
+     an inline style wins over a media query even for a custom property, so the
+     names the layout actually uses have to be ones CSS owns. */
+  --prop-left: var(--prop-left-desktop);
+  --prop-top: var(--prop-top-desktop);
+  --prop-size: var(--prop-size-desktop);
+  left: var(--prop-left);
+  top: var(--prop-top);
+  width: var(--prop-size);
+  height: var(--prop-size);
   z-index: 3;
   perspective: 800px;
   /* Hidden until its staggered turn; GSAP reveals each with autoAlpha. */
@@ -427,14 +375,107 @@
   }
 }
 
-@media (max-width: 768px) {
+
+/* --- Narrow screens ----------------------------------------------
+ * One narrow column has to hold the props, the skyline and the copy. Scaling
+ * the desktop arrangement down doesn't work — the percentages are tuned for a
+ * wide stage, so shrunk props stay centred on the copy. Instead every prop is
+ * re-placed: three along the top edge, three down the outer edges of the lower
+ * band, leaving the middle clear for the copy and the centre-bottom clear for
+ * the skyline.
+ *
+ * 900px, not a phone width: the desktop composition needs the full stage, and
+ * anything narrower than a laptop already has the props crowding the text.
+ * ----------------------------------------------------------------- */
+@media (max-width: 900px) {
   .summaryObject {
-    /* Shrink the props so they frame the copy instead of burying it. */
-    scale: 0.55;
+    /* Uniform, unlike the desktop's 356–443px range: at these widths the
+       variation read as inconsistency rather than variety. */
+    --prop-size: clamp(74px, 19vw, 118px);
+  }
+
+  /* A deliberate cluster in the top band, matching the reference layout: the
+     six props group loosely in two staggered rows, they don't hug the screen
+     edges, and none of them reaches the copy. All tops are svh so the band
+     holds its depth at any phone height; all lefts are vw so the cluster keeps
+     its shape rather than being re-tuned per width. */
+  .summaryObject[data-prop="knife"] {
+    --prop-left: 29vw;
+    --prop-top: -1svh;
+  }
+
+  .summaryObject[data-prop="pos"] {
+    --prop-left: 44vw;
+    --prop-top: 3svh;
+  }
+
+  .summaryObject[data-prop="room"] {
+    --prop-left: 65vw;
+    --prop-top: 3svh;
+  }
+
+  .summaryObject[data-prop="paper"] {
+    --prop-left: 9vw;
+    --prop-top: 9svh;
+  }
+
+  .summaryObject[data-prop="computer"] {
+    --prop-left: 51vw;
+    --prop-top: 12svh;
+  }
+
+  .summaryObject[data-prop="truck"] {
+    --prop-left: 21vw;
+    --prop-top: 16svh;
+  }
+
+  /* Nothing to hover on touch, and as always-on labels six of them buried the
+     composition. The props carry the section on their own here. */
+  .propTip {
+    display: none;
   }
 
   .summaryCopy {
     width: 88vw;
+  }
+}
+
+/* --- Phone ------------------------------------------------------- */
+@media (max-width: 700px) {
+  /* Type follows the hero's phone treatment, a step down again because this
+     block runs to several lines rather than three. */
+  .summaryHeadline {
+    font-size: 22px;
+    letter-spacing: -0.7px;
+  }
+
+  .summarySub {
+    font-size: 13px;
+  }
+
+  .summaryCopy {
+    width: 86vw;
+  }
+
+  /* Full-bleed and tall: the model is the section's setting, so it gets the
+     whole width and roughly a third of the height. Its own aspect ratio decides
+     which of the two caps binds, so it stays uncropped either way. */
+  .skyline {
+    width: 100vw;
+    max-height: 34svh;
+  }
+
+  /* No sink here — the desktop drop hid the base plinth to suggest the model
+     continues below the fold, but at this scale it just ate the podium level
+     the towers stand on. */
+  .skylineLayer {
+    --skyline-sink: 0px;
+  }
+
+  /* At full size the clouds filled the viewport and read as a grey wash behind
+     the copy. */
+  .cloud {
+    scale: 0.6;
   }
 }
 
@@ -681,6 +722,88 @@
      hold its line length. */
   .roleCards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* The role screen shares the Summary section's scroll track, so it comes along
+   on phones whether or not it's been designed for them. */
+@media (max-width: 700px) {
+  /* Four cards can't sit side by side, and they can't scroll vertically either
+     — the section is pinned, so this screen is one viewport tall. So they
+     become a physical deck: each card overlaps the one above it, leaving only
+     its title band showing, and the last one lies open on top. Tapping any of
+     them opens its detail modal, same as the desktop cards.
+     A sideways carousel was the other option; the deck shows all four labels at
+     once instead of hiding three of them off-screen. */
+  .roleCards {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+    gap: 0;
+    width: 86vw;
+  }
+
+  .roleCard {
+    /* Shorter than the desktop card: only the top card shows its full body, so
+       the rest is height the deck can't use. */
+    min-height: 176px;
+    padding: 20px 20px 18px;
+    border-radius: 24px;
+    /* Pulls each card up over its predecessor, leaving --role-peek of it
+       visible. Enough for the title plus its breathing room. */
+    margin-top: calc(var(--role-peek) - 176px);
+    --role-peek: 74px;
+    /* The overlap hides the seam between cards, so each carries its own edge
+       shadow to read as a separate sheet in the stack. */
+    box-shadow:
+      0 -2px 10px rgba(0, 0, 0, 0.06),
+      0 6px 18px -8px rgba(0, 0, 0, 0.18);
+  }
+
+  .roleCard:first-child {
+    margin-top: 0;
+  }
+
+  /* Later cards sit in front, so the deck reads top-down. Set as `rotate`
+     rather than inside `transform`: GSAP owns the transform on these cards for
+     the entrance, and the individual property composes with it instead of
+     being overwritten. */
+  .roleCard:nth-child(1) {
+    z-index: 1;
+    rotate: -0.8deg;
+  }
+
+  .roleCard:nth-child(2) {
+    z-index: 2;
+    rotate: 0.6deg;
+  }
+
+  .roleCard:nth-child(3) {
+    z-index: 3;
+    rotate: -0.5deg;
+  }
+
+  .roleCard:nth-child(4) {
+    z-index: 4;
+    rotate: 0.4deg;
+  }
+
+  .roleHeadline {
+    font-size: 22px;
+    letter-spacing: -0.7px;
+  }
+
+  .roleSub {
+    font-size: 13px;
+  }
+
+  .roleCardTitle {
+    font-size: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  .roleCardBody {
+    font-size: 14px;
   }
 }
 
@@ -1355,6 +1478,108 @@
   }
 }
 
+/* --- Phone -------------------------------------------------------
+ * The carousel becomes one card per screen, and the decoration steps back so
+ * the card has the viewport to itself: the cars shrink into the top corners,
+ * the Hot Wheels track holds the bottom band, and the stagger flattens because
+ * with a single card visible there's no row rhythm left to express.
+ * ----------------------------------------------------------------- */
+@media (max-width: 700px) {
+  .journeyHeading {
+    /* Was clamp(84px, 14vh, 186px) — that cleared the desktop cars, and here
+       they're small enough that the title just needs to clear the top edge. */
+    margin-top: clamp(40px, 7vh, 72px);
+  }
+
+  /* Matches the hero and Summary headings on phones. */
+  .journeyTitle {
+    font-size: 22px;
+    letter-spacing: -0.7px;
+  }
+
+  .journeySub {
+    max-width: none;
+    font-size: 13px;
+  }
+
+  .trackWrap {
+    margin-top: clamp(20px, 3.5vh, 36px);
+  }
+
+  /* One card per screen, snapped, with the next just off-edge. */
+  .track {
+    gap: 16px;
+    padding: 8px 6vw 0;
+    scroll-snap-type: x mandatory;
+  }
+
+  .journeyCard {
+    width: 88vw;
+    /* Flat: the alternating ±58px stagger only reads as a timeline when several
+       cards are visible at once. */
+    margin-top: 0;
+    scroll-snap-align: center;
+  }
+
+  .cardBelow {
+    margin-top: 0;
+  }
+
+  .cardHead {
+    padding: 16px;
+  }
+
+  .cardLogo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .cardLogo img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .cardRole {
+    font-size: 14px;
+  }
+
+  .cardCompany {
+    font-size: 12px;
+  }
+
+  .cardInner {
+    gap: 16px;
+    padding-bottom: 20px;
+  }
+
+  .cardBullets {
+    padding-left: 20px;
+    padding-right: 16px;
+    font-size: 13px;
+  }
+
+  .cardBullets li + li {
+    margin-top: 8px;
+  }
+
+  .datePill {
+    font-size: 13px;
+  }
+
+  /* Corner decoration only — at the tablet 120px they crowded the card. */
+  .car {
+    width: 84px;
+  }
+
+  .trackArtBottom {
+    width: 320px;
+  }
+
+  .trackArtRight {
+    width: 130px;
+  }
+}
+
 /* ---------------------------------------------------------------
  * Good words
  * --------------------------------------------------------------- */
@@ -1784,6 +2009,8 @@
     max-height: none;
   }
 }
+
+
 
 /* ---------------------------------------------------------------
  * Cube wall — real preserve-3d cubes that fly toward the camera as the
@@ -2913,6 +3140,130 @@
    equal specificity would lose to it. */
 @media (max-width: 700px) {
   .nav {
+    display: none;
+  }
+}
+
+/* Deliberately last in the file: several of the rules it overrides — .wordsTitle
+   among them — are declared further down than this section's other styles, and
+   at equal specificity the later declaration wins. Keeping the block at the end
+   means it beats all of them. */
+/* --- Phone -------------------------------------------------------
+ * Both screens in this section — the notes and the Selected Work pills that
+ * the cube wall uncovers — go to one card per screen, and the type steps down
+ * to the sizes the hero and the sections above use on phones.
+ * ----------------------------------------------------------------- */
+@media (max-width: 700px) {
+  .wordsTitle {
+    /* Was clamp(72px, 13vh, 172px): that gap existed to separate the title from
+       a full row of notes, and there's only one note visible here. */
+    margin-top: clamp(40px, 7vh, 76px);
+    font-size: 22px;
+    letter-spacing: -0.7px;
+  }
+
+  /* --- Notes --- */
+  .noteRailWrap {
+    margin-top: clamp(20px, 3.5vh, 40px);
+    /* Matches the shorter note below so the arrows stay centred on it. */
+    --note-h: 300px;
+    /* The figurine group is much shorter here, so the notes don't need the
+       desktop's tall clearance. */
+    padding-bottom: clamp(90px, 16vh, 150px);
+  }
+
+  .note {
+    width: 78vw;
+    scroll-snap-align: center;
+  }
+
+  .noteRail {
+    gap: 16px;
+    padding: 30px 11vw 0;
+    scroll-snap-type: x mandatory;
+  }
+
+  .notePaper {
+    min-height: 300px;
+    padding: 26px 20px 18px;
+  }
+
+  .notePin {
+    width: 40px;
+    top: -14px;
+  }
+
+  .noteQuote {
+    font-size: 15px;
+  }
+
+  .noteQuoteMark {
+    font-size: 38px;
+  }
+
+  .noteName {
+    font-size: 20px;
+  }
+
+  .noteRole {
+    font-size: 13px;
+  }
+
+  .noteAvatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  .figurines {
+    max-height: clamp(120px, 18vh, 200px);
+  }
+
+  /* --- Selected Work --- */
+  .selectedWorkTitle {
+    margin-top: clamp(40px, 7vh, 76px);
+    font-size: 22px;
+    letter-spacing: -0.7px;
+  }
+
+  .workRailWrap {
+    margin-top: clamp(24px, 4vh, 48px);
+    padding-bottom: clamp(90px, 16vh, 150px);
+  }
+
+  .workRow {
+    /* The desktop -80px bleed margin is headroom for the hover lift, which
+       doesn't happen on touch; keeping it here just pulled the row off-centre. */
+    padding: 20px 11vw clamp(60px, 10vh, 120px);
+    margin: 0;
+    scroll-snap-type: x mandatory;
+  }
+
+  .workCard {
+    width: 58vw;
+    scroll-snap-align: center;
+    /* No bob: it fought the snap, nudging the card out of its snap position. */
+    animation: none;
+    /* Frosted rather than the desktop's near-clear outline. The heap belonging
+       to the centred card sits right behind it, and at this size the props were
+       showing straight through the copy — blurring them turns the heap into a
+       backdrop for the title instead of competing with it. */
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(14px) saturate(115%);
+    backdrop-filter: blur(14px) saturate(115%);
+  }
+
+  .workCardTitle {
+    font-size: 22px;
+    letter-spacing: -0.7px;
+  }
+
+  .workCardSub {
+    font-size: 14px;
+  }
+
+  /* Arrows are redundant next to a snapping swipe, and at this width they sat
+     over the cards rather than beside them. */
+  .arrow {
     display: none;
   }
 }

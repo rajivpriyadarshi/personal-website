@@ -210,24 +210,11 @@ export function PortfolioAugustClient() {
         <TagPhysics />
       </section>
 
-      {/* Small screens get the hero — Matter.js tags and all — then this notice
-          in place of the sections below, which aren't laid out for mobile yet.
-          Hidden on desktop; the sections after it are hidden on mobile. */}
-      <section className={`${styles.mobileNotice} ${styles.snap}`}>
-        <p className={styles.mobileNoticeTitle}>Mobile version coming soon</p>
-        <p className={styles.mobileNoticeBody}>
-          The rest of this site is built for a bigger screen. Please open it on your
-          laptop or desktop. Sorry for the trouble!
-        </p>
-      </section>
+      <SummarySection />
 
-      <div className={styles.desktopOnly}>
-        <SummarySection />
+      <JourneySection />
 
-        <JourneySection />
-
-        <WordsSection />
-      </div>
+      <WordsSection />
       </main>
     </>
   );
