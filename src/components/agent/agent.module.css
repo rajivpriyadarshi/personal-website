@@ -1,0 +1,729 @@
+/* ---------------------------------------------------------------
+ * Entry card
+ *
+ * Measurements are the design's, in absolute px: 360 wide at radius 32 with
+ * 16px padding, a 45px avatar, and a 13px gap to the copy. Deliberate optical
+ * values, not a scale — the tracking especially would collapse if it rode a
+ * responsive font size.
+ * --------------------------------------------------------------- */
+.entryCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 13px;
+  width: 360px;
+  max-width: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: 32px;
+  background: #fff;
+  /* Grounds the white card on the hero gradient. The design sits on a plain
+     white artboard and so carries no shadow; here it would otherwise float. */
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.12),
+    0 12px 32px -8px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.entryCard:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.14),
+    0 18px 40px -10px rgba(0, 0, 0, 0.42);
+}
+
+.entryCard:active {
+  transform: translateY(0);
+}
+
+.entryAvatar {
+  flex-shrink: 0;
+  /* block, so the canvas inside doesn't sit on a text baseline and leave a
+     sliver of white under the circle. */
+  display: block;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  /* Clips the square canvas to the circle — the shader has no alpha of its
+     own, so the mask has to come from the wrapper. */
+  overflow: hidden;
+}
+
+/* The shader canvas fills whichever avatar slot it's placed in, so the same
+   component serves the 45px card and the 36px panel header. */
+.avatarCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.entryCopy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  /* min-width lets the flex child shrink below its text's intrinsic width so the
+     subtitle can ellipsize instead of forcing the card wider. */
+  min-width: 0;
+}
+
+.entryTitle {
+  color: #000;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.28px;
+}
+
+.entrySubtitle {
+  color: rgba(0, 0, 0, 0.5);
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.24px;
+}
+
+.entryChevron {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: #000;
+  transition: transform 200ms ease;
+}
+
+.entryCard:hover .entryChevron {
+  transform: translateX(3px);
+}
+
+/* Phones: the card goes full width of the hero column, and the subtitle is the
+   first thing to give — it's a qualifier, not the offer. */
+@media (max-width: 640px) {
+  .entryCard {
+    width: 100%;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 26px;
+  }
+
+  .entryAvatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .entrySubtitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * Sidebar
+ * --------------------------------------------------------------- */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  /* Not display:none — the fade needs something to animate from, and
+     pointer-events keeps the closed scrim from swallowing page clicks. */
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+
+.scrimVisible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Fixed rather than in flow: the page scrolls inside <main>, so a panel in the
+   document flow would scroll away with it. */
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 100vw);
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+  box-shadow: -12px 0 40px -12px rgba(0, 0, 0, 0.3);
+  /* Parked just past its own width so the shadow clears the viewport too. */
+  transform: translateX(calc(100% + 48px));
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.panelOpen {
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .scrim,
+  .entryCard,
+  .entryChevron {
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .panel {
+    border-left: 0;
+  }
+}
+
+.panelHeader {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.panelAvatar {
+  flex-shrink: 0;
+  display: block;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.panelHeading {
+  flex: 1;
+  min-width: 0;
+}
+
+.panelTitle {
+  margin: 0;
+  color: #000;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.28px;
+}
+
+.panelSubtitle {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.5);
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.24px;
+}
+
+.panelClose {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.panelClose:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #000;
+}
+
+/* ---------------------------------------------------------------
+ * Thread
+ * --------------------------------------------------------------- */
+.thread {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  /* min-height:0 lets the viewport below actually scroll instead of stretching
+     the panel past its fixed height. */
+  min-height: 0;
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+}
+
+.viewport {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 16px 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Clears the composer, which floats over the viewport's bottom edge. */
+.viewportTail {
+  flex-shrink: 0;
+  height: 88px;
+}
+
+.empty {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  padding-bottom: 24px;
+}
+
+.emptyTitle {
+  margin: 0;
+  color: #000;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.8px;
+}
+
+.emptyBody {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 14px;
+  line-height: 1.45;
+  letter-spacing: -0.14px;
+}
+
+/* ---------------------------------------------------------------
+ * Cold-thread entrance
+ *
+ * The greeting and the openers arrive in sequence once the drawer is on its way
+ * in, so the panel reads as filling rather than as a finished slab sliding
+ * across. The delays start at 140ms — under the panel's own 320ms slide — so the
+ * two overlap; waiting for the slide to finish first reads as two separate
+ * events instead of one.
+ *
+ * `both` fill is what holds each element invisible through its own delay. It also
+ * means the from-state only exists while .emptyEntering is applied: with the
+ * class off the elements sit at their natural values, which is correct, because
+ * the only time the class is absent is when the panel is off-screen.
+ * --------------------------------------------------------------- */
+@keyframes agentRise {
+  from {
+    opacity: 0;
+    /* Small: 10px over 460ms is a settle. Anything further reads as a slide and
+       starts competing with the panel's own movement. */
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.emptyEntering .emptyTitle,
+.emptyEntering .emptyBody,
+.emptyEntering .suggestion {
+  /* Decelerating, with no overshoot — the pills settling would draw the eye to
+     the motion rather than to the questions. */
+  animation: agentRise 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.emptyEntering .emptyTitle {
+  animation-delay: 140ms;
+}
+
+.emptyEntering .emptyBody {
+  animation-delay: 220ms;
+}
+
+/* 55ms apart, indexed rather than driven by a custom property: there are six
+   openers and they're a fixed list, so nth-child keeps the delay in the
+   stylesheet with the rest of the timing. Anything past the sixth shares the
+   last delay, which is the right failure mode — a seventh opener arriving
+   slightly early beats it never appearing. */
+.emptyEntering .suggestion:nth-child(1) { animation-delay: 300ms; }
+.emptyEntering .suggestion:nth-child(2) { animation-delay: 355ms; }
+.emptyEntering .suggestion:nth-child(3) { animation-delay: 410ms; }
+.emptyEntering .suggestion:nth-child(4) { animation-delay: 465ms; }
+.emptyEntering .suggestion:nth-child(5) { animation-delay: 520ms; }
+.emptyEntering .suggestion:nth-child(n + 6) { animation-delay: 575ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .emptyEntering .emptyTitle,
+  .emptyEntering .emptyBody,
+  .emptyEntering .suggestion {
+    animation: none;
+  }
+}
+
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Full-width rows rather than a wrapped pill cloud: in a 420px column the
+   questions are long enough that pills would each break onto two lines. */
+.suggestion {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.75);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.13px;
+  text-align: left;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.suggestion:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.userMessage {
+  align-self: flex-end;
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 18px 18px 4px 18px;
+  background: #111;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.45;
+  letter-spacing: -0.14px;
+  /* Preserves the newlines a visitor typed, which the plain-text part renderer
+     otherwise collapses. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.assistantMessage {
+  align-self: flex-start;
+  max-width: 100%;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  line-height: 1.55;
+  letter-spacing: -0.14px;
+  overflow-wrap: anywhere;
+}
+
+/* The markdown renderer emits real block elements, which arrive unstyled — the
+   site has no global element reset for them. */
+.assistantMessage :global(p) {
+  margin: 0 0 10px;
+}
+
+.assistantMessage :global(p:last-child) {
+  margin-bottom: 0;
+}
+
+/* Tailwind's preflight kills `list-style` on every ul/ol, so markers have to be
+   put back by hand — an indented block with no bullet reads as a stray
+   paragraph, which is how the model's lists were landing. */
+.assistantMessage :global(ul),
+.assistantMessage :global(ol) {
+  margin: 0 0 10px;
+  padding-left: 20px;
+  list-style-position: outside;
+}
+
+.assistantMessage :global(ul) {
+  list-style-type: disc;
+}
+
+.assistantMessage :global(ol) {
+  list-style-type: decimal;
+}
+
+/* Nested lists, so a sub-point doesn't repeat its parent's marker. */
+.assistantMessage :global(ul ul) {
+  list-style-type: circle;
+}
+
+.assistantMessage :global(li) {
+  margin-bottom: 4px;
+}
+
+/* A list item's own paragraphs (react-markdown wraps them whenever the source
+   list is loose) shouldn't add a second gap on top of the item's. */
+.assistantMessage :global(li > p) {
+  margin-bottom: 0;
+}
+
+.assistantMessage :global(li:last-child) {
+  margin-bottom: 0;
+}
+
+/* Preflight flattens h1–h6 to inherit both size and weight, so a `###` subhead
+   would otherwise be indistinguishable from body copy. Kept close to the body
+   size — this is a chat panel, not an article. */
+.assistantMessage :global(h1),
+.assistantMessage :global(h2),
+.assistantMessage :global(h3),
+.assistantMessage :global(h4),
+.assistantMessage :global(h5),
+.assistantMessage :global(h6) {
+  margin: 14px 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.14px;
+}
+
+.assistantMessage :global(h1:first-child),
+.assistantMessage :global(h2:first-child),
+.assistantMessage :global(h3:first-child),
+.assistantMessage :global(h4:first-child),
+.assistantMessage :global(h5:first-child),
+.assistantMessage :global(h6:first-child) {
+  margin-top: 0;
+}
+
+.assistantMessage :global(strong) {
+  font-weight: 700;
+}
+
+.assistantMessage :global(hr) {
+  margin: 14px 0;
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.assistantMessage :global(blockquote) {
+  margin: 0 0 10px;
+  padding-left: 10px;
+  border-left: 2px solid rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.62);
+}
+
+.assistantMessage :global(a) {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.assistantMessage :global(code) {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.06);
+  font-size: 0.9em;
+}
+
+.assistantMessage :global(pre) {
+  margin: 0 0 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+}
+
+.messageError {
+  margin-top: 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(190, 40, 40, 0.2);
+  border-radius: 12px;
+  background: rgba(190, 40, 40, 0.06);
+  color: rgba(150, 30, 30, 0.9);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* ---------------------------------------------------------------
+ * Thinking
+ * --------------------------------------------------------------- */
+/* The model's own reasoning summary, collapsed under a disclosure. Sits a step
+   back from the answer — lighter, smaller, quieter — so it reads as working
+   out rather than as part of the reply. */
+.reasoning {
+  margin-bottom: 10px;
+}
+
+.reasoningSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  /* Kills the native triangle in every engine that still draws one. */
+  list-style: none;
+  color: rgba(0, 0, 0, 0.42);
+  font-size: 12px;
+  letter-spacing: -0.12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.reasoningSummary::-webkit-details-marker {
+  display: none;
+}
+
+.reasoningSummary:hover {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* While the thought is still streaming the label breathes, which is what tells
+   a waiting visitor something is happening. */
+.reasoningLabelRunning {
+  animation: agentBreathe 1.4s ease-in-out infinite;
+}
+
+@keyframes agentBreathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.reasoningChevron {
+  transition: transform 0.18s ease;
+}
+
+.reasoning[open] .reasoningChevron {
+  transform: rotate(180deg);
+}
+
+.reasoningBody {
+  margin: 6px 0 0;
+  padding-left: 9px;
+  border-left: 1.5px solid rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12.5px;
+  line-height: 1.5;
+  letter-spacing: -0.12px;
+  white-space: pre-wrap;
+}
+
+/* The gap between send and the first token, when there's no thought to show. */
+.pending {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+}
+
+.pendingDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.28);
+  animation: agentPulse 1.1s ease-in-out infinite;
+}
+
+.pendingDot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.pendingDot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes agentPulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pendingDot,
+  .reasoningLabelRunning {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * Composer
+ * --------------------------------------------------------------- */
+/* Floats over the viewport rather than sitting under it, so the thread scrolls
+   behind a single fixed input. .viewportTail reserves the room. */
+.composer {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px 8px 8px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.86);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 6px 24px -10px rgba(0, 0, 0, 0.25);
+  transition: border-color 160ms ease;
+}
+
+.composer:focus-within {
+  border-color: rgba(0, 0, 0, 0.28);
+}
+
+.composerInput {
+  flex: 1;
+  min-width: 0;
+  /* The autosizing textarea grows with its content; the cap keeps a long
+     question from eating the thread above it. */
+  max-height: 140px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  letter-spacing: -0.14px;
+  resize: none;
+  outline: none;
+}
+
+.composerInput::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.composerAction {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  transition:
+    opacity 160ms ease,
+    background 160ms ease;
+}
+
+.composerAction:hover:not(:disabled) {
+  background: #000;
+}
+
+.composerAction:disabled {
+  opacity: 0.3;
+  cursor: default;
+}

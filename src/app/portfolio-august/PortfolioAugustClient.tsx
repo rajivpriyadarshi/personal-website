@@ -5,6 +5,9 @@ import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { AgentEntryCard } from "@/components/agent/AgentEntryCard";
+import { AgentPanel } from "@/components/agent/AgentPanel";
+import { AgentProvider } from "@/components/agent/AgentContext";
 import { FractalGlass } from "./FractalGlass";
 import { JourneySection } from "./JourneySection";
 import { PhotoStack } from "./PhotoStack";
@@ -70,13 +73,17 @@ export function PortfolioAugustClient() {
         )
         .from(`.${styles.greeting}`, { y: 16, autoAlpha: 0, duration: 0.6 }, 0.3)
         .from(words, { y: 30, autoAlpha: 0, duration: 0.75, stagger: 0.035 }, 0.4)
-        .from(`.${styles.blurb}`, { y: 16, autoAlpha: 0, duration: 0.6 }, 0.75);
+        .from(`.${styles.blurb}`, { y: 16, autoAlpha: 0, duration: 0.6 }, 0.75)
+        /* Last in, and a touch later than the gap between the other pairs: the
+           card is an invitation, and it should arrive after the introduction has
+           landed rather than alongside it. */
+        .from(`.${styles.agentCta}`, { y: 14, autoAlpha: 0, duration: 0.6 }, 1);
     },
     { scope: hero },
   );
 
   return (
-    <>
+    <AgentProvider>
       <main className={styles.page}>
       <section ref={hero} id="hero" className={`${styles.hero} ${styles.snap}`}>
         {/* Fluted-glass gradient. The wrapper keeps the full-bleed positioning
@@ -205,6 +212,12 @@ export function PortfolioAugustClient() {
             unexpectedly discovered product design. Every step since has been about learning
             relentlessly and pushing myself to build products that make a real difference.
           </p>
+
+          {/* Launcher for the assistant. Sits under the intro copy because that's
+              the moment a visitor has just met him and starts having questions. */}
+          <div className={styles.agentCta}>
+            <AgentEntryCard />
+          </div>
         </div>
 
         <TagPhysics />
@@ -216,6 +229,10 @@ export function PortfolioAugustClient() {
 
       <WordsSection />
       </main>
-    </>
+
+      {/* Outside <main> because that's the scroll container — a fixed panel
+          inside it would still be clipped by its overflow. */}
+      <AgentPanel />
+    </AgentProvider>
   );
 }

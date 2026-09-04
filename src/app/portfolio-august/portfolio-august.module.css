@@ -2898,9 +2898,9 @@
   color: #fff;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-weight: 400;
-  font-size: 52px;
-  line-height: 1.2;
-  /* Absolute px, not an em ratio: this is a deliberate optical value for 52px
+  font-size: 48px;
+  line-height: 1.12;
+  /* Absolute px, not an em ratio: this is a deliberate optical value for 48px
      and it must not scale with the responsive size below, where -2.5px would
      collapse the letterforms. */
   letter-spacing: -2.5px;
@@ -2920,6 +2920,20 @@
 .word {
   display: inline-block;
   will-change: transform, opacity;
+}
+
+/* Hosts the assistant's entry card. The card owns its own 360px width and
+   styling; this only places it in the hero column and gives the intro timeline
+   a handle in this module's namespace to animate.
+   z-index because .tagScene's falling pills sit above .heroInner's flow and
+   would otherwise pass in front of the card's white face. */
+.agentCta {
+  position: relative;
+  z-index: 12;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
 }
 
 /* ---------------------------------------------------------------
@@ -2975,7 +2989,7 @@
     0 8px 22px -6px rgba(0, 0, 0, 0.3);
   color: #fff;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.3;
   letter-spacing: -0.02em;
@@ -3098,11 +3112,11 @@
     font-size: 18px;
   }
 
-  /* The base size is a fixed 52px, which overflowed the phone width and ran
+  /* The base size is a fixed 48px, which overflowed the phone width and ran
      into the tag pile. */
   .headline {
     font-size: 30px;
-    /* The base -2.5px is tuned for 52px; carried down to this size it's nearly
+    /* The base -2.5px is tuned for 48px; carried down to this size it's nearly
        twice as tight proportionally and the letters start colliding. */
     letter-spacing: -1.2px;
     /* The descenders on the last line sat right on the blurb at this size. */
