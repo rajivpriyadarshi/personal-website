@@ -15,7 +15,7 @@
  * its own, so requests spread across instances get a higher effective limit than
  * the numbers below suggest. That trade is fine here: a loop from a single IP
  * lands on a single warm instance and gets blocked, which is the realistic abuse
- * case, and the global daily ceiling is the backstop for everything else. No
+ * case, and the global hourly and daily ceilings backstop everything else. No
  * dependency, no config, nothing to keep paid for.
  */
 
@@ -32,6 +32,13 @@ const DAY_MAX = 40;
    which should land on OpenAI's automatic prefix cache, since the corpus in front
    of every request is byte-identical. */
 const GLOBAL_DAY_MAX = 600;
+
+/* A burst brake in front of the daily ceiling. Without it a script can drain the
+   whole day's allowance in the first few minutes and every real visitor after that
+   gets told to come back tomorrow. At 100 an hour the worst case is still 600 in a
+   day, but no single hour can take more than a sixth of it, and the endpoint
+   recovers on the hour instead of staying dead until midnight UTC. */
+const GLOBAL_HOUR_MAX = 100;
 
 /* A thread this long is a scraper, not a conversation. */
 const MAX_MESSAGES = 20;
@@ -54,8 +61,18 @@ type Caller = {
 const callers = new Map<string, Caller>();
 let globalDay = "";
 let globalCount = 0;
+let globalHour = "";
+let globalHourCount = 0;
 
 const utcDay = (now: number) => new Date(now).toISOString().slice(0, 10);
+
+/* "2026-09-04T14" — a fixed-width UTC hour, so the counter resets on the hour
+   rather than an hour after the first request of a burst. */
+const utcHour = (now: number) => new Date(now).toISOString().slice(0, 13);
+
+/* Seconds until the current UTC hour is up, which is what a caller blocked by the
+   hourly ceiling should actually wait. */
+const untilNextHour = (now: number) => Math.ceil((3600_000 - (now % 3600_000)) / 1000);
 
 /* On Vercel, `x-vercel-forwarded-for` is set by the platform and a client can't
  * overwrite it; `x-forwarded-for` can have entries prepended by whoever is
@@ -143,15 +160,30 @@ export function checkRateLimit(request: Request): Rejection | null {
     globalCount = 0;
   }
 
+  if (globalHour !== utcHour(now)) {
+    globalHour = utcHour(now);
+    globalHourCount = 0;
+  }
+
+  /* Deliberately vague about these ceilings being global — "everyone else used it
+     up" invites someone to go and test that. */
   if (globalCount >= GLOBAL_DAY_MAX) {
     return {
       status: 429,
-      /* Deliberately vague about the ceiling being global — "everyone else used
-         it up" invites someone to test that. */
       message:
         "This chat has hit its limit for the day. Try tomorrow, or reach me on " +
         "LinkedIn and you'll get a better answer anyway.",
       retryAfter: 3600,
+    };
+  }
+
+  if (globalHourCount >= GLOBAL_HOUR_MAX) {
+    return {
+      status: 429,
+      message:
+        "This chat is busier than usual right now. Try again shortly, or reach me " +
+        "on LinkedIn.",
+      retryAfter: untilNextHour(now),
     };
   }
 
@@ -194,6 +226,7 @@ export function checkRateLimit(request: Request): Rejection | null {
   caller.dayCount += 1;
   callers.set(key, caller);
   globalCount += 1;
+  globalHourCount += 1;
 
   return null;
 }
