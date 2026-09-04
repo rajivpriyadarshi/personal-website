@@ -38,12 +38,18 @@ const TOPICS = [
   {
     label: "Work",
     questions: [
+      /* First, because it's the positioning. Rajiv is going after Head of Design,
+         and the differentiator — a design leader who still builds — is the thing
+         a visitor should hit before anything else. It replaced "are you a manager
+         or an IC these days?", which invited exactly the wrong answer: a question
+         framed as a binary gets answered as a binary, and "IC" is the least
+         useful true thing to say to someone sizing him up for the role. */
+      "Will you be a good head of design?",
       "What kind of work are you best at?",
       "Where would you not be a good fit?",
       "What are you building at Zinc right now?",
       "What did you own at LazyPay?",
       "How big a design team have you led?",
-      "Are you a manager or an IC these days?",
     ],
   },
   {
