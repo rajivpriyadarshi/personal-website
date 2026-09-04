@@ -52,11 +52,14 @@ const GLOBAL_DAY_MAX = 600;
    limit, and the daily number is what actually bounds the spend. */
 const GLOBAL_HOUR_MAX = 200;
 
-/* A thread this long is a scraper, not a conversation. */
+/* A thread this long is a scraper, not a conversation. Counts both roles, so it's
+   ten questions and their answers — worth knowing before raising it, because a
+   genuinely interested reader can reach ten. */
 const MAX_MESSAGES = 20;
 
 /* Long enough for a detailed question about a project, short enough that nobody
-   can paste a novel in and bill it to the model. */
+   can paste a novel in and bill it to the model. Applies to what the visitor
+   typed, not to the thread — see the loop in `checkRequestShape`. */
 const MAX_CHARS = 1500;
 
 /* Ceiling on the callers table, so rotating source addresses can't grow it
@@ -140,6 +143,15 @@ export function checkRequestShape(messages: unknown): Rejection | null {
   }
 
   for (const message of messages) {
+    /* User messages only. This guard is a paste ceiling, and the assistant's own
+       replies are already bounded by `MAX_OUTPUT_TOKENS` — but they run three
+       paragraphs, which clears 1500 characters comfortably. Measuring them too
+       meant one long answer poisoned the rest of the thread: every question after
+       it was refused as "longer than I can take in one go", including a
+       twenty-character follow-up, because the length that failed was the
+       assistant's, not the visitor's. */
+    if ((message as { role?: unknown })?.role !== "user") continue;
+
     const parts = (message as { parts?: unknown })?.parts;
     if (!Array.isArray(parts)) continue;
 
