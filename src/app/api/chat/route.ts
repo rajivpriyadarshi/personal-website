@@ -1,5 +1,5 @@
-import { google } from "@ai-sdk/google";
-import { openai } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
@@ -22,6 +22,25 @@ const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-5.4-mini";
  * a model whose free allowance is 20 requests/day; 3.6 has its own bucket. */
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.6-flash";
 
+/* Each SDK reads one hard-coded env name — `OPENAI_API_KEY` and
+ * `GOOGLE_GENERATIVE_AI_API_KEY` — and silently behaves as unconfigured under any
+ * other. The keys on Vercel are named for what they're for rather than for what
+ * the libraries expect, so the names are resolved here and passed explicitly.
+ *
+ * Standard name first, so a local `.env.local` or a future rename keeps working
+ * without touching this. Read inside the request rather than at module scope:
+ * these have to come from the running environment, not from whatever was set at
+ * build time.
+ *
+ * Values are never logged or returned — only their presence is, in the 500 below. */
+function readKeys() {
+  return {
+    openai: process.env.OPENAI_API_KEY ?? process.env.Openai_portfolio_key,
+    gemini:
+      process.env.GOOGLE_GENERATIVE_AI_API_KEY ?? process.env.Gemini_flash_lite_key,
+  };
+}
+
 /* The stream masks every failure as "An error occurred." by default, which is
  * the right instinct — upstream errors can carry request details — but it makes
  * the failures that actually happen indistinguishable from a bug. Quota and
@@ -42,9 +61,9 @@ function describeError(error: unknown) {
 
 type Turn = { system: string; messages: ModelMessage[] };
 
-function streamFromOpenAI({ system, messages }: Turn) {
+function streamFromOpenAI({ system, messages }: Turn, apiKey: string) {
   return streamText({
-    model: openai(OPENAI_MODEL),
+    model: createOpenAI({ apiKey })(OPENAI_MODEL),
     system,
     messages,
     providerOptions: {
@@ -61,9 +80,9 @@ function streamFromOpenAI({ system, messages }: Turn) {
   }).fullStream;
 }
 
-function streamFromGemini({ system, messages }: Turn) {
+function streamFromGemini({ system, messages }: Turn, apiKey: string) {
   return streamText({
-    model: google(GEMINI_MODEL),
+    model: createGoogleGenerativeAI({ apiKey })(GEMINI_MODEL),
     system,
     messages,
     providerOptions: {
@@ -154,15 +173,20 @@ function withFallback<T extends { type: string }>(
 }
 
 export async function POST(request: Request) {
-  const hasOpenAI = Boolean(process.env.OPENAI_API_KEY);
-  const hasGemini = Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY);
+  const keys = readKeys();
 
-  if (!hasOpenAI && !hasGemini) {
+  if (!keys.openai && !keys.gemini) {
     /* Fails loudly rather than as an opaque upstream 400 — this is the one
      * misconfiguration that will actually happen, on a fresh clone or a deploy
-     * where the env vars didn't make it. */
+     * where the env vars didn't make it. Names both accepted spellings, because
+     * the failure that already happened once was a key that was present under a
+     * name nothing reads. */
     return Response.json(
-      { error: "Set OPENAI_API_KEY or GOOGLE_GENERATIVE_AI_API_KEY." },
+      {
+        error:
+          "No model key found. Set OPENAI_API_KEY (or Openai_portfolio_key) " +
+          "and/or GOOGLE_GENERATIVE_AI_API_KEY (or Gemini_flash_lite_key).",
+      },
       { status: 500 },
     );
   }
@@ -178,20 +202,22 @@ export async function POST(request: Request) {
     messages: await convertToModelMessages(messages),
   };
 
+  /* OpenAI first whenever it's configured; Gemini is the backup, and only the
+     sole provider when there's no OpenAI key at all. */
   const stream =
-    hasOpenAI && hasGemini
+    keys.openai && keys.gemini
       ? withFallback(
-          streamFromOpenAI(turn),
-          () => streamFromGemini(turn),
+          streamFromOpenAI(turn, keys.openai),
+          () => streamFromGemini(turn, keys.gemini!),
           (error) =>
             console.warn(
               `[chat] ${OPENAI_MODEL} failed, falling back to ${GEMINI_MODEL}:`,
               error,
             ),
         )
-      : hasOpenAI
-        ? streamFromOpenAI(turn)
-        : streamFromGemini(turn);
+      : keys.openai
+        ? streamFromOpenAI(turn, keys.openai)
+        : streamFromGemini(turn, keys.gemini!);
 
   return createUIMessageStreamResponse({
     /* Reasoning is off by default in the UI stream — it has to be opted into. */
