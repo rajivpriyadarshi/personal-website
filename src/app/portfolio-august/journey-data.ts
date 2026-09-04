@@ -40,7 +40,7 @@ export const ROLES: Role[] = [
     logo: "/portfolio-august/journey/logos/lazypay.webp",
     bullets: [
       "Led product design across PayU’s credit products—combining hands-on execution with team leadership, design direction and product strategy.",
-      "Managed a team of product, illustration, and marketing designers while driving strategy across growth, revenue, retention, and cash loans — the revenue engine of the business — reaching 250M+ users.",
+      "Managed a team spanning product, research, content and brand design while driving strategy across growth, revenue, retention, and cash loans — the revenue engine of the business — reaching 250M+ users.",
     ],
   },
   {
