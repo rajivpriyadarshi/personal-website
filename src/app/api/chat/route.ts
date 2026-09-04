@@ -9,6 +9,7 @@ import {
   type UIMessage,
 } from "ai";
 import { SYSTEM_PROMPT } from "./persona";
+import { checkRateLimit, checkRequestShape, rejectionResponse } from "./rate-limit";
 
 /* Streaming answers outlast the default serverless window. */
 export const maxDuration = 30;
@@ -59,6 +60,29 @@ function describeError(error: unknown) {
   return "Something went wrong on my end. Try again in a moment.";
 }
 
+/* Bounds the cost of a single answer no matter what gets past everything else.
+ * Well above what the persona actually produces — answers run three short
+ * paragraphs — so it only ever truncates something pathological. */
+const MAX_OUTPUT_TOKENS = 900;
+
+/* Not security: an Origin header is set by the browser but trivially forged by
+ * anything that isn't one. It's here to turn away casual curl, scanners, and
+ * anyone wiring this endpoint into their own app — the traffic that has no
+ * business here and costs nothing to refuse. Requests with no Origin at all pass,
+ * because same-origin GET-turned-POST from some browsers omits it and I'd rather
+ * not break a real visitor to inconvenience a script. */
+function fromAnotherSite(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!origin) return false;
+
+  const host = request.headers.get("host");
+  try {
+    return new URL(origin).host !== host;
+  } catch {
+    return true;
+  }
+}
+
 type Turn = { system: string; messages: ModelMessage[] };
 
 function streamFromOpenAI({ system, messages }: Turn, apiKey: string) {
@@ -66,6 +90,7 @@ function streamFromOpenAI({ system, messages }: Turn, apiKey: string) {
     model: createOpenAI({ apiKey })(OPENAI_MODEL),
     system,
     messages,
+    maxOutputTokens: MAX_OUTPUT_TOKENS,
     providerOptions: {
       openai: {
         /* The summary is what the panel shows while the answer forms, so the
@@ -85,6 +110,7 @@ function streamFromGemini({ system, messages }: Turn, apiKey: string) {
     model: createGoogleGenerativeAI({ apiKey })(GEMINI_MODEL),
     system,
     messages,
+    maxOutputTokens: MAX_OUTPUT_TOKENS,
     providerOptions: {
       google: { thinkingConfig: { includeThoughts: true } },
     },
@@ -173,6 +199,13 @@ function withFallback<T extends { type: string }>(
 }
 
 export async function POST(request: Request) {
+  if (fromAnotherSite(request)) {
+    return rejectionResponse({
+      status: 403,
+      message: "This chat only answers from Rajiv's own site.",
+    });
+  }
+
   const keys = readKeys();
 
   if (!keys.openai && !keys.gemini) {
@@ -181,14 +214,12 @@ export async function POST(request: Request) {
      * where the env vars didn't make it. Names both accepted spellings, because
      * the failure that already happened once was a key that was present under a
      * name nothing reads. */
-    return Response.json(
-      {
-        error:
-          "No model key found. Set OPENAI_API_KEY (or Openai_portfolio_key) " +
-          "and/or GOOGLE_GENERATIVE_AI_API_KEY (or Gemini_flash_lite_key).",
-      },
-      { status: 500 },
-    );
+    return rejectionResponse({
+      status: 500,
+      message:
+        "No model key found. Set OPENAI_API_KEY (or Openai_portfolio_key) " +
+        "and/or GOOGLE_GENERATIVE_AI_API_KEY (or Gemini_flash_lite_key).",
+    });
   }
 
   /* AssistantChatTransport forwards a frontend `system` message alongside the
@@ -196,6 +227,11 @@ export async function POST(request: Request) {
    * can add page context but can't talk the assistant out of its rules. */
   const { messages, system }: { messages: UIMessage[]; system?: string } =
     await request.json();
+
+  /* Shape first, then the counters — a malformed request shouldn't eat into a
+     real visitor's allowance. */
+  const rejection = checkRequestShape(messages) ?? checkRateLimit(request);
+  if (rejection) return rejectionResponse(rejection);
 
   const turn: Turn = {
     system: system ? `${SYSTEM_PROMPT}\n\n${system}` : SYSTEM_PROMPT,
