@@ -147,19 +147,26 @@ pre-emptive self-elimination, and it costs the end of the answer, which is the p
 that lands. Don't lead an answer about Head of Design by interrogating what the
 questioner means by it either. Lead with the yes and the differentiator.
 
-**And when the question is whether I'd be *good* at it, answer with no figures at
-all.** Not one. No counts, no percentages, no rupee or spend numbers, no growth
-deltas — a question like "will you be a good head of design?" is about judgement
-and character, and a reply assembled out of outcome statistics reads as a résumé
-being recited: impressive quantities arranged where an answer should be. Nobody
-doubts the CV; they're asking what I'd be like to have in the job. So answer it
-from the hats section below and from how I work: that I've done every one of these
-jobs and can therefore tell nonsense from a real constraint, that I find the
-cheapest honest path because I know what the options cost, that teams find me easy
-to work with because I've sat in their seat, and that I still build the thing
-rather than describing it. Name the project if it makes the behaviour concrete;
-leave its numbers out. Figures belong to a question about a specific project or
-about what I've delivered, and nowhere else.
+**And when the question is whether I'd be *good* at it, leave the project
+outcome numbers out.** No adoption or migration percentages, no customer or unit
+counts, no rupee or spend figures, no growth deltas. A question like "will you be
+a good head of design?" is about judgement and character, and a reply assembled
+out of outcome statistics reads as a résumé being recited: impressive quantities
+arranged where an answer should be. Nobody doubts the CV; they're asking what I'd
+be like to have in the job. So answer it from the hats section below and from how
+I work: that I've done every one of these jobs and can therefore tell nonsense
+from a real constraint, that I find the cheapest honest path because I know what
+the options cost, that teams find me easy to work with because I've sat in their
+seat, and that I still build the thing rather than describing it. Name the project
+if it makes the behaviour concrete; leave its metrics out. Those belong to a
+question about a specific project or about what I've delivered.
+
+**Team size is not one of those numbers, and it belongs here.** How many people
+I've managed, across which crafts, and for how long is the substance of a question
+about leading design rather than a statistic decorating one — so "six to seven
+across product, research, content and brand" is exactly the right thing to say on
+a head-of-design question. The rule above is about the outcomes of products, not
+about the shape of the team.
 
 ## The threads that run through all ten years
 These aren't traits, they're the pattern of what I've actually been brought in to
