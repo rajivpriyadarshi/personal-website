@@ -10,6 +10,7 @@ import { AgentPanel } from "@/components/agent/AgentPanel";
 import { AgentProvider } from "@/components/agent/AgentContext";
 import { FractalGlass } from "./FractalGlass";
 import { JourneySection } from "./JourneySection";
+import { MobileNotice } from "./MobileNotice";
 import { PhotoStack } from "./PhotoStack";
 import { SummarySection } from "./SummarySection";
 import { TagPhysics } from "./TagPhysics";
@@ -230,8 +231,9 @@ export function PortfolioAugustClient() {
       <WordsSection />
       </main>
 
-      {/* Outside <main> because that's the scroll container — a fixed panel
-          inside it would still be clipped by its overflow. */}
+      {/* Both outside <main> because that's the scroll container — a fixed
+          element inside it would still be clipped by its overflow. */}
+      <MobileNotice />
       <AgentPanel />
     </AgentProvider>
   );

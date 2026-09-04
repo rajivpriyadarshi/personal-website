@@ -3281,3 +3281,82 @@
     display: none;
   }
 }
+
+/* ---------------------------------------------------------------
+ * "Not optimised for mobile yet" bar
+ * --------------------------------------------------------------- */
+
+/* Hidden outright above the phone breakpoint. The component always renders it,
+   so this is the only thing deciding whether a desktop visitor ever sees it —
+   which is deliberate: a width check in JS can't run until hydration, and would
+   flash the bar across a desktop for a frame.
+
+   Below the agent panel's z-index, so opening the assistant covers the bar
+   rather than leaving it floating over the conversation. */
+.mobileNotice {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .mobileNotice {
+    position: fixed;
+    right: 12px;
+    /* Clears the iOS home indicator and Chrome's collapsing address bar. */
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 12px 11px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    background: rgba(24, 24, 27, 0.82);
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
+    backdrop-filter: blur(12px) saturate(120%);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.45);
+    color: rgba(255, 255, 255, 0.92);
+    font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.3;
+    /* Parked below its own resting place and inert, so it can animate in when
+       the hero leaves. Not display:none — there'd be nothing to transition
+       from — and pointer-events keeps the parked bar from eating taps on the
+       section behind it. */
+    translate: 0 calc(100% + 24px);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      translate 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 240ms ease;
+  }
+
+  .mobileNoticeVisible {
+    translate: 0 0;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobileNotice button {
+    display: grid;
+    flex: none;
+    /* 32px of tappable area around a 14px glyph — the icon is the size that
+       looks right, this is the size a thumb needs. */
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: inherit;
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobileNotice {
+    transition: none;
+  }
+}
