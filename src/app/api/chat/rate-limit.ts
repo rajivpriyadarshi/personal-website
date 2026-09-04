@@ -5,11 +5,12 @@
  * Without a limit, one loop from one machine can spend real money.
  *
  * What's actually being protected is tokens, not requests. Every call resends the
- * whole corpus as the system prompt — ~23k tokens, measured from the input usage a
- * real turn reports — and the reply is small next to that. So the cost of a request
- * is roughly fixed and roughly all input, which is why there's an input cap here as
- * well as a request cap: someone sending one enormous message is more expensive
- * than someone sending fifty normal ones.
+ * corpus as the system prompt — ~14.8k tokens for most questions, up to ~18.5k when
+ * a full case-study write-up is attached — and the reply is small next to that:
+ * around 470 output tokens against 14,800 input, measured from real turns. So the
+ * cost of a request is roughly fixed and roughly all input, which is why there's an
+ * input cap here as well as a request cap: someone sending one enormous message is
+ * more expensive than someone sending fifty normal ones.
  *
  * Counters live in memory, deliberately. The alternative is Redis, which is more
  * accurate — memory resets on cold start, and each serverless instance counts on
@@ -34,10 +35,10 @@ const WINDOW_MAX = 40;
 const DAY_MAX = 200;
 
 /* Across everyone. This is the spend ceiling, and the only limit that holds when
-   the traffic is distributed rather than from one address. At ~23k input tokens a
-   request it bounds the worst possible day to something like 14M tokens, most of
-   which should land on OpenAI's automatic prefix cache, since the corpus in front
-   of every request is byte-identical. */
+   the traffic is distributed rather than from one address. At ~15k input tokens a
+   request it bounds the worst possible day to roughly 9M tokens, most of which
+   should land on the provider's automatic prefix cache, since everything ahead of
+   the case-study tail is byte-identical on every request. */
 const GLOBAL_DAY_MAX = 600;
 
 /* A burst brake in front of the daily ceiling. Without it a script can drain the

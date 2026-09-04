@@ -10,7 +10,7 @@ import {
 } from "ai";
 import { recordAnswer, recordQuestion } from "./analytics";
 import { persistTurn, type Turn as Transcript } from "./transcript";
-import { SYSTEM_PROMPT } from "./persona";
+import { systemPrompt } from "./persona";
 import { checkRateLimit, checkRequestShape, rejectionResponse } from "./rate-limit";
 
 /* Streaming answers outlast the default serverless window. */
@@ -322,8 +322,20 @@ export async function POST(request: Request) {
      then fails — the questions nobody could answer are the interesting ones. */
   const { recorder, silenceFailure } = recorderFor(recordQuestion(messages));
 
+  /* Every question the visitor has asked, which is what decides whether a full
+     case-study write-up gets attached. The assistant's own replies are left out on
+     purpose: an answer that mentions LazyCard in passing would otherwise pin 900
+     tokens of it to the rest of the conversation. */
+  const asked = messages
+    .filter((message) => message.role === "user")
+    .flatMap((message) => message.parts)
+    .map((part) => (part.type === "text" ? part.text : ""))
+    .join(" ");
+
+  const brief = systemPrompt(asked);
+
   const turn: Turn = {
-    system: system ? `${SYSTEM_PROMPT}\n\n${system}` : SYSTEM_PROMPT,
+    system: system ? `${brief}\n\n${system}` : brief,
     messages: await convertToModelMessages(messages),
   };
 

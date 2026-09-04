@@ -14,6 +14,17 @@
 export type CaseStudy = {
   /** Title in `projects.ts` this expands on, if there is one. */
   project?: string;
+  /* Words a visitor would actually use to ask about this project, matched against
+   * the conversation to decide whether the write-up is worth sending. Nearly half
+   * the assistant's prompt is these six bodies, and at most one of them is ever
+   * relevant — see `caseStudyTail` in `lib/agent/corpus.ts`.
+   *
+   * Keep them narrow. A cue broad enough to fire on a general question ("design",
+   * "ambiguity", "redesign") costs thousands of tokens on every unrelated turn,
+   * which is the exact thing this exists to stop. Missing a match is the cheap
+   * failure: the project still has its line in the index, and the assistant is
+   * already told to give that line and say it's the short version. */
+  cues: string[];
   company: string;
   title: string;
   period: string;
@@ -24,6 +35,7 @@ export type CaseStudy = {
 };
 
 const LAZYPAY_REVOLVE: CaseStudy = {
+  cues: ["repayment", "repayments", "repay", "revolve", "autopay", "auto-debit", "collections", "overdue", "minimum due", "due date", "emi"],
   project: "Repayment Experience",
   company: "LazyPay by PayU",
   title: "Redesigning repayments at LazyPay (Revolve)",
@@ -227,6 +239,7 @@ behaviour.`,
  * which is adjacent but not the same thing, so claiming the match would be a
  * small lie. Worth adding a LazyCard line to the index. */
 const LAZYCARD: CaseStudy = {
+  cues: ["lazycard", "credit card", "325k", "325,000", "card launch"],
   company: "LazyPay by PayU",
   title: "Building LazyPay's credit card from 0 to 325K customers (LazyCard)",
   period: "Programme ran Nov 2020 – Nov 2022",
@@ -328,6 +341,7 @@ performance.`,
 };
 
 const ELEVATE: CaseStudy = {
+  cues: ["elevate", "design system", "design language", "component library", "design tokens"],
   project: "Common Design System",
   company: "LazyPay by PayU",
   title: "Elevate — LazyPay's unified design language",
@@ -385,6 +399,7 @@ Q2 FY24.`,
 };
 
 const ZINC_ADA: CaseStudy = {
+  cues: ["ada", "counsellor", "counselor", "wealth", "global indians", "nri"],
   project: "Zinc Ada (the whole group in the index, plus Zinc Wealth)",
   company: "Zinc",
   title: "Building wealth for global Indians, and Ada, the AI counsellor in front of it",
@@ -536,6 +551,7 @@ implementing quickly.`,
 };
 
 const LAZYPAY_APP_REVAMP: CaseStudy = {
+  cues: ["homepage", "home page", "app revamp", "super app", "credit limit", "paylater", "pay later", "beyond paylater", "app redesign"],
   project: "LazyPay App Revamp",
   company: "LazyPay by PayU",
   title: "Redesigning India's credit super app — LazyPay beyond PayLater",
@@ -874,6 +890,7 @@ system for the products it hadn't launched yet.`,
  * Rajiv is explicit that the current product isn't proven. The assistant needs to
  * carry that caveat, so it's stated inside the body rather than left to inference. */
 const ZINC_2: CaseStudy = {
+  cues: ["zinc 2.0", "zinc 2", "twelve", "12 opportunities", "12+ opportunities", "dozen", "what to build next", "opportunity space"],
   project:
     "Most of the Zinc groups in the index — the AI wealth work, Volo, the agent " +
     "infrastructure, Donna, the community experiments and the tech-worker wealth " +

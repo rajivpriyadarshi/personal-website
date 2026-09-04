@@ -5,10 +5,27 @@
  * the assistant in the same commit. The one exception is `src/content/`, which
  * holds facts that have no home in the UI at all (contact details, boundaries).
  *
- * This runs once at module scope, not per request — the string is byte-identical
- * on every call, which also means Gemini's implicit prefix caching can do its
- * job. At roughly 23k tokens it's about 2% of Flash's context window, so there's
- * no retrieval step and therefore no chance of retrieving the wrong thing.
+ * The prompt is in two pieces, and the split is about cost, not context limits.
+ *
+ * `CORPUS` is everything that's worth sending on every turn. It's built once at
+ * module scope and is byte-identical on every call, which is what lets OpenAI's
+ * and Gemini's automatic prefix caching apply — cached input bills at a fraction
+ * of the full rate, so a stable prefix is worth more than a short one.
+ *
+ * `caseStudyTail()` is the part that isn't worth sending every time. The six full
+ * write-ups measured ~12,000 of the ~26,700 tokens a request was carrying — 45% of
+ * the prompt — and at most one of them is relevant to any given question. So they
+ * go at the end, and only when the conversation is about them.
+ *
+ * At the end specifically, and this is the load-bearing detail: caching matches the
+ * longest identical *prefix*. Anything after a varying block is uncacheable, so a
+ * tail that moved to the middle would trade a reliable cache hit for a smaller
+ * prompt — usually a net loss. Keep the variable part last.
+ *
+ * There's still no retrieval in the usual sense. A miss doesn't produce a wrong
+ * answer, it produces the project's one-line summary plus "that's the short
+ * version" — which is what the assistant is already instructed to say about every
+ * project that has no write-up.
  *
  * Server-only: imported by the chat route, never by a client component. */
 
@@ -103,34 +120,64 @@ function projectsSection() {
 
   return [
     "## Named projects, by company",
-    "The full index. Some of these shipped, some were explorations that didn't. Where a project has a written brief further down, use it. Where all you have is the one line below, give them that line and say it's the summary you have — don't extrapolate a case study out of a title, and don't send them off to another page.",
+    "The full index. Some of these shipped, some were explorations that didn't. Where a full write-up is attached at the very end of this material, use it — that's the whole story for that project. Otherwise the one line below is genuinely all you have: give them that line, say it's the summary you have, and stop. Don't extrapolate a case study out of a title, and don't send them off to another page. Never remark on which write-ups you were or weren't given, or on how this material is assembled — from where you sit, what's in front of you is simply what you know.",
     entries.join("\n\n"),
   ].join("\n\n");
 }
 
-/* The few projects with a real write-up. Placed after the index so the model has
- * already seen the one-liner these expand on. */
-function caseStudiesSection() {
-  const entries = CASE_STUDIES.map((study) =>
+function writeUp(study: (typeof CASE_STUDIES)[number]) {
+  return [
+    `### ${study.title}`,
     [
-      `### ${study.title}`,
-      [
-        `Company: ${study.company}`,
-        `When: ${study.period}`,
-        `My role: ${study.role}`,
-        `Team: ${study.team}`,
-        study.project ? `Listed in the project index as: ${study.project}` : "",
-      ]
-        .filter(Boolean)
-        .join("\n"),
-      study.body,
-    ].join("\n\n"),
-  );
+      `Company: ${study.company}`,
+      `When: ${study.period}`,
+      `My role: ${study.role}`,
+      `Team: ${study.team}`,
+      study.project ? `Listed in the project index as: ${study.project}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    study.body,
+  ].join("\n\n");
+}
+
+/* Matched on whole words, so "ada" doesn't fire on "adapt" and "emi" doesn't fire
+ * on "premium" — the kind of match that would quietly put 2,000 tokens of
+ * repayment mechanics behind a question about design systems. Built once per study
+ * rather than per request. */
+const CUES = CASE_STUDIES.map((study) => ({
+  study,
+  pattern: new RegExp(
+    study.cues
+      .map((cue) => cue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+      .map((cue) => `\\b${cue}\\b`)
+      .join("|"),
+    "i",
+  ),
+}));
+
+/* Two at most. A question that trips three cues is a question about a career, not
+ * about a project, and sending everything would defeat the point. */
+const MAX_STUDIES = 2;
+
+/* The write-ups the conversation has earned, or "" for the great majority of turns
+ * that don't need any.
+ *
+ * Matched against every question in the thread rather than only the latest, for two
+ * reasons. "Tell me more about that" carries no cues of its own and would otherwise
+ * drop the write-up mid-conversation. And keeping the tail identical across a thread
+ * means the whole prompt stays cacheable turn to turn, not just the prefix. */
+export function caseStudyTail(conversation: string) {
+  const matched = CUES.filter(({ pattern }) => pattern.test(conversation))
+    .slice(0, MAX_STUDIES)
+    .map(({ study }) => study);
+
+  if (matched.length === 0) return "";
 
   return [
     "## Projects I've written up in full",
-    "These are the only projects where you have the whole story — the constraint, the trade-offs, the testing, the numbers. Answer from here in detail when one of them comes up, and use the specifics: they're the reason these answers land. Quote the figures exactly as written; don't round them, invent new ones, or imply a result that isn't stated. Every other project has just its line in the index above.",
-    entries.join("\n\n"),
+    "This is where you have the whole story — the constraint, the trade-offs, the testing, the numbers — for the project or two below, because it's what the conversation is about. Answer in detail and use the specifics: they're the reason these answers land. Quote the figures exactly as written; don't round them, invent new ones, or imply a result that isn't stated. Every other project has only its line in the index above.",
+    matched.map(writeUp).join("\n\n"),
   ].join("\n\n");
 }
 
@@ -186,7 +233,6 @@ function buildCorpus() {
     journeySection(),
     capabilitiesSection(),
     projectsSection(),
-    caseStudiesSection(),
     plannedSection(),
     testimonialsSection(),
     "## Getting in touch",

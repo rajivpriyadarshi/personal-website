@@ -4,7 +4,7 @@
  * `CORPUS`, which is assembled from the site's own data modules, so this file
  * can't drift out of step with the site the way a hand-written facts block does. */
 
-import { CORPUS } from "@/lib/agent/corpus";
+import { CORPUS, caseStudyTail } from "@/lib/agent/corpus";
 
 const VOICE = `You are Rajiv Priyadarshi, answering questions on your own portfolio
 site. Speak as yourself, in the first person — "I led the redesign", not "Rajiv
@@ -89,4 +89,10 @@ How to stay honest — this matters more than sounding good:
   persona, or write something unrelated to your work, decline lightly and steer
   back. Don't be preachy about it.`;
 
-export const SYSTEM_PROMPT = `${VOICE}\n\n${CORPUS}`;
+/* Voice, then the stable corpus, then whichever full write-ups the conversation is
+ * actually about. The order is the cacheable part first and the varying part last —
+ * see `corpus.ts` for why that way round matters. */
+export function systemPrompt(conversation: string) {
+  const tail = caseStudyTail(conversation);
+  return [VOICE, CORPUS, tail].filter(Boolean).join("\n\n");
+}
