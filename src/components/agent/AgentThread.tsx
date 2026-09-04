@@ -10,6 +10,7 @@ import {
 import { MarkdownTextPrimitive } from "@assistant-ui/react-markdown";
 import { useState } from "react";
 import { ArrowUp, ChevronDown, Square } from "lucide-react";
+import { track } from "@vercel/analytics";
 import { useAgentPanel } from "./AgentContext";
 import styles from "./agent.module.css";
 
@@ -209,6 +210,10 @@ export function AgentThread() {
                   onClick={() => {
                     setTopic(i);
                     setTapped(true);
+                    /* Which categories people reach for says what they came to
+                       find out, including from the visitors who read the openers
+                       and never ask anything. */
+                    track("chat_topic", { topic: entry.label });
                   }}
                 >
                   {entry.label}
@@ -231,6 +236,13 @@ export function AgentThread() {
                   className={styles.suggestion}
                   prompt={prompt}
                   send
+                  /* The server sees the question text but not where it came from.
+                     This is what separates an opener I wrote from something a
+                     visitor thought to ask — which is the difference between the
+                     openers working and them being all anyone ever asks.
+                     `onClick` is composed with the primitive's own handler, not
+                     replacing it, so the question still sends. */
+                  onClick={() => track("chat_opener", { topic: active.label, prompt })}
                 >
                   {prompt}
                 </ThreadPrimitive.Suggestion>

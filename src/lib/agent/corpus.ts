@@ -7,7 +7,7 @@
  *
  * This runs once at module scope, not per request — the string is byte-identical
  * on every call, which also means Gemini's implicit prefix caching can do its
- * job. At roughly 20k tokens it's about 2% of Flash's context window, so there's
+ * job. At roughly 23k tokens it's about 2% of Flash's context window, so there's
  * no retrieval step and therefore no chance of retrieving the wrong thing.
  *
  * Server-only: imported by the chat route, never by a client component. */

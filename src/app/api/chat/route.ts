@@ -8,6 +8,7 @@ import {
   type ModelMessage,
   type UIMessage,
 } from "ai";
+import { recordAnswer, recordQuestion } from "./analytics";
 import { SYSTEM_PROMPT } from "./persona";
 import { checkRateLimit, checkRequestShape, rejectionResponse } from "./rate-limit";
 
@@ -86,11 +87,23 @@ function fromAnotherSite(request: Request) {
 type Turn = { system: string; messages: ModelMessage[] };
 
 function streamFromOpenAI({ system, messages }: Turn, apiKey: string) {
+  const startedAt = Date.now();
+
   return streamText({
     model: createOpenAI({ apiKey })(OPENAI_MODEL),
     system,
     messages,
     maxOutputTokens: MAX_OUTPUT_TOKENS,
+    onFinish: (result) =>
+      recordAnswer({
+        provider: "openai",
+        model: OPENAI_MODEL,
+        fellBack: false,
+        answer: result.text,
+        ms: Date.now() - startedAt,
+        inputTokens: result.usage.inputTokens,
+        outputTokens: result.usage.outputTokens,
+      }),
     providerOptions: {
       openai: {
         /* The summary is what the panel shows while the answer forms, so the
@@ -105,12 +118,27 @@ function streamFromOpenAI({ system, messages }: Turn, apiKey: string) {
   }).fullStream;
 }
 
-function streamFromGemini({ system, messages }: Turn, apiKey: string) {
+/* `fellBack` distinguishes Gemini serving a turn because OpenAI broke from Gemini
+ * serving it because it's the only key configured. Only the first is a problem, and
+ * only the logs can tell the difference — the visitor sees an answer either way. */
+function streamFromGemini({ system, messages }: Turn, apiKey: string, fellBack = false) {
+  const startedAt = Date.now();
+
   return streamText({
     model: createGoogleGenerativeAI({ apiKey })(GEMINI_MODEL),
     system,
     messages,
     maxOutputTokens: MAX_OUTPUT_TOKENS,
+    onFinish: (result) =>
+      recordAnswer({
+        provider: "google",
+        model: GEMINI_MODEL,
+        fellBack,
+        answer: result.text,
+        ms: Date.now() - startedAt,
+        inputTokens: result.usage.inputTokens,
+        outputTokens: result.usage.outputTokens,
+      }),
     providerOptions: {
       google: { thinkingConfig: { includeThoughts: true } },
     },
@@ -233,6 +261,10 @@ export async function POST(request: Request) {
   const rejection = checkRequestShape(messages) ?? checkRateLimit(request);
   if (rejection) return rejectionResponse(rejection);
 
+  /* Recorded before the model runs, so a question is captured even if answering it
+     then fails — the questions nobody could answer are the interesting ones. */
+  recordQuestion(messages);
+
   const turn: Turn = {
     system: system ? `${SYSTEM_PROMPT}\n\n${system}` : SYSTEM_PROMPT,
     messages: await convertToModelMessages(messages),
@@ -244,7 +276,7 @@ export async function POST(request: Request) {
     keys.openai && keys.gemini
       ? withFallback(
           streamFromOpenAI(turn, keys.openai),
-          () => streamFromGemini(turn, keys.gemini!),
+          () => streamFromGemini(turn, keys.gemini!, true),
           (error) =>
             console.warn(
               `[chat] ${OPENAI_MODEL} failed, falling back to ${GEMINI_MODEL}:`,

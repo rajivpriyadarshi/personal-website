@@ -5,10 +5,11 @@
  * Without a limit, one loop from one machine can spend real money.
  *
  * What's actually being protected is tokens, not requests. Every call resends the
- * whole corpus as the system prompt (~20k tokens), and the reply is small next to
- * that. So the cost of a request is roughly fixed and roughly all input, which is
- * why there's an input cap here as well as a request cap: someone sending one
- * enormous message is more expensive than someone sending fifty normal ones.
+ * whole corpus as the system prompt — ~23k tokens, measured from the input usage a
+ * real turn reports — and the reply is small next to that. So the cost of a request
+ * is roughly fixed and roughly all input, which is why there's an input cap here as
+ * well as a request cap: someone sending one enormous message is more expensive
+ * than someone sending fifty normal ones.
  *
  * Counters live in memory, deliberately. The alternative is Redis, which is more
  * accurate — memory resets on cold start, and each serverless instance counts on
@@ -19,16 +20,22 @@
  * dependency, no config, nothing to keep paid for.
  */
 
-/* Per caller. Ten in five minutes is already generous — a real visitor spends
-   20–30 seconds reading a three-paragraph answer — and forty in a day is more
-   than anyone genuinely curious will ask. */
+/* Per caller, set high on purpose. Traffic here is low and high-intent — someone
+   who found this site and opened the chat is probably deciding whether to hire
+   Rajiv — and the whole point is a long conversation. A limit that interrupts the
+   fifteenth question punishes exactly the visitor worth having.
+
+   So this isn't a conversation limit any more, it's a loop brake: 40 in five
+   minutes is a rate no human reading answers can reach (three paragraphs takes
+   20–30 seconds to read, so a fast reader tops out around 12), while a script
+   crosses it in seconds. 200 a day is likewise past any real session. */
 const WINDOW_MS = 5 * 60_000;
-const WINDOW_MAX = 10;
-const DAY_MAX = 40;
+const WINDOW_MAX = 40;
+const DAY_MAX = 200;
 
 /* Across everyone. This is the spend ceiling, and the only limit that holds when
-   the traffic is distributed rather than from one address. At ~20k input tokens a
-   request it bounds the worst possible day to something like 12M tokens, most of
+   the traffic is distributed rather than from one address. At ~23k input tokens a
+   request it bounds the worst possible day to something like 14M tokens, most of
    which should land on OpenAI's automatic prefix cache, since the corpus in front
    of every request is byte-identical. */
 const GLOBAL_DAY_MAX = 600;
@@ -204,8 +211,8 @@ export function checkRateLimit(request: Request): Rejection | null {
     return {
       status: 429,
       message:
-        "You've asked a lot of questions today — more than I'd planned for, which " +
-        "I'll take as a compliment. Come back tomorrow, or message me on LinkedIn.",
+        "You've asked more questions today than I'd planned for, which I'll take " +
+        "as a compliment. Come back tomorrow, or message me on LinkedIn.",
       retryAfter: 3600,
     };
   }
