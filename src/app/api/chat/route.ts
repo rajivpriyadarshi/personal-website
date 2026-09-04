@@ -9,6 +9,7 @@ import {
   type UIMessage,
 } from "ai";
 import { recordAnswer, recordQuestion } from "./analytics";
+import { persistTurn, type Turn as Transcript } from "./transcript";
 import { SYSTEM_PROMPT } from "./persona";
 import { checkRateLimit, checkRequestShape, rejectionResponse } from "./rate-limit";
 
@@ -86,7 +87,48 @@ function fromAnotherSite(request: Request) {
 
 type Turn = { system: string; messages: ModelMessage[] };
 
-function streamFromOpenAI({ system, messages }: Turn, apiKey: string) {
+/* How a provider reports the outcome of a turn to the durable transcript.
+ *
+ * Split into two calls rather than one because the two outcomes arrive from
+ * different SDK callbacks, and because a provider isn't always allowed to report
+ * its own failure — see `recorderFor`. */
+type Recorder = {
+  finish: (fields: Partial<Transcript>) => void;
+  fail: (error: unknown) => void;
+};
+
+/* One transcript row per turn, whichever provider ends up producing it.
+ *
+ * The latch is the point. With a fallback configured, a turn can raise an error
+ * from OpenAI and then a perfectly good answer from Gemini, and it's one turn —
+ * the visitor asked once. First outcome to settle wins, and the primary's failure
+ * is deliberately not one of them, because `withFallback` is about to make it
+ * moot. `silenceFailure` is how the primary gets a recorder that reports success
+ * and swallows the error it recovered from.
+ *
+ * A null `pending` means the request had no question text worth recording, so
+ * there's no row to complete either. */
+function recorderFor(pending: Transcript | null) {
+  let settled = false;
+
+  const record = (fields: Partial<Transcript>) => {
+    if (settled || !pending) return;
+    settled = true;
+    persistTurn({ ...pending, ...fields });
+  };
+
+  return {
+    recorder: {
+      finish: record,
+      fail: (error: unknown) => record({ error: String(error) }),
+    } satisfies Recorder,
+    silenceFailure(): Recorder {
+      return { finish: record, fail: () => {} };
+    },
+  };
+}
+
+function streamFromOpenAI({ system, messages }: Turn, apiKey: string, record: Recorder) {
   const startedAt = Date.now();
 
   return streamText({
@@ -94,8 +136,8 @@ function streamFromOpenAI({ system, messages }: Turn, apiKey: string) {
     system,
     messages,
     maxOutputTokens: MAX_OUTPUT_TOKENS,
-    onFinish: (result) =>
-      recordAnswer({
+    onFinish: (result) => {
+      const outcome = {
         provider: "openai",
         model: OPENAI_MODEL,
         fellBack: false,
@@ -103,7 +145,12 @@ function streamFromOpenAI({ system, messages }: Turn, apiKey: string) {
         ms: Date.now() - startedAt,
         inputTokens: result.usage.inputTokens,
         outputTokens: result.usage.outputTokens,
-      }),
+      };
+
+      recordAnswer(outcome);
+      record.finish(outcome);
+    },
+    onError: ({ error }) => record.fail(error),
     providerOptions: {
       openai: {
         /* The summary is what the panel shows while the answer forms, so the
@@ -121,7 +168,12 @@ function streamFromOpenAI({ system, messages }: Turn, apiKey: string) {
 /* `fellBack` distinguishes Gemini serving a turn because OpenAI broke from Gemini
  * serving it because it's the only key configured. Only the first is a problem, and
  * only the logs can tell the difference — the visitor sees an answer either way. */
-function streamFromGemini({ system, messages }: Turn, apiKey: string, fellBack = false) {
+function streamFromGemini(
+  { system, messages }: Turn,
+  apiKey: string,
+  record: Recorder,
+  fellBack = false,
+) {
   const startedAt = Date.now();
 
   return streamText({
@@ -129,8 +181,8 @@ function streamFromGemini({ system, messages }: Turn, apiKey: string, fellBack =
     system,
     messages,
     maxOutputTokens: MAX_OUTPUT_TOKENS,
-    onFinish: (result) =>
-      recordAnswer({
+    onFinish: (result) => {
+      const outcome = {
         provider: "google",
         model: GEMINI_MODEL,
         fellBack,
@@ -138,7 +190,12 @@ function streamFromGemini({ system, messages }: Turn, apiKey: string, fellBack =
         ms: Date.now() - startedAt,
         inputTokens: result.usage.inputTokens,
         outputTokens: result.usage.outputTokens,
-      }),
+      };
+
+      recordAnswer(outcome);
+      record.finish(outcome);
+    },
+    onError: ({ error }) => record.fail(error),
     providerOptions: {
       google: { thinkingConfig: { includeThoughts: true } },
     },
@@ -263,7 +320,7 @@ export async function POST(request: Request) {
 
   /* Recorded before the model runs, so a question is captured even if answering it
      then fails — the questions nobody could answer are the interesting ones. */
-  recordQuestion(messages);
+  const { recorder, silenceFailure } = recorderFor(recordQuestion(messages));
 
   const turn: Turn = {
     system: system ? `${SYSTEM_PROMPT}\n\n${system}` : SYSTEM_PROMPT,
@@ -275,8 +332,8 @@ export async function POST(request: Request) {
   const stream =
     keys.openai && keys.gemini
       ? withFallback(
-          streamFromOpenAI(turn, keys.openai),
-          () => streamFromGemini(turn, keys.gemini!, true),
+          streamFromOpenAI(turn, keys.openai, silenceFailure()),
+          () => streamFromGemini(turn, keys.gemini!, recorder, true),
           (error) =>
             console.warn(
               `[chat] ${OPENAI_MODEL} failed, falling back to ${GEMINI_MODEL}:`,
@@ -284,8 +341,8 @@ export async function POST(request: Request) {
             ),
         )
       : keys.openai
-        ? streamFromOpenAI(turn, keys.openai)
-        : streamFromGemini(turn, keys.gemini!);
+        ? streamFromOpenAI(turn, keys.openai, recorder)
+        : streamFromGemini(turn, keys.gemini!, recorder);
 
   return createUIMessageStreamResponse({
     /* Reasoning is off by default in the UI stream — it has to be opted into. */

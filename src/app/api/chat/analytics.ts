@@ -45,16 +45,21 @@ const textOf = (message: UIMessage | undefined) =>
     .trim();
 
 /* Called once a request is admitted, before the model runs — so a question is
- * recorded even if the answer then fails. */
+ * recorded even if the answer then fails.
+ *
+ * Returns the record it built, because the durable transcript stores one row per
+ * turn with the question and the answer together — and only the caller knows which
+ * answer belongs to which question. */
 export function recordQuestion(messages: UIMessage[]) {
   const question = textOf(messages.at(-1));
-  if (!question) return;
+  if (!question) return null;
 
   /* Turn 1 is a fresh conversation; anything higher means they kept going, which
      is the single most useful number in here. */
   const turn = messages.filter((message) => message.role === "user").length;
 
   log({ event: "question", turn, chars: question.length, question });
+  const at = new Date().toISOString();
   send("chat_question", {
     turn,
     question: question.slice(0, EVENT_TEXT_MAX),
@@ -62,6 +67,8 @@ export function recordQuestion(messages: UIMessage[]) {
        so the funnel is one filter rather than an arithmetic exercise. */
     opening: turn === 1,
   });
+
+  return { at, turn, question };
 }
 
 /* Called when a provider finishes a turn. `fellBack` is what shows whether OpenAI
