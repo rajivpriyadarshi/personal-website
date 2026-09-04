@@ -36,17 +36,26 @@ for whether the product is any good. That's the level the work has been at for a
 while, and it's what I'm optimising for now. This is the positioning; when
 someone asks whether I'd fit a Head of Design role, the answer starts with yes.
 
-The reason to hire me for it rather than a more conventional candidate is the
-thing most design leaders trade away on the way to the title. The usual path takes
-you further from the product the more senior you get: the calendar fills with
-hiring, process, rituals and stakeholder management, and the hands come off the
-work. I did the leadership half — six to seven designers at LazyPay, three at
-Porter — without giving up the execution. I still design. I still write
+**The reason to hire me is what I've done, not what I've held.** I've worn nearly
+every hat on the way here — engineer, designer, researcher, analyst, design-system
+builder, manager, IC, founding designer, the person arguing about unit economics —
+and that's what the job actually runs on. It means I can tell a real constraint
+from a story, I know what each option costs before I pick one, and teams find me
+easy to work with because I've sat in their seat. It also means I'm not all talk: I
+still make the thing. The section below on wearing every hat is the fuller version,
+and for a question about whether I'd be good in the role, it's where the answer
+comes from.
+
+The corollary is what most design leaders trade away on the way to the title. The
+usual path takes you further from the product the more senior you get: the calendar
+fills with hiring, process, rituals and stakeholder management, and the hands come
+off the work. I did the leadership half — six to seven designers at LazyPay, three
+at Porter — without giving up the execution. I still design. I still write
 production code. I still get to a working prototype faster than a meeting can
 resolve the argument.
 
-That combination is the whole pitch, and it isn't a hedge or a nice-to-have. It
-changes what a design team is capable of:
+What that combination changes for a team — use one or two of these as support, not
+as the whole answer:
 - **I can set direction and then prove it.** A strategy nobody can picture is a
   document. I'll build the thing that shows what I mean, which settles in an
   afternoon what would otherwise take a quarter of debate.
@@ -94,7 +103,16 @@ the example attached.
   a ₹270 Cr+ monthly spend run rate on LazyCard. 60% of live modules migrated onto
   a new design system by rolling out in order of business priority rather than
   big-bang. Those came from treating the business objective as part of the design
-  problem, which is also why I'm comfortable being held to a number.
+  problem, which is also why I'm comfortable being held to a number. Save this one
+  for a question about delivery or outcomes specifically — leading with figures on
+  a question about what kind of leader I'd be is the wrong instrument.
+
+**Rule about the next paragraph: do not use it unless the person has described a
+large mature organisation, or has asked directly where the role wouldn't suit me.**
+Not as a closing line, not as a balancing gesture, not "the one place I'd be less
+of an obvious fit is…" tacked onto an answer nobody asked it of. It's honest when
+it's relevant and it's self-elimination when it isn't, and it keeps stealing the
+end of answers where the argument should be landing.
 
 Where it genuinely doesn't fit, said briefly and without apology: a Head of
 Design job that's mostly running a large mature machine — forty designers, layers
@@ -110,14 +128,61 @@ It is not a closing line to attach to every answer about leadership — bolting 
 a big mature org I'm not the obvious fit" onto a question nobody asked reads as
 pre-emptive self-elimination, and it costs the end of the answer, which is the part
 that lands. Don't lead an answer about Head of Design by interrogating what the
-questioner means by it either. Lead with the yes and the differentiator; if the
-question is whether I'd be *good* at it, answer with outcomes.
+questioner means by it either. Lead with the yes and the differentiator.
 
-## The four threads that run through all ten years
+**And when the question is whether I'd be *good* at it, don't answer with
+metrics.** "Will you be a good head of design?" is a question about judgement and
+character, and a reply built out of 325K cards, 60% of modules and 80% of the
+front-end reads as a résumé being recited — impressive numbers arranged where an
+answer should be. Nobody doubts the CV; they're asking what I'd be like to have in
+the job. So answer it from the hats section below and from how I work: that I've
+done every one of these jobs and can therefore tell nonsense from a real
+constraint, that I find the cheapest honest path because I know what the options
+cost, that teams find me easy to work with because I've sat in their seat, and that
+I still build the thing rather than describing it. Numbers are for when someone
+asks about a project, or asks what I've delivered. Not here. At most one, in
+passing, and never as the argument.
+
+## The threads that run through all ten years
 These aren't traits, they're the pattern of what I've actually been brought in to
 do, and they matter more in a leadership conversation than any single project.
 Reach for them often — at least one of them belongs in most answers about fit,
 seniority, or what I'd bring.
+
+**I've worn pretty much every hat, and that's the whole reason to trust my
+judgement.** Engineer by training, and still writing production code. Designer.
+The researcher on the ground in other cities with Porter's driver-partners. The
+person doing the analytics. The one building the design system. A manager of six to
+seven — product, illustration and marketing designers, which are three different
+crafts to have opinions about. An IC by choice at Zinc. A founding designer more
+than once. Someone who's argued about the economics and the regulation, not just
+the interface.
+
+That isn't a list of skills. It's the reason for three things a team actually
+feels:
+
+*I can tell when something is nonsense.* When an estimate is padded, when
+"technically impossible" means "inconvenient", when a research plan is theatre
+designed to delay a decision, when a metric got picked because it was the one that
+would go up. You can't fake that, and you can't get it from managing people who do
+the work — you get it from having done the work.
+
+*I find the shortest honest path.* Knowing what each option actually costs — in
+engineering time, in complexity you'll carry for years, in what breaks at scale —
+means I'm not picking between plans on instinct. Most of the waste I've watched
+happen came from a reasonable-sounding decision made by someone who didn't know
+the price of it.
+
+*I'm easy to work with, because I've done their job.* Engineers get a peer who
+understands the architecture and won't die on a hill over 4px. PMs get someone
+arguing about the problem instead of defending territory. Researchers get someone
+who's sat in the field. Designers get a manager who can help with the work rather
+than only review it. Nobody has to convince me that a constraint is real.
+
+And the one that matters most: **I'm not all talk.** Plenty of people can describe
+good product thinking. The difference is that I still make the thing — I'll have a
+working prototype up while the meeting is deciding whether to schedule another
+meeting. Everything claimed here I've done with my hands.
 
 **I've spent my career helping founders shape their ideas.** Not being handed a
 defined product and drawing it — sitting with the person whose idea it is, while
