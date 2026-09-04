@@ -223,6 +223,31 @@
   letter-spacing: -0.24px;
 }
 
+/* Same 32px hit area as the close button, a size down on the glyph: clearing the
+   thread is the secondary action of the two, and it appears and disappears with
+   the conversation, so it shouldn't compete with the one that's always there. */
+.panelAction {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.panelAction:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #000;
+}
+
 .panelClose {
   display: flex;
   flex-shrink: 0;
@@ -280,9 +305,19 @@
   flex: 1;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
   gap: 10px;
   padding-bottom: 24px;
+}
+
+/* Centred only where there's room for it. Six openers plus the greeting is tall
+   enough to outgrow a short viewport, and `justify-content: center` overflowing
+   pushes the top of the content out of the scrollable area — the greeting becomes
+   unreachable. Above 760px tall the block can't outgrow the panel, so centring is
+   safe; below it, the content starts at the top and scrolls like anything else. */
+@media (min-height: 760px) {
+  .empty {
+    justify-content: center;
+  }
 }
 
 .emptyTitle {
@@ -331,9 +366,9 @@
 
 .emptyEntering .emptyTitle,
 .emptyEntering .emptyBody,
-.emptyEntering .suggestion {
-  /* Decelerating, with no overshoot — the pills settling would draw the eye to
-     the motion rather than to the questions. */
+.emptyEntering .topics {
+  /* Decelerating, with no overshoot — pills settling would draw the eye to the
+     motion rather than to the questions. */
   animation: agentRise 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -345,24 +380,86 @@
   animation-delay: 220ms;
 }
 
-/* 55ms apart, indexed rather than driven by a custom property: there are six
-   openers and they're a fixed list, so nth-child keeps the delay in the
-   stylesheet with the rest of the timing. Anything past the sixth shares the
-   last delay, which is the right failure mode — a seventh opener arriving
-   slightly early beats it never appearing. */
-.emptyEntering .suggestion:nth-child(1) { animation-delay: 300ms; }
-.emptyEntering .suggestion:nth-child(2) { animation-delay: 355ms; }
-.emptyEntering .suggestion:nth-child(3) { animation-delay: 410ms; }
-.emptyEntering .suggestion:nth-child(4) { animation-delay: 465ms; }
-.emptyEntering .suggestion:nth-child(5) { animation-delay: 520ms; }
-.emptyEntering .suggestion:nth-child(n + 6) { animation-delay: 575ms; }
+.emptyEntering .topics {
+  animation-delay: 280ms;
+}
+
+/* The questions animate unconditionally rather than under .emptyEntering, because
+   they have a second trigger: switching topic remounts the list, and a remount is
+   what restarts a CSS animation. The class can't do that — it's already on. So the
+   sequence is owned by the elements and the offset comes in as --lead, which the
+   component sets to 0 on a topic tap and to the panel's lead on open. */
+.suggestion {
+  animation: agentRise 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--lead, 0ms) + var(--i, 0) * 45ms);
+}
+
+/* Six steps, one per opener. The interval drops to 45ms because six of them at
+   55 would run 275ms past the first — long enough that the last row still looks
+   like it's arriving when the visitor has finished reading the first. */
+.suggestion:nth-child(2) { --i: 1; }
+.suggestion:nth-child(3) { --i: 2; }
+.suggestion:nth-child(4) { --i: 3; }
+.suggestion:nth-child(5) { --i: 4; }
+.suggestion:nth-child(6) { --i: 5; }
+/* Beyond the sixth everything shares the last step. A seventh question arriving
+   slightly early beats it never arriving, which is what a missing --i would
+   mean if the animation ever depended on one. */
+.suggestion:nth-child(n + 7) { --i: 6; }
 
 @media (prefers-reduced-motion: reduce) {
   .emptyEntering .emptyTitle,
   .emptyEntering .emptyBody,
-  .emptyEntering .suggestion {
+  .emptyEntering .topics,
+  .suggestion {
     animation: none;
   }
+}
+
+/* ---------------------------------------------------------------
+ * Topic chips
+ *
+ * A filter row rather than headed groups: four categories of three questions is
+ * twelve rows, which no 420px panel can hold. Swapping keeps the whole thing
+ * shorter than the flat six it replaces.
+ * --------------------------------------------------------------- */
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.topic {
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.12px;
+  white-space: nowrap;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.topic:hover:not(.topicActive) {
+  border-color: rgba(0, 0, 0, 0.24);
+  color: rgba(0, 0, 0, 0.85);
+}
+
+/* Filled rather than outlined, so which topic is showing is legible at a glance
+   against three near-identical neighbours. */
+.topicActive {
+  border-color: #111;
+  background: #111;
+  color: #fff;
 }
 
 .suggestions {

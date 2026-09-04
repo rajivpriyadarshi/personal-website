@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { X } from "lucide-react";
+import { AuiIf, ThreadListPrimitive } from "@assistant-ui/react";
+import { RotateCcw, X } from "lucide-react";
 import { useAgentPanel } from "./AgentContext";
 import { AgentThread } from "./AgentThread";
 import { SilkGradient } from "./SilkGradient";
@@ -53,6 +54,20 @@ export function AgentPanel() {
               I represent Rajiv, in his own words
             </p>
           </div>
+
+          {/* Only once there's something to clear — an empty thread with a clear
+              button offers to undo nothing. AuiIf reads the thread state straight
+              from the store, so this works up here in the header, outside
+              ThreadPrimitive.Root. */}
+          <AuiIf condition={(state) => !state.thread.isEmpty}>
+            <ThreadListPrimitive.New
+              className={styles.panelAction}
+              aria-label="Clear the conversation"
+              title="Clear the conversation"
+            >
+              <RotateCcw width={16} height={16} strokeWidth={2} aria-hidden />
+            </ThreadListPrimitive.New>
+          </AuiIf>
 
           <button
             type="button"

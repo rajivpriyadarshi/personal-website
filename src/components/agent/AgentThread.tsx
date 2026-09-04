@@ -8,25 +8,78 @@ import {
   type ReasoningMessagePartComponent,
 } from "@assistant-ui/react";
 import { MarkdownTextPrimitive } from "@assistant-ui/react-markdown";
+import { useState } from "react";
 import { ArrowUp, ChevronDown, Square } from "lucide-react";
 import { useAgentPanel } from "./AgentContext";
 import styles from "./agent.module.css";
 
-/* Openers for a cold thread. Phrased as a visitor would ask them, since the
- * common case is a recruiter or hiring manager sizing up fit.
+/* Openers for a cold thread, grouped so one category shows at a time instead of a
+ * flat wall. The grouping isn't only tidiness: a flat list has to spend its few
+ * slots on the broadest possible questions, and behind a category each one can be
+ * specific.
  *
- * Each one is chosen to land on something the corpus can actually answer with a
- * specific — a decision, a constraint, a number — rather than on a topic the
- * model would have to generalise about. The two blunt ones are deliberate: the
- * failures and the poor-fit list are the most persuasive things in here, because
- * they're the answers a portfolio site normally won't give. */
-const SUGGESTIONS = [
-  "What kind of work are you best at?",
-  "Why did you take credit limits off a homepage?",
-  "Tell me about something that didn't work",
-  "How do you actually work with engineers?",
-  "How are you using AI in your own work?",
-  "Where would you not be a good fit?",
+ * Every question is named — "the LazyPay homepage", "Ada at Zinc" — rather than
+ * left generic. Ten years across two fintechs means "a homepage" or "a 0-to-1
+ * product" could be any of half a dozen things, and a question that doesn't say
+ * which one invites the model to pick, or to hedge across all of them.
+ *
+ * Each one is also chosen to land on something the corpus can answer with a
+ * specific — a decision, a constraint, a number.
+ *
+ * They're phrased as invitations rather than as tests. An opener is Rajiv asking
+ * the question on the visitor's behalf, so "tell me about something that didn't
+ * work" reads as him volunteering a failure before anyone asked for one. The
+ * assistant will still answer it honestly when a visitor types it; it just isn't
+ * something to hand them. The one exception is "where would you not be a good
+ * fit?" — that's a claim about the shape of the work, not an admission, and it's
+ * more useful to a hiring manager than any of the strengths. */
+const TOPICS = [
+  {
+    label: "Work",
+    questions: [
+      "What kind of work are you best at?",
+      "Where would you not be a good fit?",
+      "What are you building at Zinc right now?",
+      "What did you own at LazyPay?",
+      "How big a design team have you led?",
+      "Are you a manager or an IC these days?",
+    ],
+  },
+  {
+    label: "Projects",
+    questions: [
+      "Why did you take credit limits off the LazyPay homepage?",
+      "How did LazyCard get to 325K customers?",
+      "Tell me about Ada, the AI counsellor at Zinc",
+      "How did you rebuild repayments at LazyPay?",
+      "How did you evaluate a dozen ideas at Zinc?",
+      "What did you design for Porter's driver-partners?",
+    ],
+  },
+  {
+    label: "How I work",
+    questions: [
+      "How do you actually work with engineers?",
+      "How are you using AI in your own work?",
+      "How much research does a decision deserve?",
+      "How do you design for products that don't exist yet?",
+      "What do you do when the problem isn't defined?",
+      "How do you decide what to cut?",
+    ],
+  },
+  {
+    label: "Life",
+    questions: [
+      "How did you end up in design?",
+      /* A real typographic apostrophe, not `&rsquo;` — these are string values
+         rendered as text, so an entity would show up literally. */
+      "What’s it like working with you?",
+      "What do you do outside work?",
+      "What did you want to be before design?",
+      "How did you end up in Singapore?",
+      "What keeps you interested in this work?",
+    ],
+  },
 ];
 
 /* Assistant text arrives as markdown — lists and emphasis are how it explains a
@@ -102,12 +155,36 @@ function AssistantMessage() {
   );
 }
 
+/* Lead-in before the questions start, when the whole panel is arriving. Long
+   enough to fall after the greeting and the chips; skipped entirely on a category
+   tap, where the visitor is already looking at the list and any delay reads as
+   lag rather than as sequence. */
+const OPEN_LEAD_MS = 320;
+
 export function AgentThread() {
   /* The panel never unmounts — it slides off-screen — so the cold thread can't
      animate on mount. It keys off the open state instead: the class goes on when
      the drawer opens and comes off when it closes, which is also what lets the
      entrance replay on every reopen rather than only the first. */
   const { isOpen } = useAgentPanel();
+  const [topic, setTopic] = useState(0);
+
+  /* Which of the two triggers is running the stagger. A tap means the visitor is
+     already looking at the list, so the questions start immediately; an open means
+     they're arriving behind the greeting and the chips and should wait for them.
+
+     Reset here, during render on a changed open state, rather than in an effect:
+     an effect would set state after painting one frame at the wrong delay, and
+     it's the pattern React documents for exactly this. */
+  const [tapped, setTapped] = useState(false);
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (wasOpen !== isOpen) {
+    setWasOpen(isOpen);
+    setTapped(false);
+  }
+
+  const lead = tapped ? 0 : OPEN_LEAD_MS;
+  const active = TOPICS[topic];
 
   return (
     <ThreadPrimitive.Root className={styles.thread}>
@@ -121,8 +198,34 @@ export function AgentThread() {
               him directly.
             </p>
 
-            <div className={styles.suggestions}>
-              {SUGGESTIONS.map((prompt) => (
+            <div className={styles.topics} role="tablist" aria-label="Question topics">
+              {TOPICS.map((entry, i) => (
+                <button
+                  key={entry.label}
+                  type="button"
+                  role="tab"
+                  aria-selected={i === topic}
+                  className={`${styles.topic} ${i === topic ? styles.topicActive : ""}`}
+                  onClick={() => {
+                    setTopic(i);
+                    setTapped(true);
+                  }}
+                >
+                  {entry.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Keyed on the topic and the open state so both remount the list,
+                which is what restarts the CSS stagger — the questions deal
+                themselves out again on every switch rather than swapping
+                instantly. --lead carries the offset the delays build on. */}
+            <div
+              key={`${active.label}-${isOpen}`}
+              className={styles.suggestions}
+              style={{ "--lead": `${lead}ms` } as React.CSSProperties}
+            >
+              {active.questions.map((prompt) => (
                 <ThreadPrimitive.Suggestion
                   key={prompt}
                   className={styles.suggestion}
