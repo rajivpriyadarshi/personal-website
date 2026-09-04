@@ -42,10 +42,14 @@ const GLOBAL_DAY_MAX = 600;
 
 /* A burst brake in front of the daily ceiling. Without it a script can drain the
    whole day's allowance in the first few minutes and every real visitor after that
-   gets told to come back tomorrow. At 100 an hour the worst case is still 600 in a
-   day, but no single hour can take more than a sixth of it, and the endpoint
-   recovers on the hour instead of staying dead until midnight UTC. */
-const GLOBAL_HOUR_MAX = 100;
+   gets told to come back tomorrow. This one recovers on the hour rather than at
+   midnight UTC, which is the point: a bad hour costs an hour, not a day.
+
+   At 200 it's a genuine brake but not a tight one — the daily ceiling is 600, so
+   three busy hours can still spend the whole day. That's the deliberate trade: a
+   real spike (a post doing well, a few people reading at once) shouldn't hit a
+   limit, and the daily number is what actually bounds the spend. */
+const GLOBAL_HOUR_MAX = 200;
 
 /* A thread this long is a scraper, not a conversation. */
 const MAX_MESSAGES = 20;
