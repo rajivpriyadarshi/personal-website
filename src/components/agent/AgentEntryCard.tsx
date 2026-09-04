@@ -16,7 +16,7 @@ export function AgentEntryCard() {
       type="button"
       className={styles.entryCard}
       onClick={open}
-      aria-label="Ask me anything — I represent Rajiv"
+      aria-label="Ask me anything about Rajiv"
       aria-haspopup="dialog"
       aria-expanded={isOpen}
     >
@@ -27,7 +27,7 @@ export function AgentEntryCard() {
       </span>
 
       <span className={styles.entryCopy}>
-        <span className={styles.entryTitle}>Ask me anything</span>
+        <span className={styles.entryTitle}>Ask me anything about Rajiv</span>
         <span className={styles.entrySubtitle}>
           I represent Rajiv — his work, how he thinks, whether he&rsquo;d fit your role
         </span>
