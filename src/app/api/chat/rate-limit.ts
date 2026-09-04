@@ -52,10 +52,18 @@ const GLOBAL_DAY_MAX = 600;
    limit, and the daily number is what actually bounds the spend. */
 const GLOBAL_HOUR_MAX = 200;
 
-/* A thread this long is a scraper, not a conversation. Counts both roles, so it's
-   ten questions and their answers — worth knowing before raising it, because a
-   genuinely interested reader can reach ten. */
-const MAX_MESSAGES = 20;
+/* Counts both roles, so this is twenty questions and their answers — not forty
+   questions. It was 20, which capped a conversation at ten, and someone who's
+   actually interested reaches ten.
+
+   The cost of a longer thread isn't the extra turns, it's that every request
+   resends the whole conversation: a question-and-answer pair is roughly 350
+   tokens, so the twentieth question carries ~7k tokens of history on top of the
+   ~14.8k corpus. That's about a 50% dearer request at the very end of the longest
+   possible thread, and the per-caller and global ceilings above are what actually
+   bound the spend — a caller gets 200 questions a day regardless of how they're
+   grouped into threads. Past this it's a scraper rather than a conversation. */
+const MAX_MESSAGES = 40;
 
 /* Long enough for a detailed question about a project, short enough that nobody
    can paste a novel in and bill it to the model. Applies to what the visitor
