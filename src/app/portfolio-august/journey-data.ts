@@ -40,7 +40,7 @@ export const ROLES: Role[] = [
     logo: "/portfolio-august/journey/logos/lazypay.webp",
     bullets: [
       "Led product design across PayU’s credit products—combining hands-on execution with team leadership, design direction and product strategy.",
-      "Managed a team of product, illustration, and marketing designers while driving strategy across growth, revenue, retention, and lending verticals reaching 250M+ users.",
+      "Managed a team of product, illustration, and marketing designers while driving strategy across growth, revenue, retention, and cash loans — the revenue engine of the business — reaching 250M+ users.",
     ],
   },
   {
@@ -49,7 +49,7 @@ export const ROLES: Role[] = [
     company: "LazyPay + PaySense · 🇮🇳 India",
     logo: "/portfolio-august/journey/logos/lazypay.webp",
     bullets: [
-      "Led the design of growth, revenue, retention, repayments, common platforms, and loan.",
+      "Led the design of growth, revenue, retention, repayments, common platforms, and cash loans — the lending line the business made its money on.",
       "Built full-fledged credit solutions for over 250 million users. Shipped the LazyPay app revamp and credit growth engine.",
     ],
   },
@@ -59,7 +59,7 @@ export const ROLES: Role[] = [
     company: "LazyPay + PaySense · 🇮🇳 India",
     logo: "/portfolio-august/journey/logos/lazypay.webp",
     bullets: [
-      "Led the design of growth, revenue, retention, repayments, common platforms, and loan.",
+      "Led the design of growth, revenue, retention, repayments, common platforms, and cash loans — the lending line the business made its money on.",
       "Built full-fledged credit solutions for over 250 million users. Shipped the LazyPay app revamp and credit growth engine.",
     ],
   },

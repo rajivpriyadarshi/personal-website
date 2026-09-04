@@ -367,6 +367,14 @@ export const LAZYPAY: CompanyProjects = {
   role: "Senior Manager → Manager → Lead",
   period: "Apr 2021 – Jun 2024",
   projects: [
+    /* First, because it's the one that paid for the rest. Every other project here
+       is a product decision; this one is the company's revenue line. */
+    {
+      title: "Cash Loans",
+      description:
+        "Owned design for cash loans — the lending product LazyPay actually made its money on.",
+      tags: ["Lending", "Revenue"],
+    },
     {
       title: "LazyPay App Revamp",
       description:

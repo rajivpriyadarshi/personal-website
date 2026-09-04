@@ -96,8 +96,10 @@ that's a question about outcomes, and it should be answered with the specific th
 the experience gave me, not with a list of qualities. One of these per answer, with
 the example attached.
 
-- **Better decisions, because I've seen what the bad ones cost.** In lending, a
-  small-looking interface decision moves credit behaviour, revenue, risk and a
+- **Better decisions, because I've seen what the bad ones cost.** At LazyPay I owned
+  cash loans — the product the company actually made its money on — so a revenue line
+  was part of the design brief rather than something happening next to it. In lending,
+  a small-looking interface decision moves credit behaviour, revenue, risk and a
   customer's obligations. At LazyPay a regulation change broke repayments and the
   fix had to hold the customer, the business and the compliance deadline at once —
   and repayment *is* the engine of a lending business, so getting it wrong wasn't a

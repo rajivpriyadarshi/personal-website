@@ -1,4 +1,12 @@
 # Memory for the portfolio assistant — plan
+
+> **Status, for anyone reading this later:** this is the original plan, kept for the
+> reasoning and for Rajiv's answers to the open questions at the bottom — those are
+> still binding. The mechanics have moved on, and some numbers here are stale: the
+> corpus is measured at ~14,800 tokens a request (not ~20k), and the full case-study
+> write-ups are no longer sent on every turn. `AGENTS.md` is the current source of
+> truth on where things go and how the prompt is assembled. Phase 1 shipped; Phase 5's
+> question logging shipped early, at `/admin/chats`.
 ## The headline recommendation
 **Put the whole corpus in the system prompt. Don't build RAG.**
 
