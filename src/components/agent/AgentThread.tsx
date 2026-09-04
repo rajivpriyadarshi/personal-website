@@ -70,7 +70,10 @@ const TOPICS = [
       "How are you using AI in your own work?",
       "How much research does a decision deserve?",
       "How do you design for products that don't exist yet?",
-      "What do you do when the problem isn't defined?",
+      /* Replaced "what do you do when the problem isn't defined?", which asked
+         the same thing as the line above it. Working with founders is one of the
+         threads running through the whole career and had no opener at all. */
+      "What's it like working with founders?",
       "How do you decide what to cut?",
     ],
   },
@@ -84,7 +87,10 @@ const TOPICS = [
       "What do you do outside work?",
       "What did you want to be before design?",
       "How did you end up in Singapore?",
-      "What keeps you interested in this work?",
+      /* The reference challenge — "pick any of my colleagues at random and ask
+         them". It replaced "what keeps you interested in this work?", which was
+         the one opener here that invited a generic answer. */
+      "Who should I talk to about you?",
     ],
   },
 ];
