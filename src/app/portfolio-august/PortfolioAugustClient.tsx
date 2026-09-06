@@ -197,7 +197,19 @@ export function PortfolioAugustClient() {
         <div className={styles.heroInner}>
           <PhotoStack />
 
-          <p className={styles.greeting}>Hello, I&rsquo;m Rajiv Priyadarshi</p>
+          {/* Each dot travels with the phrase that follows it, in one
+              unbreakable span. That way a width too narrow for one line breaks
+              between phrases and never leaves a separator dangling at the end
+              of a line, which is what a span-per-segment version did. */}
+          <p className={styles.greeting}>
+            <span>Rajiv Priyadarshi</span>
+            <span>
+              <i aria-hidden>&middot;</i> Design leader
+            </span>
+            <span>
+              <i aria-hidden>&middot;</i> Singapore
+            </span>
+          </p>
 
           <h1 className={styles.headline}>
             {HEADLINE.split(" ").map((word, i) => (

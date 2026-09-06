@@ -2883,12 +2883,33 @@
  * Hero copy
  * --------------------------------------------------------------- */
 .greeting {
+  /* Flex-wrap rather than plain inline text: each phrase is its own span, so a
+     width too narrow for one line breaks between phrases instead of through a
+     word, and the gap owns the spacing rather than whitespace in the markup. */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 7px;
   margin: 0;
   color: #fff;
   font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
   font-size: 22px;
   line-height: 1.3;
   letter-spacing: -0.01em;
+}
+
+/* The spans are the unbreakable unit — the dot must not be separated from the
+   phrase it introduces. */
+.greeting span {
+  white-space: nowrap;
+}
+
+/* Dimmer than the words either side, and un-italicised: it's an <i> only because
+   it needs an element to hang off. At full white the dots read as loud as the
+   content they're separating. */
+.greeting i {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: normal;
 }
 
 .headline {
@@ -3108,8 +3129,12 @@
     width: 90vw;
   }
 
+  /* 16px, not the 18px this was when the line read "Hello, I'm Rajiv
+     Priyadarshi". The name-role-place version is half again as long and at 18px
+     it wrapped inside a 90vw container on anything narrower than a 390px
+     handset. */
   .greeting {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   /* The base size is a fixed 48px, which overflowed the phone width and ran
