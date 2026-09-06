@@ -21,7 +21,8 @@
  *
  * Still no IP and no session identifier. The pathname's date and time are the only
  * thing tying two turns together, which is enough to read a conversation in order
- * and not enough to identify anyone. */
+ * and not enough to identify anyone. The country/city fields come from the edge's
+ * own lookup rather than from an address we held — see `geoFrom`. */
 
 import { get, list, put } from "@vercel/blob";
 
@@ -44,7 +45,53 @@ export type Turn = {
   ms?: number;
   inputTokens?: number;
   outputTokens?: number;
+  /* Where the question came from, resolved by Vercel's edge at the CDN and read
+     off the request headers. Absent locally, and absent on any request the edge
+     couldn't place. See `geoFrom`. */
+  country?: string;
+  region?: string;
+  city?: string;
+  /* The visitor's own timezone, which is the one field here that says *when* in
+     their day they were reading — `at` is UTC and the admin page renders it in
+     Singapore time, neither of which is their clock. */
+  timezone?: string;
 };
+
+/* City-level location without ever holding an address.
+ *
+ * Vercel resolves geo at the edge and passes it as headers, so the IP itself
+ * never has to be read, let alone stored — which keeps the promise at the top of
+ * this file intact while still answering "who is finding this site". A country
+ * and a city is not an identity; an IP is.
+ *
+ * `request.geo` and `request.ip` were removed in Next 16, so headers are the only
+ * route now regardless.
+ *
+ * None of these exist on localhost, hence every field being optional — a local
+ * turn is stored with no location rather than a fabricated one. */
+export function geoFrom(request: Request): Partial<Turn> {
+  const header = (name: string) => request.headers.get(name) || undefined;
+
+  return {
+    country: header("x-vercel-ip-country"),
+    region: header("x-vercel-ip-country-region"),
+    /* Percent-encoded by the platform, because a city name can carry spaces and
+       accents — "Ho Chi Minh City" arrives as "Ho%20Chi%20Minh%20City". */
+    city: tryDecode(header("x-vercel-ip-city")),
+    timezone: header("x-vercel-ip-timezone"),
+  };
+}
+
+/* A malformed escape sequence makes `decodeURIComponent` throw, and a city name
+ * is never worth failing a transcript write over. */
+function tryDecode(value: string | undefined) {
+  if (!value) return undefined;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
 
 const configured = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 

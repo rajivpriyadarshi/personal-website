@@ -28,6 +28,28 @@ const stamp = (iso: string) =>
     timeZone: "Asia/Singapore",
   });
 
+/* "Bengaluru, KA, IN" — city first because that's the part worth scanning, and
+ * every part optional because the edge doesn't always resolve all three. Empty
+ * for a turn with no location at all, including every local one. */
+const place = (turn: { city?: string; region?: string; country?: string }) =>
+  [turn.city, turn.region, turn.country].filter(Boolean).join(", ");
+
+/* The clock the visitor was looking at. Wrapped because an unrecognised zone name
+ * makes `toLocaleTimeString` throw a RangeError, and this page renders on the
+ * server — one bad stored value would blank the whole log rather than one row. */
+const localTime = (iso: string, zone?: string) => {
+  if (!zone) return "";
+  try {
+    return new Date(iso).toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: zone,
+    });
+  } catch {
+    return "";
+  }
+};
+
 export default async function ChatTranscriptsPage() {
   const turns = await readTurns();
 
@@ -56,6 +78,13 @@ export default async function ChatTranscriptsPage() {
             <div className="flex flex-wrap gap-x-3 text-[11px] uppercase tracking-wide text-neutral-400">
               <span>{stamp(turn.at)}</span>
               <span>turn {turn.turn}</span>
+              {place(turn) && <span className="text-neutral-600">{place(turn)}</span>}
+              {/* Their local time, next to the location that explains it. The
+                  timestamp on the left is always Singapore, so on a turn from
+                  elsewhere these two disagree on purpose. */}
+              {localTime(turn.at, turn.timezone) && (
+                <span>{localTime(turn.at, turn.timezone)} local</span>
+              )}
               {turn.model && <span>{turn.model}</span>}
               {turn.fellBack && <span className="text-amber-600">fell back</span>}
               {turn.ms !== undefined && <span>{(turn.ms / 1000).toFixed(1)}s</span>}

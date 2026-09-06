@@ -9,7 +9,7 @@ import {
   type UIMessage,
 } from "ai";
 import { recordAnswer, recordQuestion } from "./analytics";
-import { persistTurn, type Turn as Transcript } from "./transcript";
+import { geoFrom, persistTurn, type Turn as Transcript } from "./transcript";
 import { systemPrompt } from "./persona";
 import { checkRateLimit, checkRequestShape, rejectionResponse } from "./rate-limit";
 
@@ -320,7 +320,14 @@ export async function POST(request: Request) {
 
   /* Recorded before the model runs, so a question is captured even if answering it
      then fails — the questions nobody could answer are the interesting ones. */
-  const { recorder, silenceFailure } = recorderFor(recordQuestion(messages));
+  const question = recordQuestion(messages);
+  const { recorder, silenceFailure } = recorderFor(
+    /* Location is attached here rather than inside `recordQuestion`, which only
+       ever sees the messages — and it belongs to the durable row, not to the
+       analytics event, where a city would push a property into high cardinality
+       for no benefit. */
+    question && { ...question, ...geoFrom(request) },
+  );
 
   /* Every question the visitor has asked, which is what decides whether a full
      case-study write-up gets attached. The assistant's own replies are left out on
