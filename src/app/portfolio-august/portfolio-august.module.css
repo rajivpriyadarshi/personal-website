@@ -728,73 +728,53 @@
 /* The role screen shares the Summary section's scroll track, so it comes along
    on phones whether or not it's been designed for them. */
 @media (max-width: 700px) {
-  /* Four cards can't sit side by side, and they can't scroll vertically either
-     — the section is pinned, so this screen is one viewport tall. So they
-     become a physical deck: each card overlaps the one above it, leaving only
-     its title band showing, and the last one lies open on top. Tapping any of
-     them opens its detail modal, same as the desktop cards.
-     A sideways carousel was the other option; the deck shows all four labels at
-     once instead of hiding three of them off-screen. */
+  /* One card at a time on a swipeable rail.
+     Four side by side don't fit, and the vertical deck this replaced didn't
+     either: four cards stacked came to 458px of a 664px viewport, which pushed
+     the copy above off the top edge with no way to scroll it back — the section
+     is pinned. Sideways is the axis with room, and it costs nothing: the page
+     scrolls vertically, so a horizontal swipe here doesn't compete with it.
+     Full-bleed on purpose. The rail is pulled out past .role's padding and
+     re-applies it as scroll padding, so a card sits inset from the edge while
+     its neighbour is visibly cut off by the viewport — that overhang is the only
+     affordance saying there's more to swipe. */
   .roleCards {
     display: flex;
-    flex-direction: column;
     grid-template-columns: none;
-    gap: 0;
-    width: 86vw;
+    gap: 12px;
+    width: 100vw;
+    margin-inline: calc(-1 * max(4vw, 20px));
+    padding-inline: max(4vw, 20px);
+    overflow-x: auto;
+    /* Snaps to a card rather than stopping between two. Mandatory, not
+       proximity: with one card per screen there's no reading position between
+       them worth keeping. */
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: max(4vw, 20px);
+    /* Chrome puts a visible bar under the rail on a phone; the overhanging card
+       is the affordance, so the bar is only noise. */
+    scrollbar-width: none;
+  }
+
+  .roleCards::-webkit-scrollbar {
+    display: none;
   }
 
   .roleCard {
-    /* Shorter than the desktop card: only the top card shows its full body, so
-       the rest is height the deck can't use. */
-    min-height: 176px;
-    padding: 20px 20px 18px;
+    /* 82vw leaves the next card's edge showing. Fixed basis, no shrink: flex
+       would otherwise compress four cards into the rail's width, which is the
+       problem this replaces. */
+    flex: 0 0 82vw;
+    scroll-snap-align: start;
+    /* Content decides the height — the desktop min-height is tuned for four
+       columns and leaves a phone card with an empty band under its blurb. */
+    min-height: 0;
+    padding: 22px 20px 18px;
     border-radius: 24px;
-    /* Pulls each card up over its predecessor, leaving --role-peek of it
-       visible. Enough for the title plus its breathing room. */
-    margin-top: calc(var(--role-peek) - 176px);
-    --role-peek: 74px;
-    /* The overlap hides the seam between cards, so each carries its own edge
-       shadow to read as a separate sheet in the stack. */
-    box-shadow:
-      0 -2px 10px rgba(0, 0, 0, 0.06),
-      0 6px 18px -8px rgba(0, 0, 0, 0.18);
   }
 
-  .roleCard:first-child {
-    margin-top: 0;
-  }
-
-  /* Later cards sit in front, so the deck reads top-down. Set as `rotate`
-     rather than inside `transform`: GSAP owns the transform on these cards for
-     the entrance, and the individual property composes with it instead of
-     being overwritten. */
-  .roleCard:nth-child(1) {
-    z-index: 1;
-    rotate: -0.8deg;
-  }
-
-  .roleCard:nth-child(2) {
-    z-index: 2;
-    rotate: 0.6deg;
-  }
-
-  .roleCard:nth-child(3) {
-    z-index: 3;
-    rotate: -0.5deg;
-  }
-
-  .roleCard:nth-child(4) {
-    z-index: 4;
-    rotate: 0.4deg;
-  }
-
-  /* Four cards are 458px of a 664px phone viewport on their own, so this screen
-     overflows and the copy above it is what gets pushed off the top edge — and
-     the section is pinned, so there's nothing to scroll it back into view. The
-     padding and gap are the only spare height here; the cards can't give any up
-     without becoming unreadable. Properly fixing this means the cards stacking
-     or scrolling on a phone, which is the mobile pass this section is waiting
-     for. */
+  /* The pinned screen has no spare vertical room, so the padding and gap around
+     the copy are trimmed to what the rail needs. */
   .role {
     gap: 20px;
     padding: 20px max(4vw, 20px);
