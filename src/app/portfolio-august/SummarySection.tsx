@@ -23,9 +23,9 @@ const SUBHEAD =
 /* Second screen of this section: the props clear out and this takes their
  * place. Copy and cards come from the design. */
 const ROLE_HEADLINE =
-  "My role has varied widely—from being heavily product-focused to concentrating on visual and interaction design, and at other times, development.";
+  "My role has varied from being heavily product-focused to concentrating on visual and interaction design, and at other times, development. This has shaped how I lead.";
 const ROLE_SUBHEAD =
-  "Through this diversity of work and teams, I’ve grown both horizontally and vertically. I thrive in complex, ambiguous spaces where the problem isn’t clearly defined and the stakes are high.";
+  "I understand what different disciplines need to do their best work—and what each decision costs. I use that perspective to give teams clear direction, coach designers through difficult problems, and turn business priorities into products we can build and stand behind.";
 
 /* Card titles, blurbs, and the modal content behind each one all live in
  * role-data, so the copy is edited in one place. */

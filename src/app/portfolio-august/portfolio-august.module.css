@@ -788,13 +788,28 @@
     rotate: 0.4deg;
   }
 
+  /* Four cards are 458px of a 664px phone viewport on their own, so this screen
+     overflows and the copy above it is what gets pushed off the top edge — and
+     the section is pinned, so there's nothing to scroll it back into view. The
+     padding and gap are the only spare height here; the cards can't give any up
+     without becoming unreadable. Properly fixing this means the cards stacking
+     or scrolling on a phone, which is the mobile pass this section is waiting
+     for. */
+  .role {
+    gap: 20px;
+    padding: 20px max(4vw, 20px);
+  }
+
+  /* 19/12, down from 22/13. Two sentences of headline and four lines of sub is
+     more copy than this screen used to carry, and at the larger sizes it made
+     the overflow above worse. */
   .roleHeadline {
-    font-size: 22px;
-    letter-spacing: -0.7px;
+    font-size: 19px;
+    letter-spacing: -0.6px;
   }
 
   .roleSub {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .roleCardTitle {
