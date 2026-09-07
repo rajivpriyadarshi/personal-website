@@ -40,11 +40,24 @@ const TOPICS = [
     questions: [
       /* First, because it's the positioning. Rajiv is going after Head of Design,
          and the differentiator — a design leader who still builds — is the thing
-         a visitor should hit before anything else. It replaced "are you a manager
-         or an IC these days?", which invited exactly the wrong answer: a question
-         framed as a binary gets answered as a binary, and "IC" is the least
-         useful true thing to say to someone sizing him up for the role. */
-      "Will you be a good head of design?",
+         a visitor should hit before anything else.
+
+         Two versions of this have failed for the same underlying reason. "Are you
+         a manager or an IC these days?" framed it as a binary, and a binary gets
+         answered as a binary — "IC" being the least useful true thing to say to
+         someone sizing him up for the role. "Will you be a good head of design?"
+         then asked the site for a verdict on its owner: a yes/no whose answer is
+         obviously yes, which reads as fishing for the compliment it's about to
+         get. It was also the only opener in this tab about how good he is rather
+         than what he did, and that register mismatch is what made it land as
+         desperate.
+
+         This version asks for information and gets the positioning as the answer,
+         because it lands on the section of `character.ts` that opens with "I'm
+         going after Head of Design". It's also the question a hiring manager
+         would actually ask first, so a visitor reads it as their own rather than
+         as one planted for them. */
+      "What are you looking for in your next role?",
       "What kind of work are you best at?",
       "Where would you not be a good fit?",
       "What are you building at Zinc right now?",
