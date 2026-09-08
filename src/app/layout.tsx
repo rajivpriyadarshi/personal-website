@@ -9,9 +9,13 @@ const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 const dancingScript = Dancing_Script({subsets:['latin'],variable:'--font-dancing'});
 
 export const metadata: Metadata = {
-  title: "Rajiv Priyadarshi — Product Designer",
+  /* The fallback for any page that doesn't set its own — and the string that
+     shows up as the headline in a shared link. "Product Designer" was the
+     positioning two jobs ago; it's Head of Design now, and a link preview is
+     usually the first and sometimes the only thing a recruiter reads. */
+  title: "Rajiv Priyadarshi — Design Leader",
   description:
-    "Versatile product design generalist with 10 years of building digital products across fintech, logistics, edtech, hospitality, and SaaS. Based in Singapore.",
+    "Design leader with 10 years of building digital products across fintech, logistics, edtech, hospitality, and SaaS. I set direction and still build. Based in Singapore.",
 };
 
 export default function RootLayout({
