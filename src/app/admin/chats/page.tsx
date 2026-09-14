@@ -58,6 +58,12 @@ export default async function ChatTranscriptsPage() {
      second question means the first answer didn't land. */
   const openings = turns.filter((turn) => turn.turn === 1).length;
   const failures = turns.filter((turn) => turn.error).length;
+  /* Counted separately from failures because it isn't one as far as the code is
+     concerned — the provider returned 200 and the turn was recorded clean. It's
+     an answer the visitor never saw, so it belongs in the headline. */
+  const truncated = turns.filter(
+    (turn) => turn.finishReason && turn.finishReason !== "stop",
+  ).length;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16 font-mono text-[13px] leading-relaxed">
@@ -66,7 +72,8 @@ export default async function ChatTranscriptsPage() {
       <p className="mt-2 text-neutral-500">
         {turns.length === 0
           ? "Nothing stored yet. If this stays empty after a few chats, the Blob store isn't attached — persistTurn no-ops without BLOB_READ_WRITE_TOKEN."
-          : `${turns.length} turns · ${openings} conversations · ${failures} failed`}
+          : `${turns.length} turns · ${openings} conversations · ${failures} failed` +
+            (truncated ? ` · ${truncated} cut off` : "")}
       </p>
 
       <ol className="mt-10 space-y-8">
@@ -87,6 +94,13 @@ export default async function ChatTranscriptsPage() {
               )}
               {turn.model && <span>{turn.model}</span>}
               {turn.fellBack && <span className="text-amber-600">fell back</span>}
+              {/* Only when it isn't `stop`, because `stop` is every healthy turn
+                  and a badge on all of them says nothing. `length` means the
+                  answer was cut off at MAX_OUTPUT_TOKENS — red, because on a turn
+                  with an empty answer that's the whole explanation. */}
+              {turn.finishReason && turn.finishReason !== "stop" && (
+                <span className="text-red-600">{turn.finishReason}</span>
+              )}
               {turn.ms !== undefined && <span>{(turn.ms / 1000).toFixed(1)}s</span>}
               {turn.outputTokens !== undefined && (
                 <span>

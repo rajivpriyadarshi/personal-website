@@ -5,6 +5,7 @@ import {
   ErrorPrimitive,
   MessagePrimitive,
   ThreadPrimitive,
+  type EmptyMessagePartComponent,
   type ReasoningMessagePartComponent,
 } from "@assistant-ui/react";
 import { MarkdownTextPrimitive } from "@assistant-ui/react-markdown";
@@ -122,6 +123,28 @@ const Pending = () => (
   </div>
 );
 
+/* A turn that ends having produced no visible part at all.
+ *
+ * The dots used to render here unconditionally, which meant a turn that finished
+ * empty was indistinguishable from one still thinking — and it stayed that way
+ * forever, because nothing else was ever coming. That happened for real: a
+ * question whose reasoning consumed the entire output budget returned cleanly with
+ * no text, and the panel sat on the dots. So the dots are now only for a turn
+ * that's actually still running.
+ *
+ * `incomplete` with reason `cancelled` is the visitor pressing stop, which needs
+ * no explanation — they know. Everything else is a failure they can retry. */
+const EmptyTurn: EmptyMessagePartComponent = ({ status }) => {
+  if (status.type === "running") return <Pending />;
+  if (status.type === "incomplete" && status.reason === "cancelled") return null;
+
+  return (
+    <p className={styles.messageError}>
+      That answer didn&rsquo;t come through. Ask me again?
+    </p>
+  );
+};
+
 /* Both models stream a summary of their own reasoning ahead of the answer.
  * Showing it turns the wait into something to read, and it's the honest version
  * of a loading state: this is what the model is actually doing.
@@ -169,7 +192,7 @@ function AssistantMessage() {
   return (
     <MessagePrimitive.Root className={styles.assistantMessage}>
       <MessagePrimitive.Parts
-        components={{ Text: MarkdownText, Reasoning, Empty: Pending }}
+        components={{ Text: MarkdownText, Reasoning, Empty: EmptyTurn }}
       />
 
       <MessagePrimitive.Error>

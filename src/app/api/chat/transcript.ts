@@ -39,6 +39,12 @@ export type Turn = {
   /* Present instead of an answer when the providers failed. A question nobody
      could answer is worth more than a question that went fine. */
   error?: string;
+  /* Why the model stopped. `stop` is a finished answer; anything else is a turn
+     that was cut off, and `length` in particular is the one that hurts — it hit
+     `MAX_OUTPUT_TOKENS` and, if the reasoning ate the budget, can arrive as a
+     perfectly successful turn with an empty answer. That happened, and without
+     this field the row was indistinguishable from a healthy one. */
+  finishReason?: string;
   provider?: string;
   model?: string;
   fellBack?: boolean;

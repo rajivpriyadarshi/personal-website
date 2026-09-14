@@ -63,9 +63,18 @@ function describeError(error: unknown) {
 }
 
 /* Bounds the cost of a single answer no matter what gets past everything else.
- * Well above what the persona actually produces — answers run three short
- * paragraphs — so it only ever truncates something pathological. */
-const MAX_OUTPUT_TOKENS = 900;
+ *
+ * This budget covers reasoning tokens as well as the answer, which is what makes
+ * it larger than it looks. At 900 — sized against the visible answer alone, which
+ * runs three short paragraphs and 800-odd tokens at its longest — a multi-part
+ * question ("how many people, who reported to you, what decisions were yours")
+ * spent the whole allowance thinking and returned an empty answer. It finished
+ * cleanly on `length` with no text, so nothing surfaced as an error either.
+ *
+ * Roughly enough for a full answer plus as much reasoning again. Output is under
+ * 2% of the bill (see AGENTS.md), so a ceiling this high costs nothing in practice
+ * and only ever catches something pathological — which was always the intent. */
+const MAX_OUTPUT_TOKENS = 2500;
 
 /* Not security: an Origin header is set by the browser but trivially forged by
  * anything that isn't one. It's here to turn away casual curl, scanners, and
@@ -142,6 +151,7 @@ function streamFromOpenAI({ system, messages }: Turn, apiKey: string, record: Re
         model: OPENAI_MODEL,
         fellBack: false,
         answer: result.text,
+        finishReason: result.finishReason,
         ms: Date.now() - startedAt,
         inputTokens: result.usage.inputTokens,
         outputTokens: result.usage.outputTokens,
@@ -187,6 +197,7 @@ function streamFromGemini(
         model: GEMINI_MODEL,
         fellBack,
         answer: result.text,
+        finishReason: result.finishReason,
         ms: Date.now() - startedAt,
         inputTokens: result.usage.inputTokens,
         outputTokens: result.usage.outputTokens,

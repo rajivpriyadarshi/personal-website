@@ -82,6 +82,7 @@ export function recordAnswer(args: {
   ms: number;
   inputTokens?: number;
   outputTokens?: number;
+  finishReason?: string;
 }) {
   const { provider, model, fellBack, answer, ms } = args;
 
@@ -91,6 +92,7 @@ export function recordAnswer(args: {
     model,
     fellBack,
     ms,
+    finishReason: args.finishReason,
     inputTokens: args.inputTokens,
     outputTokens: args.outputTokens,
     chars: answer.length,
@@ -106,5 +108,8 @@ export function recordAnswer(args: {
     /* Empty answers are the failure that looks like success — the stream closes,
        the panel shows nothing, and no error is ever logged. Worth a property. */
     empty: answer.trim().length === 0,
+    /* Together with `empty`, this is what names the cause: `length` on an empty
+       answer means the reasoning spent the whole output budget. */
+    finishReason: args.finishReason ?? "unknown",
   });
 }
